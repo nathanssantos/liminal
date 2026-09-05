@@ -172,9 +172,17 @@ class Sync:
         self, card: Card, issue: int | None, body: str, applied: str | None
     ) -> None:
         front = card.document.front
-        front["issue"] = issue
         sync = dict(card.sync)
-        sync["hash"] = body_hash(strip_footer(body) + card.issue_title)
+        wanted = body_hash(strip_footer(body) + card.issue_title)
+        unchanged = (
+            front.get("issue") == issue
+            and sync.get("hash") == wanted
+            and (applied is None or sync.get("status") == applied)
+        )
+        if unchanged:
+            return
+        front["issue"] = issue
+        sync["hash"] = wanted
         sync["at"] = state.now()
         if applied is not None:
             sync["status"] = applied

@@ -165,3 +165,14 @@ def test_an_issue_edited_on_github_is_pulled_into_the_spec(
     assert opened == [100]
     assert document.front["title"] == "A card the owner renamed"
     assert "The owner rewrote this." in document.body
+
+
+def test_a_second_sync_leaves_the_frontmatter_byte_identical(repo: Path) -> None:
+    github = FakeGitHub()
+    Sync(repo, github, FakeBoard()).run()
+    path = repo / SPECS / "M9-test" / "M9-01.md"
+    after_first = path.read_text(encoding="utf-8")
+
+    Sync(repo, github, FakeBoard([make_item(100, status.SPECIFIED)])).run()
+
+    assert path.read_text(encoding="utf-8") == after_first
