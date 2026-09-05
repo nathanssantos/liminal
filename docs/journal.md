@@ -15,3 +15,5 @@
 | 2026-09-05 | M0-05 | board with eight columns, six milestones, nineteen labels | Projects v2 has no checkbox field |
 | 2026-09-05 | M0-06 | the spec ↔ board sync, both ways; fifteen cards on the board | CI sync needs BOARD_TOKEN |
 | 2026-09-05 | M0-07 | queue, open, move, comment, check, deliver and the gates | — |
+| 2026-09-05 | M0-08, M0-09 | agents and skills loading, AGENTS commands, main protected, commit-msg hook | admin enforcement blocks the sync push |
+| 2026-09-05 | M0-10 | contributing, conduct, security, four issue templates, changelog, release workflow, README | — |
