@@ -17,3 +17,4 @@
 | 2026-09-05 | M0-07 | queue, open, move, comment, check, deliver and the gates | — |
 | 2026-09-05 | M0-08, M0-09 | agents and skills loading, AGENTS commands, main protected, commit-msg hook | admin enforcement blocks the sync push |
 | 2026-09-05 | M0-10 | contributing, conduct, security, four issue templates, changelog, release workflow, README | — |
+| 2026-09-05 | (M0 close) | milestone gate proven, v0.0.0 released, M1 opened | — |
