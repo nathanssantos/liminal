@@ -56,7 +56,7 @@ One GitHub Projects v2 board:
 | **Priority** | P0 · P1 · P2 · P3 |
 | **Milestone** | GitHub milestone (M0…, created by the loop as it plans) |
 | **Area** | label `area:*` |
-| **Listening** | checkbox — a human must listen before merge |
+| **Listening** | single-select `yes`/`no` (Projects v2 has no checkbox) — `yes` means a human must listen before merge |
 | control labels | `question` · `decision` · `idea` · `research` · `spike` · `milestone` · `release` |
 
 | Status | Means | Who moves here |
