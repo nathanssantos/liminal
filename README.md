@@ -1,5 +1,7 @@
 # liminal
 
+[![ci](https://github.com/nathanssantos/liminal/actions/workflows/ci.yml/badge.svg)](https://github.com/nathanssantos/liminal/actions/workflows/ci.yml)
+
 An endless, AI-generated set that makes sense. You paste a YouTube link as a reference, write
 what you want, press play — and the set plays until you tell it to stop, answering what you ask
 mid-set.

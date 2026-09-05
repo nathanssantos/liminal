@@ -1,0 +1,60 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  node:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+      - run: uv sync --directory tools
+      - run: uv run --directory tools ruff check .
+      - run: uv run --directory tools mypy
+      - run: uv run --directory tools pytest
+
+  desktop:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - id: scope
+        run: node .github/scripts/desktop-scope.mjs
+      - uses: pnpm/action-setup@v4
+        if: steps.scope.outputs.touched == 'true'
+      - uses: actions/setup-node@v5
+        if: steps.scope.outputs.touched == 'true'
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+        if: steps.scope.outputs.touched == 'true'
+      - run: pnpm --filter desktop build
+        if: steps.scope.outputs.touched == 'true'
+      - run: pnpm --filter desktop test:e2e
+        if: steps.scope.outputs.touched == 'true'
