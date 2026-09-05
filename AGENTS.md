@@ -67,6 +67,12 @@ versioned file.
 | `uv run --directory tools python -m board.sync --dry-run` | mirrors the specs onto the board |
 | `uv run --directory tools python -m board.queue` | board, PRs, human inbox, git — what the skills read |
 | `uv run --directory tools python -m board.open <nº>` | a card's gates, the area's memory, what the repo already has |
+| `uv run --directory tools python -m board.move <nº> "<Status>"` | moves a card; parking needs `--reason` |
+| `uv run --directory tools python -m board.comment <nº> --file text.md` | comments on an issue, optionally labelling it |
+| `uv run --directory tools python -m board.check --area <path>` | dead mocks and branches, work out of the card's area |
+| `uv run --directory tools python -m board.deliver --gates-only` | the delivery gates, full output into `evidence/_gates/` |
+| `pnpm --filter desktop test:e2e` | Playwright with Electron opens the built app |
+| `pnpm --filter desktop build` | builds main, preload and renderer |
 
 ## Definition of done
 

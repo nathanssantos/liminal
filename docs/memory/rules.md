@@ -104,3 +104,7 @@
 - ⚠️ **Two commits made in the same second with the same tree, parent, message and author get the
   same SHA.** A git fixture that needs two distinct commits must vary the message. (measured
   2026-09-05, while writing the rebase test)
+- 🔴 **`enforce_admins: true` blocks the workflows too.** With `main` protected against everyone, a
+  workflow that pushes to `main` fails — the board sync opens an auto-merging pull request instead.
+  The alternative, leaving admins outside the protection, would let any owner token push straight to
+  `main` and would make the gate a decoration. (measured 2026-09-05, M0-09)

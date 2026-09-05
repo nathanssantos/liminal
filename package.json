@@ -10,6 +10,7 @@
     "node": "24.x"
   },
   "scripts": {
+    "prepare": "node scripts/install-hooks.mjs",
     "check": "node scripts/check.mjs",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
