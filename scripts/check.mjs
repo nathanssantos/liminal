@@ -6,6 +6,9 @@ const TOOLS = [
   { name: 'tsc', command: 'pnpm', args: ['exec', 'tsc', '--noEmit', '-p', 'tsconfig.json'] },
   { name: 'tsc:packages', command: 'pnpm', args: ['exec', 'turbo', 'run', 'typecheck'] },
   { name: 'vitest', command: 'pnpm', args: ['exec', 'vitest', 'run'] },
+  { name: 'ruff', command: 'uv', args: ['run', '--directory', 'tools', 'ruff', 'check', '.'] },
+  { name: 'mypy', command: 'uv', args: ['run', '--directory', 'tools', 'mypy'] },
+  { name: 'pytest', command: 'uv', args: ['run', '--directory', 'tools', 'pytest'] },
 ]
 
 function run({ name, command, args }) {
