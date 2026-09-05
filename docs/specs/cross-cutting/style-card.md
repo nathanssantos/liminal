@@ -122,6 +122,16 @@ track list and expected values live in `tools/analyzer/tests/fixtures/real.json`
 
 ---
 
+## The current target and the queue
+
+The set holds a **current target card** and an ordered **queue** of upcoming references (plan
+requirement 6). A queued reference is analyzed in the background; its card enters the queue when
+ready, or a `reference.failed` event replaces it with an error the UI shows. During a handover the
+target the soundcheck compares against is an **intermediate card**: every comparable field
+interpolated between A and B by phrase index (BPM stepped inside the budget, key moved along the
+Camelot path, bands and density linear). Cards are immutable; intermediate cards are derived and
+never stored as sources.
+
 ## Comparing card × measurement
 
 `distance(target: StyleCard, measured: Measurement, weights) → { total, byField }`.

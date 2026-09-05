@@ -53,6 +53,7 @@ arrive. The research agenda (`docs/research/topics.md`) follows this order.
 | paste a link → style card → set in that style (M2–M4) | get "something like this, forever" in under a minute | time from open to music ≤ 60 s in the usability walk; band match ±10% in the set log |
 | live prompts landing at the next phrase (M4) | steer without breaking the flow | `prompt.applied − prompt.received ≤ 8 bars` in ≥ 95% of prompts |
 | "more of this / less of this" (M4) | teach their taste in a session | the preference vector moves the measured feature in the asked direction |
+| a queue of references with coherent handovers (M4–M5) | shape a whole night from a few links — "start here, end there" | `handover.completed.bars ≤ HANDOVER_BARS` in ≥ 90% of handovers; no budget broken; references queued per session |
 | the set timeline and the card on screen (M5) | understand and trust what is happening | zero "why did it do that" without an answer on screen, in the usability walk |
 | export a set or a section (after M5) | keep and share what they heard | exports per set; shares |
 

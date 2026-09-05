@@ -23,6 +23,7 @@
 | R14 | Music theory for tension and release | tritone, diminished, pedal tones, modal interchange — as rules a generator can apply | M3 | open |
 | R15 | UI patterns of DJ and music apps | timelines, energy displays, transport, what first-time users understand | M5 | open |
 | R16 | Other genres: what synthesis alone cannot do | jazz, orchestral, hip-hop — where samples are mandatory | after M5 | open |
+| R17 | How DJs travel between subgenres and tempos in one set | tempo ramps vs. half-time tricks, key paths, how many tracks a 124→140 journey takes, what listeners accept | M4 | open |
 
 Adding a topic: a row here, by PR, with the question phrased so a brief can answer it. Owner
 requests come as `research` issues and get a row when picked.

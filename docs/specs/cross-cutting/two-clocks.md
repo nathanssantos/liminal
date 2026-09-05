@@ -29,6 +29,8 @@ engine converts to audio time at scheduling.
 | `BRAIN_DEADLINE` | wall time until `committedEnd − MIN_HORIZON` | deadline of each brain call |
 | `SOUNDCHECK_BUDGET` | ⅓ of the deadline | render + measurement of one segment |
 | `MAX_REGENERATIONS` | 2 | attempts before accepting the best that came out |
+| `HANDOVER_MIN_PHRASES` | 4 | the shortest handover between two reference cards |
+| `HANDOVER_BARS` | derived: `max(HANDOVER_MIN_PHRASES × PHRASE_BARS, tracksNeeded × trackBars)` where `tracksNeeded = ceil(|bpmB − bpmA| / 4)` | how long the set takes to reach the next card; plan requirement 6 measures against it |
 
 At 128 BPM, 16 bars = 30 s; 8 bars = 15 s. The latency measured on another project (2 s with a
 persistent session) fits comfortably. **If M4's measurement says otherwise, the numbers change
@@ -101,6 +103,8 @@ without measurement — and log `soundcheck-skipped` with the reason.
 | standing prompt | at the next brain call | the target card and the arc |
 | live prompt | at the next phrase boundary | the `proposed` segments onward; if there are none, the brain is called now, with the prompt, for the next segment |
 | "more of this" / "less of this" | same | the accumulated preference vector, which enters the brain's context and the `distance` weights |
+| **new reference** (queued) | analysis runs in the background; the handover starts at the first phrase boundary after the card is ready | a **handover plan**: one intermediate target per phrase from card A to card B — BPM inside the per-track budget, key by Camelot neighbours (shortest path), bands and density interpolated, motifs cross-faded. The soundcheck compares against the intermediate target. Analysis failure → `reference.failed`, target unchanged, error surfaced |
+| **queue reordered or a reference removed** | next phrase boundary | the handover plan is rebuilt from the current intermediate target; nothing `committed` changes |
 
 Every event carries the bar it was received at and the bar it **acted** at. The difference is
 requirement 3's metric.
@@ -117,6 +121,9 @@ requirement 3's metric.
 | **P4** deadline respected | brain answers after the deadline; asserts result discarded and logged | Vitest |
 | **P5** live prompt in ≤ 8 bars | inject a prompt at bar k; assert `appliedAtBar − k ≤ 2 × PHRASE_BARS` | Vitest |
 | **P6** in Chromium, no gap | real app, 10 min, `rules` brain with 10 s injected delay; log without `uncovered`, `AudioContext` without reported `underrun`; and a human listens for 2 min | Playwright + ears |
+| **P7** handover within budget | two fixture cards (e.g. 124 BPM / 8A → 132 BPM / 10A); queue B at bar k; assert `handover.completed.bars ≤ HANDOVER_BARS`, every `handover.step` BPM delta ≤ 4 per track, every key step a Camelot neighbour, final `distance` to B within tolerance | Vitest (fake engine) |
+| **P8** analysis failure keeps the target | worker returns an error for B; assert `reference.failed` logged, target still A, no `handover.*` events, the UI shows the error | Vitest + Playwright |
+| **P9** queue edits act from `proposed` onward | reorder the queue mid-handover; assert no `committed` segment changes and the plan is rebuilt from the current intermediate target | Vitest |
 
 ---
 

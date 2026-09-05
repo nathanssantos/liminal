@@ -103,6 +103,17 @@ decides on the first three. The last two are rules.
 `MIN_HORIZON`, the fallback extends the current section **synchronously**. Numbers and proofs in
 [two-clocks.md](specs/cross-cutting/two-clocks.md).
 
+**Reference queue and handover.** The set holds a **current target card** and a **queue** of
+upcoming references. A new reference is analyzed in the background (the worker) while the set
+keeps playing on the current target. When its card is ready, the conductor builds a **handover
+plan**: a path of intermediate targets, one per phrase, from card A to card B — BPM stepping inside
+the per-track budget (a large gap takes more tracks), key moving only through Camelot neighbours
+(shortest path on the wheel), band balance and density interpolated, A's motifs fading out as
+B-style motifs are introduced, with a transition object at every phrase. `distance` in the
+soundcheck is computed against the **intermediate** target of the phrase. Analysis failure keeps
+the current target and surfaces the error. The queue is reorderable and removable at any time;
+changes act from `proposed` onward, like every other input.
+
 ## The brain
 
 `@liminal/brain` has one interface and two implementations:

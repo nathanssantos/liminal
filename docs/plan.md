@@ -11,7 +11,8 @@
 
 You paste a YouTube link, type "melancholic techno, no vocals", press play — and the set plays
 until you tell it to stop. With an arc, with keys that move, with ideas that come back. And it
-answers what you ask mid-set: "bring it down", "bass back in", "more of this".
+answers what you ask mid-set: "bring it down", "bass back in", "more of this". Paste another link
+while it plays and the set **travels** there — no cut, no jump — like a DJ working through a crate.
 
 ## Why this project, when others exist
 
@@ -48,6 +49,7 @@ new engines (samples, SuperCollider). Every spec and every doc describes the who
 | 3 | **Steered by prompt** | a standing prompt changes the target card; a live prompt lands at the next phrase boundary, within 8 bars — measured by timestamp |
 | 4 | **Reference** | a YouTube link becomes a style card with BPM (±2) and key (exact or relative) right on 9 of 10 test tracks; the generated set stays within ±10% of the reference's band balance |
 | 5 | **More of this / less of this** | feedback changes the next section: the named measure moves in the asked direction |
+| 6 | **Reference queue and handover** | while playing, a new reference (YouTube now, a file later) joins a visible, reorderable queue; the set moves from the current style to the next within `HANDOVER_BARS`, with BPM inside the per-track budget, keys by neighbours only, and band balance reaching ±10% of the next card; analysis failure keeps the current target and says so. All read from the set log |
 
 🔴 **The gate that applies to all five: nothing requires a terminal.** The terminal is for
 developing.
@@ -106,8 +108,8 @@ Every milestone has an observable gate. No milestone starts before the previous 
 | **M1 · Sound** | score document + engine + app shell | the app opens, plays 16 bars of a fixed score, stops. The same score rendered offline twice yields identical bytes |
 | **M2 · Ear** | analyzer: YouTube → style card; measure a wav | BPM and key right on 9 of 10 tracks; a score rendered by our own engine has its BPM and key recovered by the analyzer |
 | **M3 · Composition** | generators and transforms from the card | "more bass" is a diff, and energy below 120 Hz rises in the measurement. A generated section lands within ±10% of the reference's bands |
-| **M4 · Conducting** | conductor + brains: endless set | 60 min with no gap on the rules brain; then on the LLM. 10 s of injected brain latency produces no gap. A live prompt lands in ≤ 8 bars |
-| **M5 · Booth** | the rich UI | set timeline, energy curve, reference card, prompts and feedback — all without a terminal |
+| **M4 · Conducting** | conductor + brains: endless set, reference queue and handover | 60 min with no gap on the rules brain; then on the LLM. 10 s of injected brain latency produces no gap. A live prompt lands in ≤ 8 bars. A second reference queued mid-set is reached within `HANDOVER_BARS` with no budget broken |
+| **M5 · Booth** | the rich UI | set timeline, energy curve, current and queued references, prompts and feedback — all without a terminal |
 
 Then, in this likely order: samples and soundfonts (genre reach), stems via Demucs, local mp3,
 set recording and export, remote control from a phone.

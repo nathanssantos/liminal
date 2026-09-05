@@ -14,6 +14,7 @@ terminal. If the person does nothing, the app still shows what it is (an example
 |---|---|---|---|
 | F1 | **First run → music** | open · (optional) paste a link · (optional) type a prompt · play | what is playing, the key and BPM, that it will not stop |
 | F2 | **Steer the set** | type a live prompt · see when it lands | "lands at the next phrase (in N bars)"; the change, when it happens |
+| F2b | **Queue the next reference** | paste a link while playing · see it analyzed · see when the set will start moving | the queue, the current target, "moving toward <title> — N phrases left", an error with retry if analysis failed |
 | F3 | **Teach taste** | one control for "more of this", one for "less" | that it was heard, and what it will affect |
 | F4 | **Understand** | glance at the timeline | current section, energy curve, next transition, the reference card |
 | F5 | **Recover** | an error says what and how to fix; retry is one click; stop is always one click | the error, in the user's words |
@@ -30,7 +31,8 @@ terminal. If the person does nothing, the app still shows what it is (an example
 4. **Consistency** — the same action lives in the same place with the same word on every screen.
 5. **Error prevention** — invalid links are caught on paste; a prompt that cannot be honoured says
    so before, not after.
-6. **Recognition over recall** — recent references and prompts are visible; no hidden commands.
+6. **Recognition over recall** — recent references and prompts are visible; the queue is a list
+   you can reorder and remove from, not a hidden state; no hidden commands.
 7. **Flexibility** — keyboard shortcuts for play/stop/prompt; every flow works with the keyboard alone.
 8. **Minimalism** — the first screen shows F1 and nothing else; details unfold on demand.
 9. **Recovery** — every error names what happened and offers the next step (retry, choose another
