@@ -8,7 +8,7 @@
 | Layer | Choice | Discarded | Why |
 |---|---|---|---|
 | Runtime | **Node 24 LTS** (`.nvmrc`), **pnpm 11**, **Turborepo** | Node 25 (installed on the machine) | LTS for the native test binary and for CI; pnpm and Turbo are what `marketmind` already uses |
-| Language | **TypeScript 5** strict, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `verbatimModuleSyntax`, pure ESM | — | index and optional errors are what escapes most in music code (note arrays, fields that "always come") |
+| Language | **TypeScript 6** strict, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `verbatimModuleSyntax`, pure ESM | — | index and optional errors are what escapes most in music code (note arrays, fields that "always come") |
 | Lint and format | **Biome** | ESLint + Prettier | one tool, one config, fast; `biome-ignore` is already the sanctioned form in the house rules |
 | Tests | **Vitest**; **Playwright** with Electron for the app; `node-web-audio-api` for the headless engine | Jest | Vitest is native ESM and matches the renderer's Vite |
 | Schemas | **Zod 4** | Valibot, TypeBox | single source for the document, the IPC protocol, the style card and the LLM output; exports JSON Schema for Python |
@@ -17,7 +17,7 @@
 
 | Layer | Choice | Discarded | Why |
 |---|---|---|---|
-| Shell | **Electron 42** + **electron-vite** + **electron-builder** | Tauri | Tauri plays audio in the system WebView (Safari on macOS) and has no Node in main — we would lose Chromium's Web Audio **and** Tone.js in the engine |
+| Shell | **Electron 44** + **electron-vite 5** (which caps Vite at 7) + **electron-builder** | Tauri | Tauri plays audio in the system WebView (Safari on macOS) and has no Node in main — we would lose Chromium's Web Audio **and** Tone.js in the engine |
 | UI | **React 19** + **Zustand** | Next.js | no server, no routes, no SSR; `marketmind` already has this pair |
 | Styling | **Tailwind 4** with tokens as CSS vars (`@theme`) | loose CSS Modules | tokens from day one, without inventing a design system before there are two consumers |
 | Primitives | **Radix** when the first real need appears | shadcn up front | do not bring blocks nobody asked for |
