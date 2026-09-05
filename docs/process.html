@@ -163,12 +163,12 @@
   <section class="hero" aria-labelledby="title">
     <p class="eyebrow">Development process · 2026-09-05</p>
     <h1 id="title">You switch the loop on and leave.</h1>
-    <p class="lede">liminal is a platform for generating and steering music; the endless set is its first product. It develops itself: an agent takes a card from the board, implements, proves, reviews, delivers and merges — then takes the next. When a milestone closes, it releases and writes the next specs. When nothing is workable, it researches the domain. It stops for one thing only: a decision that is yours.</p>
+    <p class="lede">liminal is a platform for automated music production and live steering — two products on the same primitives; the endless set ships first. It develops itself: an agent takes a card from the board, implements, proves, reviews, delivers and merges — then takes the next. When a milestone closes, it releases and writes the next specs. When nothing is workable, it researches the domain. It stops for one thing only: a decision that is yours.</p>
     <div class="meta">
       <span><b>/loop 3m /liminal</b> · wakes every 3 min</span>
       <span><b>1 iteration = 1 card</b></span>
       <span><b>spec .md</b> is the source · issue is the mirror</span>
-      <span><b>8 skills</b>, <b>13 agents</b>, all in the repo</span>
+      <span><b>8 skills</b>, <b>14 agents</b>, all in the repo</span>
       <span><b>English</b> in the repo and on GitHub</span>
     </div>
     <div class="legend" aria-label="Colour legend">
@@ -258,7 +258,7 @@
   </section>
 
   <section id="review" aria-labelledby="h-review">
-    <div class="section-head"><p class="eyebrow">Review by area</p><h2 id="h-review">Thirteen agents of the repo, all read-only, chosen by what the diff touched</h2><p>Ten reviewers and three advisors. The same reviewers act as architects when a card opens: they get the spec and answer with the approach and a discarded alternative — no code. A serious finding is checked before acceptance. Three rounds without convergence: <code>Blocked</code>, a comment, another card.</p></div>
+    <div class="section-head"><p class="eyebrow">Review by area</p><h2 id="h-review">Thirteen agents of the repo, all read-only, chosen by what the diff touched</h2><p>Ten reviewers, three advisors and a UI designer that writes design briefs before any screen is built. The same reviewers act as architects when a card opens: they get the spec and answer with the approach and a discarded alternative — no code. A serious finding is checked before acceptance. Three rounds without convergence: <code>Blocked</code>, a comment, another card.</p></div>
     <div class="tbl"><table><thead><tr><th scope="col">Path touched</th><th scope="col">Repo agents (<code>.claude/agents/</code>)</th><th scope="col">Machine agents</th></tr></thead><tbody>
       <tr><td>always</td><td><span class="tag proj">spec-reviewer</span></td><td><span class="tag">code-quality-reviewer</span><span class="tag">security-auditor</span><span class="tag">test-engineer</span></td></tr>
       <tr><td>any code change</td><td><span class="tag proj">docs-reviewer</span></td><td>—</td></tr>
@@ -267,7 +267,7 @@
       <tr><td><code>packages/analysis</code>, <code>tools/analyzer</code></td><td><span class="tag proj">analysis-reviewer</span></td><td>—</td></tr>
       <tr><td><code>packages/brain</code></td><td><span class="tag proj">brain-reviewer</span></td><td>—</td></tr>
       <tr><td><code>protocol</code>, <code>desktop/main</code>, <code>preload</code></td><td><span class="tag proj">desktop-reviewer</span></td><td><span class="tag">api-contract-guardian</span></td></tr>
-      <tr><td><code>desktop/renderer</code></td><td><span class="tag proj">desktop-reviewer</span><span class="tag proj">usability-reviewer</span></td><td><span class="tag">ui-quality-reviewer</span><span class="tag">accessibility-auditor</span><span class="tag">design-system-guardian</span><span class="tag">performance-auditor</span></td></tr>
+      <tr><td><code>desktop/renderer</code></td><td><span class="tag proj">ui-designer</span> (brief before code)<span class="tag proj">desktop-reviewer</span><span class="tag proj">usability-reviewer</span></td><td><span class="tag">ui-quality-reviewer</span><span class="tag">accessibility-auditor</span><span class="tag">design-system-guardian</span><span class="tag">performance-auditor</span></td></tr>
       <tr><td>planning · research · release</td><td><span class="tag proj">product-strategist</span><span class="tag proj">research-scout</span><span class="tag proj">open-source-steward</span></td><td>—</td></tr>
     </tbody></table></div>
   </section>
@@ -337,7 +337,7 @@
       <div class="marco"><div class="id">M0<small>FOUNDATION</small></div><div class="what">Repo, monorepo, CI, board, sync, board scripts, agents loading, <code>main</code> protected, open-source hygiene. 10 cards.</div><div class="gate"><b>GATE</b>CI green with a real test per package; <code>/queue</code> lists the cards; <code>/start #n</code> opens one; <code>v0.0.0</code> released.</div></div>
       <div class="marco"><div class="id">M1<small>SOUND</small></div><div class="what">The score, the isomorphic Tone.js engine, the Electron shell with Play/Stop, the soundcheck hidden window. 5 cards, 2 with listening.</div><div class="gate"><b>GATE</b>The app plays 16 bars and stops; the same score rendered twice yields identical bytes; you heard kick, hat, bass and chords.</div></div>
       <div class="marco"><div class="id">M2<small>EAR</small></div><div class="what">YouTube → style card; wav → measurement; long-lived Python worker. 10 cards planned, specs in the spec iteration.</div><div class="gate"><b>GATE</b>BPM ±2 and key right on 9 of 10 tracks; the analyzer recovers BPM and key from a score our engine rendered.</div></div>
-      <div class="marco"><div class="id">M3<small>COMPOSITION</small></div><div class="what">Generators and transforms from the card, each with a measurable claim.</div><div class="gate"><b>GATE</b>"More bass" is a diff and energy below 120 Hz rises in the measurement; a generated section within ±10% of the reference's bands.</div></div>
+      <div class="marco"><div class="id">M3<small>COMPOSITION</small></div><div class="what">Generators and transforms from the card, each with a measurable claim — and the first Production door: a complete track from a card, edited by a prompt, exported as wav.</div><div class="gate"><b>GATE</b>"More bass" is a diff and energy below 120 Hz rises; a generated section within ±10% of the reference's bands; a full track exported that <code>ffprobe</code> reads.</div></div>
       <div class="marco"><div class="id">M4<small>CONDUCTING</small></div><div class="what">Conductor and brains. Endless set, two clocks, prompts, feedback, the reference queue and coherent handovers between references.</div><div class="gate"><b>GATE</b>60 min with no gap; 10 s of injected brain latency produces no gap; a live prompt lands in ≤ 8 bars; a queued reference is reached within budget.</div></div>
       <div class="marco"><div class="id">M5<small>BOOTH</small></div><div class="what">The rich UI: timeline, energy curve, current and queued references, prompts, feedback.</div><div class="gate"><b>GATE</b>Everything without a terminal.</div></div>
       <div class="marco"><div class="id">M6+<small>PROPOSED BY THE LOOP, DECIDED BY YOU</small></div><div class="what">Samples and soundfonts, stems, local mp3, export, remote control, other genres — in the order the journal, the measurements, the research and your <code>idea</code>s ask for.</div><div class="gate"><b>GATE</b>Defined in the planning iteration; approved by merging the proposal PR.</div></div>

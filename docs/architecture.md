@@ -104,15 +104,27 @@ decides on the first three. The last two are rules.
 [two-clocks.md](specs/cross-cutting/two-clocks.md).
 
 **Reference queue and handover.** The set holds a **current target card** and a **queue** of
-upcoming references. A new reference is analyzed in the background (the worker) while the set
+upcoming references, each with a **dwell time** (how long to stay in that style before the next
+handover; default from settings, editable at any time). A new reference is analyzed in the background (the worker) while the set
 keeps playing on the current target. When its card is ready, the conductor builds a **handover
 plan**: a path of intermediate targets, one per phrase, from card A to card B — BPM stepping inside
 the per-track budget (a large gap takes more tracks), key moving only through Camelot neighbours
 (shortest path on the wheel), band balance and density interpolated, A's motifs fading out as
 B-style motifs are introduced, with a transition object at every phrase. `distance` in the
 soundcheck is computed against the **intermediate** target of the phrase. Analysis failure keeps
-the current target and surfaces the error. The queue is reorderable and removable at any time;
-changes act from `proposed` onward, like every other input.
+the current target and surfaces the error. The queue is reorderable, removable and its dwell times
+editable at any time; changes act from `proposed` onward, like every other input. When a dwell
+time elapses the handover to the next entry starts at the next phrase boundary; with an empty
+queue the set stays on the current target.
+
+## The production pipeline
+
+The **Production** product needs no live engine: `card + prompt → generators → Score → transforms
+(prompt edits) → soundcheck (renderOffline in the hidden window, measure in the worker) → export`.
+It runs in `main` plus the hidden window, and exposes a **headless door** for batch production
+without the UI — a command-line entry point whose location is decided in M3, when it is built. Export formats: wav in M3;
+MIDI (`@tonejs/midi`) and stems (one render per track, muting the others — the document makes it
+trivial) after M5. The same soundcheck that guards the set guards a produced track.
 
 ## The brain
 

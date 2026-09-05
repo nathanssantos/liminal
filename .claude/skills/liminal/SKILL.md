@@ -58,7 +58,9 @@ while a course decision waits.
 2. `/start #<issue>` — if `BLOCKED`, `blocked` label + a comment with the barrier, back to §1 with
    another card.
 3. The area's reviewer in **design mode** (process §5 table), with the whole spec, the area's
-   memory, and "do not write code; bring a discarded alternative".
+   memory, and "do not write code; bring a discarded alternative". **UI card:** the `ui-designer`
+   first — design brief in `docs/design/<card>.md`, reviewed by `usability-reviewer`; the
+   implementation follows the brief.
 4. `git switch -c feat/<nº>-<slug>` from `main`; `board.move <nº> "In progress"`.
 
 🔴 A local doubt: comment on the issue **with options**, `question` label, `board.move <nº> "Blocked" --reason`,

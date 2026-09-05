@@ -17,7 +17,7 @@ audience, a new dependency with cost or licence — are the owner's (process §1
 | Audience | What they want | What wins them | What loses them |
 |---|---|---|---|
 | **The listener who wants a set for right now** — working, driving, a party at home | press play, hear something good that does not stop, nudge it with words | one paste + one prompt + play; a set that surprises without derailing | silence, a glitch, a set that ignores the prompt |
-| **The producer or DJ curious about generative tools** | control, inspection, the ability to say "why did it do that" | the document (diffable music), the soundcheck numbers, the set log, transforms with claims | a black box, no export, no MIDI |
+| **The producer or DJ curious about generative tools** | control, inspection, the ability to say "why did it do that"; **automated production**: a full track from a brief and a reference, iterated with words, exported | the document (diffable music), the soundcheck numbers, the set log, transforms with claims, wav export now and stems/MIDI later | a black box, no export, no MIDI |
 | **The developer who wants to hack on it** (open source) | a clean codebase, a clear process, a way in | specs, ADRs, the loop, English everywhere, small packages | a bot-only repo with no human-friendly path |
 
 The first audience decides the first screen. The second decides the architecture we already
@@ -25,8 +25,9 @@ chose. The third decides the repo's hygiene.
 
 ## Positioning
 
-**What it is:** an endless, coherent set, steered by words and a reference, that plays on your
-machine.
+**What it is:** a platform for automated music production and live steering — a complete track
+from a brief and a reference, editable as a document; and an endless, coherent set steered by words
+and references — on your machine.
 
 **Against what exists:**
 
@@ -35,6 +36,7 @@ machine.
 | LLM writes Strudel patterns for a jam (MCP servers, live-coding chat apps) | music is a **document**: bar 37 exists, edits are diffs, a set is a sequence of documents |
 | generative music apps (mood → stream) | the **reference** as numeric target and the **soundcheck**: what the LLM cannot hear, it measures |
 | DJ software (mix existing tracks) | nothing to mix: every transition is generated in key and in tempo, by construction |
+| AI song generators (prompt → finished audio) | we hand back a **document**, not a file: every note editable, every change a diff, export to wav now and stems/MIDI later; honest limits — no vocals, synthesis-only timbre until samples arrive |
 
 **Where we lose today, and say so:** timbre and genre reach (synthesis only until samples arrive
 after M5); no export or MIDI yet; no packaging until M5.
