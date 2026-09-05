@@ -117,6 +117,15 @@ class Sync:
         stored = card.sync.get("hash")
         remote = body_hash(strip_footer(issue["body"] or "") + issue["title"])
         if stored is not None and remote != stored:
+            if self.tree_is_dirty():
+                self.report.pulled.append(
+                    {
+                        "id": card.id,
+                        "issue": card.issue,
+                        "skipped": "the working tree is dirty; commit or stash, then sync again",
+                    }
+                )
+                return
             self.pull(card, issue)
             return
         self.push(card, issue)
@@ -204,6 +213,16 @@ class Sync:
         card.path.write_text(frontmatter.dump(card.document), encoding="utf-8")
         open_sync_pull_request(self.root, card, issue["number"])
 
+    def tree_is_dirty(self) -> bool:
+        result = subprocess.run(
+            ["git", "status", "--porcelain"],
+            cwd=self.root,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        return bool(result.stdout.strip())
+
     def find_orphan_issues(self, known: set[int | None]) -> None:
         for number, issue in self.issues.items():
             if number in known or issue["state"] != "open":
@@ -252,28 +271,38 @@ def skeleton_text(card_id: str, issue: dict[str, Any], milestone: str) -> str:
 
 def open_sync_pull_request(root: Path, card: Card, issue: int) -> None:
     branch = f"docs/sync-{issue}"
+    title = f"docs: pull the edit of issue #{issue} into {card.id}"
+    body = f"The issue was edited on GitHub. The spec follows.\n\nRefs #{issue}"
+
     def git(*arguments: str) -> None:
         subprocess.run(["git", *arguments], cwd=root, check=True, capture_output=True, text=True)
 
-    git("switch", "-c", branch)
-    git("add", str(card.path))
-    git("commit", "-m", f"docs: pull the edit of issue #{issue} into {card.id}")
-    git("push", "-u", "origin", branch)
-    subprocess.run(
-        [
-            "gh", "pr", "create",
-            "--title", f"docs: pull the edit of issue #{issue} into {card.id}",
-            "--body", f"The issue was edited on GitHub. The spec follows.\n\nRefs #{issue}",
-            "--base", "main", "--head", branch,
-        ],
-        cwd=root, check=True, capture_output=True, text=True,
-    )
-    subprocess.run(
-        ["gh", "pr", "merge", branch, "--squash", "--delete-branch"],
-        cwd=root, check=True, capture_output=True, text=True,
-    )
-    git("switch", "main")
-    git("pull", "--ff-only")
+    was_on = subprocess.run(
+        ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
+
+    try:
+        git("switch", "-c", branch)
+        git("add", str(card.path))
+        git("commit", "-m", title)
+        git("push", "-u", "origin", branch)
+        gh = ["gh", "pr", "create", "--title", title, "--body", body, "--base", "main"]
+        subprocess.run(
+            [*gh, "--head", branch], cwd=root, check=True, capture_output=True, text=True
+        )
+        subprocess.run(
+            ["gh", "pr", "merge", branch, "--squash", "--auto", "--delete-branch"],
+            cwd=root,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    finally:
+        git("switch", was_on)
 
 
 def repo_root() -> Path:

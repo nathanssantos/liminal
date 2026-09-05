@@ -176,3 +176,24 @@ def test_a_second_sync_leaves_the_frontmatter_byte_identical(repo: Path) -> None
     Sync(repo, github, FakeBoard([make_item(100, status.SPECIFIED)])).run()
 
     assert path.read_text(encoding="utf-8") == after_first
+
+
+def test_a_dirty_tree_postpones_the_pull_instead_of_switching_branches(
+    repo: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import board.sync as sync_module
+
+    github = FakeGitHub()
+    Sync(repo, github, FakeBoard()).run()
+    github.issues[0]["body"] = "## Context\n\nThe owner rewrote this.\n"
+
+    opened: list[int] = []
+    monkeypatch.setattr(
+        sync_module, "open_sync_pull_request", lambda root, card, number: opened.append(number)
+    )
+    monkeypatch.setattr(Sync, "tree_is_dirty", lambda self: True)
+
+    report = Sync(repo, github, FakeBoard([make_item(100, status.SPECIFIED)])).run()
+
+    assert opened == []
+    assert "dirty" in str(report.pulled[0]["skipped"])
