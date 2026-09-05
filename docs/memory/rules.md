@@ -14,6 +14,14 @@
 - ⚠️ **The `gh` token has no Projects scope by default.** `gh project …` answers
   `missing required scopes [read:project]`. Fix: `gh auth refresh -s project,read:project` on the
   right account. (measured 2026-09-05)
+- ⚠️ **"No secrets" means no secret in the tree.** A GitHub Actions secret is fine, and there is
+  exactly one: `BOARD_TOKEN`, a personal access token with the Projects scope, used only by the
+  spec ↔ board sync workflow. Locally the scripts use the authenticated `gh` and need no token.
+  Any second secret is a course decision (process §15). (decided 2026-09-05)
+- ⚠️ **`gh project …` answers `unknown owner type` with a classic PAT that has only `project` and
+  `repo`.** Measured 2026-09-05 with the `BOARD_TOKEN` candidate. Assumed fix: add `read:org` to the
+  token (the `gh` owner lookup needs it even for a user-owned project). Direct `gh api graphql`
+  calls with `user(login:)` should not need it — the CI run of the sync is what proves either way.
 - ⚠️ **The loop depends on no skill outside the repo.** Everything it calls is in
   `.claude/skills/` and `tools/board`; the only external prerequisite is an authenticated `gh`
   with the `project` scope.

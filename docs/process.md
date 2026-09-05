@@ -351,8 +351,10 @@ iteration and in CI:
   not undo it;
 - new comments → listed in gate 0's report, for reading.
 
-`--dry-run` shows without writing. Needs the `project` scope on `gh`
-(`gh auth refresh -s project,read:project`).
+`--dry-run` shows without writing. Locally it needs the `project` scope on `gh`
+(`gh auth refresh -s project,read:project`); in CI it uses the repository secret `BOARD_TOKEN`
+(a personal access token with the Projects scope) and degrades to a no-op with a visible notice
+when the secret is absent.
 
 ---
 
