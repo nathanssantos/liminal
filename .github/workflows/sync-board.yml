@@ -28,6 +28,10 @@ jobs:
             echo "no BOARD_TOKEN secret: the board sync runs in the loop, on the machine"
           fi
       - if: steps.token.outputs.present == 'true'
+        run: |
+          git config user.name "liminal loop"
+          git config user.email "noreply@github.com"
+      - if: steps.token.outputs.present == 'true'
         env:
           GH_TOKEN: ${{ secrets.BOARD_TOKEN }}
         run: uv run --directory tools python -m board.sync
@@ -35,8 +39,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.BOARD_TOKEN }}
         run: |
-          git config user.name "liminal loop"
-          git config user.email "noreply@github.com"
           if git diff --quiet -- docs/specs; then
             echo "the spec frontmatter is already current"
             exit 0
