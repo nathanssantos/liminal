@@ -1,0 +1,77 @@
+# HANDOFF 03 — enter the loop (M1 onward)
+
+Paste this into a new Claude Code session opened at `~/Documents/dev/liminal`, **after** handoff 02
+finished and M0 closed.
+
+---
+
+You will develop liminal in an **autonomous loop**: take a card from the board, implement, prove,
+review, deliver, merge, and take the next — without waiting for anyone, for as long as there is
+workable work. When a milestone closes, you release and write the specs of the next. When the plan
+runs out, you propose the next milestone and **wait for the owner's decision**. When nothing is
+workable, you research the domain and write it down. The owner steers through the chat and GitHub;
+you read both at the start of every iteration. Everything you write in the repo or on GitHub is in
+English; the chat follows the owner's preference in `CLAUDE.local.md` (not versioned).
+
+**Read before acting**, in this order:
+
+1. `AGENTS.md`, `CLAUDE.md`, and `CLAUDE.local.md` (local preferences).
+2. `docs/plan.md` → `docs/architecture.md` → `docs/process.md` (whole — it is the law of the loop;
+   §15 says when to stop for a decision, §16 which docs a change makes stale).
+3. `docs/product/strategy.md`, `docs/product/usability.md` — who it is for and what good looks like.
+4. `docs/memory/` whole: `rules.md`, `measurements.md`, the ADRs. Then, per card, only the area's
+   section.
+5. `docs/specs/cross-cutting/score.md`, `style-card.md`, `two-clocks.md`, `board.md` — what M1 and
+   M2 implement and what the scripts do.
+6. `docs/specs/M1-sound/README.md` and the five cards.
+7. `docs/research/README.md` and `topics.md` — what the loop already learned and what it will study.
+8. `.claude/skills/liminal/SKILL.md` — the execution order of one iteration; the other seven skills
+   (`queue`, `start`, `review`, `deliver`, `spec`, `research`, `release`) are its steps.
+
+## What exists for real
+
+<!-- the handoff 02 agent fills this when it finishes: repo, board, CI, release, what M0 left -->
+
+Until it is filled, **check yourself**: `git remote -v`, `gh project list --owner nathanssantos`,
+`pnpm check`, `uv run --directory tools python -m board.queue`. If anything from M0 is not standing,
+that is the first card — do not assume.
+
+## How to start
+
+```
+/loop 3m /liminal
+```
+
+That is all. The skill reads the inputs, chooses the card, and follows the process. Before the first
+iteration, say in the chat in one line what you are about to do, and then **do not stop to ask**
+outside what the process provides for (§3.2: a local doubt becomes a `question` and another card;
+§15: a course decision stops the loop and waits).
+
+## What only the owner does, and how you ask
+
+| Needs | How to ask |
+|---|---|
+| listening (`listening: true`) | the PR's evidence table with "pending: `heard: ok`"; one line in the chat saying **what** to listen for and **how** to run it (`pnpm --filter engine play:fixture`) |
+| a local answer that changes what gets built | comment on the issue **with options**, `question` label, card to `Blocked`, one line in the chat; take another card |
+| a **course decision** (a requirement, an ADR, a new milestone, money, user data, licences, anything that would waste several cards if guessed) | card to `Decision needed` with options and a recommendation, the same in the chat, **stop** |
+| unblocking the environment (credential, service) | stop and report (§4) — not work, environment |
+
+The owner follows the kanban: `Blocked` and `Decision needed` are the columns that mean "needs you".
+
+## What goes wrong most, and memory already knows
+
+- Tone.js in Node: polyfill **before** the import (`rules.md › engine`).
+- The `AudioContext` in the renderer is born **on the click**, never on mount (M1-04).
+- Determinism is per implementation: bytes only between two renders of the **same** Chromium (ADR-0002).
+- One LLM process per decision costs 5× a persistent session (`measurements.md`).
+- Truncated output lies twice; rebase drops commits silently (`rules.md › process`).
+- Documentation goes stale in the same PR that changes the code — `board.deliver --stale-docs` and the
+  `docs-reviewer` are gates, not suggestions (§16).
+
+## How to know the session was good
+
+`docs/journal.md` has a line per iteration; every merged PR has the evidence table; memory grew
+where something cost; the docs still describe the code; no card sat `In progress` without a
+branch; and the stop report, if any, says what waits on what. Cards in `Blocked` with a clear
+comment **are a result** — not a failure. A card in `Decision needed` with options is the loop doing
+its job.

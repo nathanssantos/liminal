@@ -1,0 +1,28 @@
+{
+  "name": "liminal",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "An endless, AI-generated set that makes sense",
+  "license": "MIT",
+  "packageManager": "pnpm@11.20.0",
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "check": "node scripts/check.mjs",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "build": "turbo run build",
+    "dev": "turbo run dev"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.12",
+    "@types/node": "26.4.1",
+    "turbo": "2.10.12",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  }
+}

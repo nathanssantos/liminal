@@ -1,0 +1,367 @@
+<title>The liminal loop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --bg:#EEF0F3; --surface:#FFFFFF; --surface-2:#E4E7EC; --ink:#171A21; --muted:#5B6170; --line:#D5D9E0;
+    --loop:#E4572E; --loop-ink:#FFFFFF; --loop-soft:#FBE4DC;
+    --human:#1F7A8C; --human-ink:#FFFFFF; --human-soft:#D9EEF2;
+    --stop:#A12A2A; --stop-soft:#F6DADA;
+    --display:"Bricolage Grotesque","Avenir Next","Helvetica Neue",Arial,sans-serif;
+    --body:"Public Sans","Segoe UI",Roboto,system-ui,sans-serif;
+    --mono:"IBM Plex Mono","SFMono-Regular",Menlo,Consolas,monospace;
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0F1116; --surface:#171A21; --surface-2:#1F232D; --ink:#E6E8EE; --muted:#9AA1B1; --line:#2A2F3A;
+      --loop:#FF7A59; --loop-ink:#1A0E0A; --loop-soft:#3A2119;
+      --human:#4FB3C6; --human-ink:#07191D; --human-soft:#15303A;
+      --stop:#E56B6B; --stop-soft:#3A1E1E;
+      color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0F1116; --surface:#171A21; --surface-2:#1F232D; --ink:#E6E8EE; --muted:#9AA1B1; --line:#2A2F3A;
+    --loop:#FF7A59; --loop-ink:#1A0E0A; --loop-soft:#3A2119;
+    --human:#4FB3C6; --human-ink:#07191D; --human-soft:#15303A;
+    --stop:#E56B6B; --stop-soft:#3A1E1E;
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration-color:var(--loop);text-decoration-thickness:1.5px;text-underline-offset:3px}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--loop);outline-offset:3px;border-radius:2px}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+  h1,h2,h3{font-family:var(--display);text-wrap:balance;letter-spacing:-0.01em;margin:0}
+  h1{font-size:clamp(40px,6vw,72px);font-weight:800;line-height:.98;font-variation-settings:"opsz" 96}
+  h2{font-size:clamp(26px,3vw,36px);font-weight:700;line-height:1.1}
+  h3{font-size:20px;font-weight:700;line-height:1.25}
+  p{margin:0}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  code{font-family:var(--mono);font-size:.92em;background:var(--surface-2);padding:.08em .38em;border-radius:4px}
+  header.top{border-bottom:1px solid var(--line);background:var(--bg);position:sticky;top:0;z-index:5}
+  header.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;height:56px}
+  header.top .brand{font-family:var(--display);font-weight:800;font-size:18px;display:flex;align-items:center;gap:10px}
+  .pulse{width:10px;height:10px;border-radius:50%;background:var(--loop);animation:pulse 3s ease-out infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--loop) 55%,transparent)}70%{box-shadow:0 0 0 12px transparent}100%{box-shadow:0 0 0 0 transparent}}
+  @media (prefers-reduced-motion: reduce){.pulse{animation:none}}
+  nav.toc{display:flex;gap:18px;overflow-x:auto;font-size:14px;color:var(--muted);scrollbar-width:none}
+  nav.toc::-webkit-scrollbar{display:none}
+  nav.toc a{text-decoration:none;white-space:nowrap}
+  nav.toc a:hover{color:var(--ink)}
+  main{padding:56px 0 96px;display:grid;gap:80px}
+  section{display:grid;gap:28px}
+  .hero{display:grid;gap:22px}
+  .hero .lede{font-size:21px;line-height:1.45;max-width:62ch}
+  .hero .meta{display:flex;flex-wrap:wrap;gap:10px 22px;font-family:var(--mono);font-size:13px;color:var(--muted)}
+  .hero .meta b{color:var(--ink);font-weight:500}
+  .section-head{display:grid;gap:10px}
+  .section-head p{color:var(--muted);max-width:68ch}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:14px;color:var(--muted);align-items:center}
+  .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:6px}
+  .legend .loop i{background:var(--loop)} .legend .human i{background:var(--human)} .legend .stop i{background:var(--stop)}
+  .chain{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .chain .node{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px 20px 18px;display:grid;gap:10px;position:relative}
+  .chain .node .n{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.1em}
+  .chain .node h3{font-size:22px}
+  .chain .node p{color:var(--muted);font-size:15px}
+  .chain .node .file{font-family:var(--mono);font-size:13px;background:var(--surface-2);padding:8px 10px;border-radius:6px;overflow-x:auto;white-space:nowrap}
+  .chain .node.now{border-color:var(--loop)}
+  .chain .node.now::after{content:"this chat";position:absolute;top:-10px;right:14px;background:var(--loop);color:var(--loop-ink);font-family:var(--mono);font-size:11px;letter-spacing:.08em;padding:3px 8px;border-radius:999px}
+  .sources{display:grid;grid-template-columns:1.2fr .9fr 1.2fr;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px;overflow-x:auto}
+  .sources .box{display:grid;gap:8px}
+  .sources .box h3{font-size:18px}
+  .sources .box ul{margin:0;padding-left:18px;color:var(--muted);font-size:15px}
+  .sources .arrows{display:grid;gap:14px;justify-items:center;text-align:center;font-family:var(--mono);font-size:12px;color:var(--muted);padding:0 12px}
+  .sources .arrows .a{color:var(--loop)} .sources .arrows .h{color:var(--human)}
+  .seq{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px;display:grid;gap:18px}
+  .seq .row{display:grid;grid-template-columns:repeat(9,1fr);gap:8px}
+  .seq button.step{appearance:none;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:8px;padding:12px 8px 10px;display:grid;gap:6px;justify-items:start;text-align:left;cursor:pointer;font:inherit;min-height:84px}
+  .seq button.step .k{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .seq button.step .t{font-family:var(--display);font-weight:700;font-size:15px;line-height:1.15}
+  .seq button.step[aria-selected="true"]{background:var(--loop);border-color:var(--loop);color:var(--loop-ink)}
+  .seq button.step[aria-selected="true"] .k{color:var(--loop-ink);opacity:.8}
+  .seq button.step.human{border-color:var(--human)}
+  .seq .detail{display:grid;gap:6px;min-height:96px;padding-top:6px;border-top:1px solid var(--line)}
+  .seq .detail h3{font-size:19px}
+  .seq .detail p{color:var(--muted)}
+  .seq .detail .rule{color:var(--ink)}
+  .seq .tick{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .seq .tick b{color:var(--loop);font-weight:500}
+  .flow{display:grid;grid-template-columns:repeat(8,1fr);gap:8px}
+  .flow .st{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 12px 10px;display:grid;gap:6px;align-content:start}
+  .flow .st .name{font-family:var(--display);font-weight:700;font-size:15px}
+  .flow .st .who{font-family:var(--mono);font-size:12px}
+  .flow .st .who.loop{color:var(--loop)} .flow .st .who.sync{color:var(--muted)} .flow .st .who.you{color:var(--human)}
+  .flow .st p{font-size:13px;color:var(--muted)}
+  .flow .st.park{border-color:var(--human);background:var(--human-soft)}
+  .flow .st.stop{border-color:var(--stop);background:var(--stop-soft)}
+  .note{border-left:3px solid var(--human);padding:10px 16px;background:var(--human-soft);border-radius:0 8px 8px 0;max-width:72ch}
+  .note.loop{border-left-color:var(--loop);background:var(--loop-soft)}
+  .note.stop{border-left-color:var(--stop);background:var(--stop-soft)}
+  .ladder{display:grid;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface)}
+  .ladder .rung{display:grid;grid-template-columns:minmax(200px,.9fr) 1.6fr;gap:16px;padding:16px 20px;border-top:1px solid var(--line);align-items:baseline}
+  .ladder .rung:first-child{border-top:0}
+  .ladder .rung .if{font-family:var(--mono);font-size:14px;color:var(--muted)}
+  .ladder .rung .then{font-size:16px}
+  .ladder .rung .then b{font-family:var(--display);font-weight:700}
+  .ladder .rung.stop .then b{color:var(--stop)}
+  .tbl{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+  table{border-collapse:collapse;width:100%;font-size:15px}
+  th,td{text-align:left;padding:12px 16px;border-top:1px solid var(--line);vertical-align:top}
+  thead th{border-top:0;font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500}
+  td .tag{display:inline-block;font-family:var(--mono);font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin:2px 4px 2px 0;white-space:nowrap}
+  td .tag.proj{border-color:var(--loop);color:var(--loop)}
+  td.you{color:var(--human);font-weight:500}
+  .proof{display:grid;grid-template-columns:1.1fr .9fr;gap:20px;align-items:start}
+  .proof .tbl table{font-size:14px}
+  .aside{background:var(--surface);border:1px solid var(--human);border-radius:12px;padding:20px;display:grid;gap:10px}
+  .aside h3{color:var(--human)}
+  .aside ol{margin:0;padding-left:20px;display:grid;gap:6px}
+  .aside .say{font-family:var(--mono);background:var(--human-soft);padding:6px 10px;border-radius:6px;display:inline-block}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .grid4 .m{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:8px;align-content:start}
+  .grid4 .m .f{font-family:var(--mono);font-size:13px;color:var(--loop)}
+  .grid4 .m p{font-size:14px;color:var(--muted)}
+  .grid4 .m .when{font-size:13px}
+  .marcos{display:grid;border-left:2px solid var(--line);margin-left:8px}
+  .marco{display:grid;grid-template-columns:120px 1fr 1.3fr;gap:18px;padding:16px 0 16px 22px;position:relative;align-items:baseline}
+  .marco::before{content:"";position:absolute;left:-7px;top:24px;width:12px;height:12px;border-radius:50%;background:var(--bg);border:2px solid var(--loop)}
+  .marco.done::before{background:var(--loop)}
+  .marco .id{font-family:var(--display);font-weight:800;font-size:22px;line-height:1}
+  .marco .id small{display:block;font-family:var(--mono);font-weight:400;font-size:12px;color:var(--muted);margin-top:6px;letter-spacing:.08em}
+  .marco .gate{font-size:14px;color:var(--muted)}
+  .marco .gate b{color:var(--ink);font-weight:500;font-family:var(--mono);font-size:12px;letter-spacing:.08em;display:block;margin-bottom:4px}
+  footer{border-top:1px solid var(--line);padding:32px 0 48px;color:var(--muted);font-size:14px}
+  footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-between}
+  @media (max-width: 900px){
+    .chain,.sources,.proof{grid-template-columns:1fr}
+    .sources .arrows{grid-auto-flow:column;padding:8px 0}
+    .seq .row{grid-template-columns:repeat(3,1fr)}
+    .flow{grid-template-columns:repeat(2,1fr)}
+    .grid4{grid-template-columns:repeat(2,1fr)}
+    .marco,.ladder .rung{grid-template-columns:1fr;gap:6px}
+  }
+  @media (max-width: 560px){ body{font-size:16px} .grid4,.flow{grid-template-columns:1fr} }
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><span class="pulse" aria-hidden="true"></span> liminal · the loop</div>
+    <nav class="toc" aria-label="Sections">
+      <a href="#chats">Three chats</a><a href="#sources">Sources</a><a href="#iteration">One iteration</a>
+      <a href="#board">Board</a><a href="#ladder">No card</a><a href="#decisions">Decisions</a>
+      <a href="#review">Review</a><a href="#proof">Proof</a><a href="#you">You</a>
+      <a href="#company">Company</a><a href="#memory">Memory</a><a href="#milestones">Milestones</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="hero" aria-labelledby="title">
+    <p class="eyebrow">Development process · 2026-09-05</p>
+    <h1 id="title">You switch the loop on and leave.</h1>
+    <p class="lede">liminal is a platform for generating and steering music; the endless set is its first product. It develops itself: an agent takes a card from the board, implements, proves, reviews, delivers and merges — then takes the next. When a milestone closes, it releases and writes the next specs. When nothing is workable, it researches the domain. It stops for one thing only: a decision that is yours.</p>
+    <div class="meta">
+      <span><b>/loop 3m /liminal</b> · wakes every 3 min</span>
+      <span><b>1 iteration = 1 card</b></span>
+      <span><b>spec .md</b> is the source · issue is the mirror</span>
+      <span><b>8 skills</b>, <b>13 agents</b>, all in the repo</span>
+      <span><b>English</b> in the repo and on GitHub</span>
+    </div>
+    <div class="legend" aria-label="Colour legend">
+      <span class="loop"><i></i>what the loop does on its own</span>
+      <span class="human"><i></i>where you come in</span>
+      <span class="stop"><i></i>where the loop stops for you</span>
+    </div>
+  </section>
+
+  <section id="chats" aria-labelledby="h-chats">
+    <div class="section-head"><p class="eyebrow">Three chats, one repo</p><h2 id="h-chats">Who does what, in which order</h2><p>Each chat gets a handoff prompt and the real state of the repo. None assumes the previous one finished: it checks.</p></div>
+    <div class="chain">
+      <article class="node now"><span class="n">01 · PLAN</span><h3>This chat</h3><p>Research, decisions (8 ADRs), plan, architecture, stack, process, product strategy, research agenda, seeded memory, M0–M1 specs, 13 agents, 8 skills, two handoffs.</p><div class="file">/dev/liminal · docs only · no git yet</div></article>
+      <article class="node"><span class="n">02 · SETUP (M0)</span><h3>Foundation chat</h3><p>Public repo, monorepo, CI, board with its columns, spec → issue sync, the board scripts the skills call, agents loading, <code>main</code> protection, open-source hygiene. Releases <code>v0.0.0</code>, closes M0, opens M1.</p><div class="file">docs/handoff/02-setup.md</div></article>
+      <article class="node"><span class="n">03 · LOOP (M1 →)</span><h3>The chat that does not stop</h3><p>Runs <code>/loop 3m /liminal</code> with the repo's own skills and scripts. Card by card. Specs when missing, research when idle, a release per milestone, a proposal when the plan runs out — and a stop when the decision is yours.</p><div class="file">docs/handoff/03-loop.md</div></article>
+    </div>
+  </section>
+
+  <section id="sources" aria-labelledby="h-sources">
+    <div class="section-head"><p class="eyebrow">Sources of truth</p><h2 id="h-sources">The spec rules. The issue obeys — and accepts that you write in it.</h2><p>Every card is a file <code>docs/specs/&lt;milestone&gt;/&lt;id&gt;.md</code> with frontmatter. A script mirrors it on GitHub both ways. Editing the issue is a legitimate way to change the spec: the sync pulls it into the <code>.md</code> and the loop carries on.</p></div>
+    <div class="sources">
+      <div class="box"><h3>In the repo</h3><ul><li><code>docs/specs/**/M1-02.md</code> — the card: context, what to do, <b>done when</b> (with proof), out of scope</li><li><code>docs/plan.md</code> — requirements, milestones, direction</li><li><code>docs/memory/</code>, <code>docs/product/</code>, <code>docs/research/</code></li></ul></div>
+      <div class="arrows" aria-hidden="true"><span class="a">md → issue, board, labels, milestone →</span><span>tools/board/sync</span><span class="h">← edited issue, moved card, new issue</span></div>
+      <div class="box"><h3>On GitHub</h3><ul><li>Issue <code>#12 · M1-02 · Engine plays…</code> with the <code>.md</code> body</li><li>Projects v2 board: Status, Priority, Milestone, Area, Listening</li><li>Labels: <code>question</code> · <code>decision</code> · <code>idea</code> · <code>research</code> · <code>milestone</code></li></ul></div>
+    </div>
+  </section>
+
+  <section id="iteration" aria-labelledby="h-it">
+    <div class="section-head"><p class="eyebrow">One iteration</p><h2 id="h-it">Nine steps, one card, and the next starts in the same turn</h2><p>Click a step. Its hard rule is below. The two with a blue border are where you may appear — without blocking anything.</p></div>
+    <div class="seq">
+      <div class="tick"><span>▶ iteration N</span><b>alarm: 3 min</b><span>iteration N+1 ▶</span></div>
+      <div class="row" role="tablist" aria-label="Iteration steps">
+        <button class="step human" role="tab" aria-selected="true" data-i="0"><span class="k">0</span><span class="t">Gates</span></button>
+        <button class="step" role="tab" aria-selected="false" data-i="1"><span class="k">1</span><span class="t">Choose</span></button>
+        <button class="step" role="tab" aria-selected="false" data-i="2"><span class="k">2</span><span class="t">Open</span></button>
+        <button class="step" role="tab" aria-selected="false" data-i="3"><span class="k">3</span><span class="t">Implement</span></button>
+        <button class="step" role="tab" aria-selected="false" data-i="4"><span class="k">4</span><span class="t">Prove</span></button>
+        <button class="step" role="tab" aria-selected="false" data-i="5"><span class="k">4½</span><span class="t">Review</span></button>
+        <button class="step" role="tab" aria-selected="false" data-i="6"><span class="k">5</span><span class="t">Deliver</span></button>
+        <button class="step human" role="tab" aria-selected="false" data-i="7"><span class="k">6</span><span class="t">Merge</span></button>
+        <button class="step" role="tab" aria-selected="false" data-i="8"><span class="k">7 · 8</span><span class="t">Close, next</span></button>
+      </div>
+      <div class="detail" role="tabpanel"><h3 id="d-title">0 · Gates</h3><p id="d-body">Before choosing, the loop reads everything you did since the last iteration: chat messages, edited issues, moved cards, new comments, <code>idea</code> and <code>research</code> issues. Chat outranks everything. Then: a PR waiting only on <code>heard: ok</code> that got it → merge now. An unanswered human thread → that is the iteration. Red CI on <code>main</code> → that is the iteration. A card in <code>Decision needed</code> → stop.</p><p class="rule" id="d-rule">🔴 Any gate may become the iteration. None is skipped.</p></div>
+    </div>
+    <div class="note loop"><b>The turn rule.</b> Never end without the next iteration started — or without a short report saying why it stopped. If the session sleeps, <code>/loop 3m</code> wakes it in 3 minutes and it <b>continues</b> the iteration in flight. It never restarts one.</div>
+  </section>
+
+  <section id="board" aria-labelledby="h-board">
+    <div class="section-head"><p class="eyebrow">The board — where you follow the work</p><h2 id="h-board">Six working states, two parking columns. The loop moves; you may too, and it never undoes you.</h2></div>
+    <div class="flow">
+      <div class="st"><span class="name">Backlog</span><span class="who sync">← sync</span><p>exists, spec incomplete</p></div>
+      <div class="st"><span class="name">Specified</span><span class="who sync">← sync</span><p><code>.md</code> complete, provable "done when"</p></div>
+      <div class="st"><span class="name">Ready</span><span class="who loop">← loop</span><p>dependencies done, milestone open</p></div>
+      <div class="st"><span class="name">In progress</span><span class="who loop">← loop</span><p>branch open</p></div>
+      <div class="st"><span class="name">In review</span><span class="who loop">← loop</span><p>PR ready; Listening box = waiting for your ears</p></div>
+      <div class="st"><span class="name">Done</span><span class="who loop">← loop</span><p>PR merged</p></div>
+      <div class="st park"><span class="name">Blocked</span><span class="who you">needs someone</span><p>open <code>question</code>, review not converging, environment. Reason = last comment. The loop moves on</p></div>
+      <div class="st stop"><span class="name">Decision needed</span><span class="who you">needs you</span><p>a course decision. <b>The loop is stopped</b> while anything sits here</p></div>
+    </div>
+    <div class="note"><b>Every card entering <code>Blocked</code> or <code>Decision needed</code> is announced in the chat</b> — card, why, what unblocks it. A card you send to <b>Backlog</b> leaves the queue; one you set to <b>Ready</b> jumps it; moving a card out of a parking column is read as your answer.</div>
+  </section>
+
+  <section id="ladder" aria-labelledby="h-ladder">
+    <div class="section-head"><p class="eyebrow">When there is no card</p><h2 id="h-ladder">The ladder: the loop climbs one rung at a time, and never idles</h2></div>
+    <div class="ladder">
+      <div class="rung"><span class="if">there is Ready</span><span class="then"><b>Take the card.</b> Oldest open milestone, dependencies done, highest priority, lowest id.</span></div>
+      <div class="rung"><span class="if">only Specified, dependencies ok</span><span class="then"><b>Promote to Ready</b> and take it.</span></div>
+      <div class="rung"><span class="if">only Backlog in the milestone</span><span class="then"><b>Spec iteration.</b> Read plan, architecture, cross-cutting specs, memory and research; check in the code what exists; write each card's <code>.md</code>; <code>spec-reviewer</code> twice; docs PR; the sync creates the cards.</span></div>
+      <div class="rung"><span class="if">milestone with no card left</span><span class="then"><b>Release, close, open the next.</b> Prove the gate, paste the evidence, tag <code>v0.N.0</code>, changelog and release notes for users, steward pass, close the milestone. Gate failed → a new card in the same milestone.</span></div>
+      <div class="rung stop"><span class="if">plan is over</span><span class="then"><b>Planning iteration → proposal → stop.</b> Reads journal, measurements, ideas, research, strategy; asks <code>product-strategist</code> and <code>usability-reviewer</code>; proposes <b>one</b> small milestone with a measurable gate as a PR — and waits for your decision. It orders and cuts; it never invents requirements.</span></div>
+      <div class="rung"><span class="if">nothing workable</span><span class="then"><b>Research iteration.</b> A topic from the agenda (styles, production, theory, trends, AI in music — electronic first), a sourced brief in <code>docs/research/</code>, ideas as issues. At most one per hour when idle; one every 10 cards regardless.</span></div>
+    </div>
+  </section>
+
+  <section id="decisions" aria-labelledby="h-dec">
+    <div class="section-head"><p class="eyebrow">Course decisions</p><h2 id="h-dec">Autonomous on how. You own where.</h2><p>A local doubt becomes a <code>question</code>, the card parks in <code>Blocked</code>, and the loop takes another card. A course decision stops the loop until you answer — so the project never takes a wrong turn on a guess.</p></div>
+    <div class="tbl"><table><thead><tr><th scope="col">The loop stops when the doubt…</th><th scope="col">Example</th></tr></thead><tbody>
+      <tr><td>changes a requirement or a principle in the plan</td><td>"should the set also accept a local mp3 now?"</td></tr>
+      <tr><td>reopens or adds an ADR</td><td>audio placement, engine, LLM provider, language</td></tr>
+      <tr><td>defines a new milestone or reorders them</td><td>the planning iteration's proposal</td></tr>
+      <tr><td>costs money or adds an external account or service</td><td>a paid API, telemetry, hosting</td></tr>
+      <tr><td>touches user data, privacy or licensing</td><td>storing references, sample licences, opt-in analytics</td></tr>
+      <tr><td>would waste more than one card's work if guessed wrong</td><td>a schema change every generator depends on</td></tr>
+      <tr><td>has two answers that lead to different products</td><td>"listener-first or producer-first UI?"</td></tr>
+    </tbody></table></div>
+    <div class="note stop"><b>How it stops:</b> the card goes to <code>Decision needed</code> with the question, the options, what each costs and the loop's recommendation; the chat gets the same in your language; the turn ends with a stop report. <b>How it resumes:</b> you answer in the chat or on the issue, or move the card out; the next gate 0 records the decision (ADR or plan edit if it deserves one) and continues.</div>
+  </section>
+
+  <section id="review" aria-labelledby="h-review">
+    <div class="section-head"><p class="eyebrow">Review by area</p><h2 id="h-review">Thirteen agents of the repo, all read-only, chosen by what the diff touched</h2><p>Ten reviewers and three advisors. The same reviewers act as architects when a card opens: they get the spec and answer with the approach and a discarded alternative — no code. A serious finding is checked before acceptance. Three rounds without convergence: <code>Blocked</code>, a comment, another card.</p></div>
+    <div class="tbl"><table><thead><tr><th scope="col">Path touched</th><th scope="col">Repo agents (<code>.claude/agents/</code>)</th><th scope="col">Machine agents</th></tr></thead><tbody>
+      <tr><td>always</td><td><span class="tag proj">spec-reviewer</span></td><td><span class="tag">code-quality-reviewer</span><span class="tag">security-auditor</span><span class="tag">test-engineer</span></td></tr>
+      <tr><td>any code change</td><td><span class="tag proj">docs-reviewer</span></td><td>—</td></tr>
+      <tr><td><code>packages/score</code>, <code>composition</code></td><td><span class="tag proj">score-reviewer</span><span class="tag proj">music-reviewer</span></td><td>—</td></tr>
+      <tr><td><code>packages/engine</code>, <code>conductor</code></td><td><span class="tag proj">engine-reviewer</span><span class="tag proj">conductor-reviewer</span></td><td>—</td></tr>
+      <tr><td><code>packages/analysis</code>, <code>tools/analyzer</code></td><td><span class="tag proj">analysis-reviewer</span></td><td>—</td></tr>
+      <tr><td><code>packages/brain</code></td><td><span class="tag proj">brain-reviewer</span></td><td>—</td></tr>
+      <tr><td><code>protocol</code>, <code>desktop/main</code>, <code>preload</code></td><td><span class="tag proj">desktop-reviewer</span></td><td><span class="tag">api-contract-guardian</span></td></tr>
+      <tr><td><code>desktop/renderer</code></td><td><span class="tag proj">desktop-reviewer</span><span class="tag proj">usability-reviewer</span></td><td><span class="tag">ui-quality-reviewer</span><span class="tag">accessibility-auditor</span><span class="tag">design-system-guardian</span><span class="tag">performance-auditor</span></td></tr>
+      <tr><td>planning · research · release</td><td><span class="tag proj">product-strategist</span><span class="tag proj">research-scout</span><span class="tag proj">open-source-steward</span></td><td>—</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section id="proof" aria-labelledby="h-proof">
+    <div class="section-head"><p class="eyebrow">Prove</p><h2 id="h-proof">Every "done when" becomes a row with evidence. Screens are proven on screen.</h2><p>Lint, types and tests pass with the UI visibly broken. So anything touching the renderer goes through Playwright with Electron: to <b>use and see</b> while developing (attached over CDP, measuring with <code>getComputedStyle</code>) and to <b>prove</b> (<code>pnpm --filter desktop shot &lt;state&gt;</code> saves screenshot + measurements per state and width: 1024 / 1440 / 1920).</p></div>
+    <div class="proof">
+      <div class="tbl"><table><thead><tr><th scope="col">Criterion</th><th scope="col">How it was proven</th><th scope="col">Evidence</th></tr></thead><tbody>
+        <tr><td>rendering twice yields identical bytes</td><td>test <code>renderOffline is deterministic</code></td><td>Vitest output</td></tr>
+        <tr><td>the UI plays and stops</td><td>Playwright with Electron</td><td><code>evidence/M1-04/playing-1440.png</code> + <code>.json</code> with measurements</td></tr>
+        <tr><td>no value outside the tokens</td><td>grep on the renderer's CSS</td><td>empty output</td></tr>
+        <tr><td>the docs still describe the code</td><td><code>board.deliver --stale-docs</code> + <code>docs-reviewer</code></td><td>clean report</td></tr>
+        <tr><td>sounds like a kick and a hat</td><td><b>listening</b></td><td>pending: <code>heard: ok</code> on the PR</td></tr>
+      </tbody></table></div>
+      <aside class="aside"><h3>What "heard: ok" means</h3><ol>
+        <li>The card has a criterion only the speakers can judge (<code>listening: true</code>).</li>
+        <li>The loop merges what the machine proves, leaves this criterion <b>pending</b>, and tells you in the chat <b>what</b> to listen for and <b>how</b> to run it.</li>
+        <li>It <b>does not wait</b>: it takes another card.</li>
+        <li>You listen. Good → comment on the PR: <span class="say">heard: ok</span>. The next gate 0 merges.</li>
+        <li>Not good → comment what you heard. It becomes a review thread: the loop fixes and asks again.</li>
+      </ol></aside>
+    </div>
+  </section>
+
+  <section id="you" aria-labelledby="h-you">
+    <div class="section-head"><p class="eyebrow">How you steer the loop</p><h2 id="h-you">Two channels: the chat and GitHub. The loop never undoes an action of yours there.</h2></div>
+    <div class="tbl"><table><thead><tr><th scope="col">You do</th><th scope="col">The loop reads it as</th></tr></thead><tbody>
+      <tr><td class="you">write in the chat</td><td>highest-priority input. "stop" stops; "prioritise #n" reorders; "change Y" becomes a spec before it becomes code</td></tr>
+      <tr><td class="you">edit an issue's title or body</td><td>a spec change: the sync pulls it into the <code>.md</code>, the loop carries on with the new one</td></tr>
+      <tr><td class="you">move a card on the board</td><td>new order: <code>Backlog</code> removes from the queue, <code>Ready</code> jumps it, <code>Done</code> closes; out of <code>Blocked</code>/<code>Decision needed</code> = your answer</td></tr>
+      <tr><td class="you">comment on a <code>question</code> issue</td><td>an answer: the label goes, the card returns to the queue</td></tr>
+      <tr><td class="you">comment <code>heard: ok</code> on a PR</td><td>releases the merge</td></tr>
+      <tr><td class="you">create an issue labelled <code>idea</code></td><td>a product request: enters the next spec or planning iteration</td></tr>
+      <tr><td class="you">create an issue labelled <code>research</code></td><td>a research request: the next research iteration picks it</td></tr>
+      <tr><td class="you">create an issue without a label</td><td>a hand-made card: the sync creates the <code>.md</code>, the spec iteration completes it</td></tr>
+      <tr><td class="you">edit <code>docs/plan.md</code> by PR</td><td>new course; the loop re-plans at the next gate 0</td></tr>
+      <tr><td class="you">merge or close a proposal PR</td><td>your decision on a new milestone: approved or rejected</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section id="company" aria-labelledby="h-co">
+    <div class="section-head"><p class="eyebrow">Run like a company</p><h2 id="h-co">Product, usability, research, releases — on a cadence</h2><p>Open source, but with a strategy: who it is for, what wins them, what loses them, and how we measure. <code>docs/product/strategy.md</code> is the compass; <code>docs/product/usability.md</code> the flows and heuristics; <code>docs/research/topics.md</code> the agenda.</p></div>
+    <div class="tbl"><table><thead><tr><th scope="col">Cadence</th><th scope="col">What happens</th></tr></thead><tbody>
+      <tr><td>every iteration</td><td>one card end to end; journal line; memory; <b>every doc the change made stale, updated in the same PR</b> — nothing is left behind</td></tr>
+      <tr><td>every 10 card iterations</td><td>one research iteration: a sourced brief, ideas as issues</td></tr>
+      <tr><td>every milestone close</td><td>gate proven → release (<code>v0.N.0</code>, changelog for users, notes with how to try and what to listen for) → memory cleanup → next milestone</td></tr>
+      <tr><td>every planning iteration</td><td><code>product-strategist</code> and <code>usability-reviewer</code> advise; the proposal waits for your decision</td></tr>
+      <tr><td>every release</td><td><code>open-source-steward</code> and <code>docs-reviewer</code> pass; repo signals (stars, issues) recorded with a date</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section id="memory" aria-labelledby="h-mem">
+    <div class="section-head"><p class="eyebrow">Memory</p><h2 id="h-mem">What cost time becomes a file — in the same PR — so the next iteration does not pay again</h2><p>Versioned in <code>docs/memory/</code>, not in one tool's automatic memory, so it serves any LLM that opens the repo tomorrow. <code>AGENTS.md</code> orders the area's section read before a card opens.</p></div>
+    <div class="grid4">
+      <div class="m"><span class="f">rules.md</span><p>A short rule, per area, born from a mistake or a measurement. Symptom, cause, fix. Marked <b>measured</b> or <b>assumed</b>.</p><span class="when">When something cost &gt; 10 min or would recur.</span></div>
+      <div class="m"><span class="f">decisions/ADR-NNNN</span><p>Context, decision, discarded alternatives, consequences. Not edited; superseded.</p><span class="when">When a choice closes doors — and before reopening one.</span></div>
+      <div class="m"><span class="f">measurements.md</span><p>A number with date and method: latency, tolerance, threshold, version.</p><span class="when">Every time something is measured that another iteration will want.</span></div>
+      <div class="m"><span class="f">research/ · journal.md</span><p>Dated briefs with sources and implications; one line per iteration.</p><span class="when">Every research iteration; end of every iteration.</span></div>
+    </div>
+    <div class="note loop">Born with 15 rules, 8 ADRs, the measurements from this research and one brief — including the two that will bite the setup: <code>gh</code> is on the wrong account and lacks the Projects scope.</div>
+  </section>
+
+  <section id="milestones" aria-labelledby="h-ms">
+    <div class="section-head"><p class="eyebrow">Milestones</p><h2 id="h-ms">Every milestone has an observable gate and ends in a release. None opens before the previous one is proven.</h2></div>
+    <div class="marcos">
+      <div class="marco done"><div class="id">Plan<small>THIS CHAT</small></div><div class="what">Research, decisions, plan, architecture, process, strategy, agenda, specs M0–M1, agents, skills, handoffs.</div><div class="gate"><b>GATE</b>Docs tree complete, 0 broken links, no person named, everything in English.</div></div>
+      <div class="marco"><div class="id">M0<small>FOUNDATION</small></div><div class="what">Repo, monorepo, CI, board, sync, board scripts, agents loading, <code>main</code> protected, open-source hygiene. 10 cards.</div><div class="gate"><b>GATE</b>CI green with a real test per package; <code>/queue</code> lists the cards; <code>/start #n</code> opens one; <code>v0.0.0</code> released.</div></div>
+      <div class="marco"><div class="id">M1<small>SOUND</small></div><div class="what">The score, the isomorphic Tone.js engine, the Electron shell with Play/Stop, the soundcheck hidden window. 5 cards, 2 with listening.</div><div class="gate"><b>GATE</b>The app plays 16 bars and stops; the same score rendered twice yields identical bytes; you heard kick, hat, bass and chords.</div></div>
+      <div class="marco"><div class="id">M2<small>EAR</small></div><div class="what">YouTube → style card; wav → measurement; long-lived Python worker. 10 cards planned, specs in the spec iteration.</div><div class="gate"><b>GATE</b>BPM ±2 and key right on 9 of 10 tracks; the analyzer recovers BPM and key from a score our engine rendered.</div></div>
+      <div class="marco"><div class="id">M3<small>COMPOSITION</small></div><div class="what">Generators and transforms from the card, each with a measurable claim.</div><div class="gate"><b>GATE</b>"More bass" is a diff and energy below 120 Hz rises in the measurement; a generated section within ±10% of the reference's bands.</div></div>
+      <div class="marco"><div class="id">M4<small>CONDUCTING</small></div><div class="what">Conductor and brains. Endless set, two clocks, prompts, feedback.</div><div class="gate"><b>GATE</b>60 min with no gap; 10 s of injected brain latency produces no gap; a live prompt lands in ≤ 8 bars.</div></div>
+      <div class="marco"><div class="id">M5<small>BOOTH</small></div><div class="what">The rich UI: timeline, energy curve, card, prompts, feedback.</div><div class="gate"><b>GATE</b>Everything without a terminal.</div></div>
+      <div class="marco"><div class="id">M6+<small>PROPOSED BY THE LOOP, DECIDED BY YOU</small></div><div class="what">Samples and soundfonts, stems, local mp3, export, remote control, other genres — in the order the journal, the measurements, the research and your <code>idea</code>s ask for.</div><div class="gate"><b>GATE</b>Defined in the planning iteration; approved by merging the proposal PR.</div></div>
+    </div>
+  </section>
+
+</main>
+
+<footer><div class="wrap"><span>The law is <code>docs/process.md</code>. This page is the summary — kept current with every PR (§16).</span><span><code>docs/plan.md</code> · <code>docs/architecture.md</code> · <code>docs/product/</code> · <code>docs/research/</code> · <code>docs/memory/</code> · <code>.claude/skills/</code> · <code>tools/board</code></span></div></footer>
+
+<script>
+  const steps = [
+    ["0 · Gates", "Before choosing, the loop reads everything you did since the last iteration: chat messages, edited issues, moved cards, new comments, <code>idea</code> and <code>research</code> issues. Chat outranks everything. Then: a PR waiting only on <code>heard: ok</code> that got it → merge now. An unanswered human thread → that is the iteration. Red CI on <code>main</code> → that is the iteration. A card in <code>Decision needed</code> → stop.", "🔴 Any gate may become the iteration. None is skipped."],
+    ["1 · Choose", "<code>/queue</code> (repo skill over <code>tools/board</code>) brings the board. Only <code>Ready</code>, no <code>question</code>; oldest open milestone; every dependency <code>Done</code>; highest priority; lowest id. One card.", "🔴 One iteration = one card. Never two."],
+    ["2 · Open", "Reads the area's memory (rules, ADRs, measurements). <code>/start #n</code>: gates, what the repo already solves. The area's reviewer in <b>design mode</b>: approach and discarded alternative, no code. Branch <code>feat/&lt;n&gt;-&lt;slug&gt;</code>; card → In progress.", "🔴 A local doubt: comment with options + <code>question</code> + <code>Blocked</code> + another card. A course decision: <code>Decision needed</code> + stop."],
+    ["3 · Implement", "A test named after the criterion first; then the code. On every edit that adds code, sweep the diff for comments. Strict scope: a finding outside the card becomes a comment on the right issue, or an <code>idea</code>.", "🔴 Zero comments in code. Information lives in the name, the test, the PR or the memory."],
+    ["4 · Prove", "<code>pnpm check</code> at the root, full output. Then one row per criterion: how it was proven, evidence. Touched the renderer → Playwright opens the app, measures and screenshots per state and width; the screenshot goes into the PR.", "🔴 No gate truncates output. A screenshot without measurements proves appearance, not alignment."],
+    ["4½ · Review", "<code>/review</code> with the agents of the touched areas, in parallel; <code>docs-reviewer</code> on every code change. Blocking → fix → re-run only those who found it. Three rounds without convergence → <code>Blocked</code>, a comment, the PR as draft, another card.", "🔴 A screen change the spec does not describe → do not do it. It becomes a <code>question</code>."],
+    ["5 · Deliver", "<code>/deliver</code>. PR with three sections: what was done · done when with evidence · out of scope · <code>Closes #n</code>. No person's name, no narrated method, no diagnosis. Card → In review.", "🔴 The description says what was done. How I validated is my problem."],
+    ["6 · Merge", "On its own, when all hold: green CI · zero blocking · every piece of evidence present · no <code>listening</code> pending · no open human thread. Squash, delete the branch, card → Done. Missing <code>listening</code>: the PR stays ready and the loop moves on.", "🔴 A human review thread is answered with approval: draft in the chat, wait, post."],
+    ["7 · Close  ·  8 · Next", "One line in the journal. A lesson becomes a rule, ADR or measurement — same PR. <b>Every doc the change made stale is updated — same PR</b>; <code>--stale-docs</code> clean. Then: <b>step 0 again, in this turn</b>. <code>/loop 3m</code> is a safety net, not the rhythm.", "🔴 Never end the turn without the next iteration started. Nothing is left behind; everything evolves together."],
+  ];
+  const buttons = Array.from(document.querySelectorAll('.seq button.step'));
+  const t = document.getElementById('d-title'), b = document.getElementById('d-body'), r = document.getElementById('d-rule');
+  function select(i){ buttons.forEach((el,k)=>el.setAttribute('aria-selected',String(k===i))); t.textContent=steps[i][0]; b.innerHTML=steps[i][1]; r.innerHTML=steps[i][2]; }
+  buttons.forEach((el)=>{ el.addEventListener('click',()=>select(Number(el.dataset.i))); el.addEventListener('keydown',(e)=>{ const i=Number(el.dataset.i); if(e.key==='ArrowRight'&&i<buttons.length-1){select(i+1);buttons[i+1].focus();} if(e.key==='ArrowLeft'&&i>0){select(i-1);buttons[i-1].focus();} }); });
+</script>
