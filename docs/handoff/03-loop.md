@@ -30,7 +30,30 @@ English; the chat follows the owner's preference in `CLAUDE.local.md` (not versi
 
 ## What exists for real
 
-<!-- the handoff 02 agent fills this when it finishes: repo, board, CI, release, what M0 left -->
+**M0 closed on 2026-09-05, released as `v0.0.0`.** Everything below was run, not assumed.
+
+| Thing | State |
+|---|---|
+| repo | [`nathanssantos/liminal`](https://github.com/nathanssantos/liminal), public, MIT. `main` protected: a pull request is required, `node`, `python` and `desktop` must pass, the branch must be up to date, no force push, no deletion — **administrators included**, so nothing reaches `main` outside a pull request |
+| monorepo | pnpm 11 + Turborepo. Node 24 (`.nvmrc`), TypeScript 6 strict with `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `verbatimModuleSyntax` and `allowImportingTsExtensions` — **relative imports carry the `.ts`/`.tsx` extension** |
+| packages | the seven `@liminal/*` and `apps/desktop`, each with a real test. `tools/boundaries.ts` reads every `package.json` against the architecture table and has two negative cases |
+| desktop | Electron 44 + electron-vite 5 + Vite 7 + React 19 + Tailwind 4. `pnpm --filter desktop dev` opens the window on `--remote-debugging-port=9222`; `pnpm --filter desktop shot <state> --id <card>` saves `evidence/<id>/<state>-<width>.png` plus a `.json` of measurements at 1024/1440/1920. Tokens live in `apps/desktop/src/renderer/tokens.css` (empty, as M1-04 will fill it) |
+| analyzer | `tools/` is one uv project with `analyzer` and `board`. `echo '{"cmd":"ping"}' \| uv run --directory tools python -m analyzer` answers |
+| `pnpm check` | Biome, tsc, root and per-package, Vitest, ruff, mypy `--strict`, pytest. It runs **all** of them, never truncates, and ends with a line per tool. 44 Python tests, 17 TypeScript tests |
+| CI | `ci.yml` with `node`, `python` and `desktop`; the desktop job always reports and only builds when its scope changed. `sync-board.yml` runs the sync on `main` and opens an auto-merging pull request. `release.yml` cuts the release from the `CHANGELOG.md` section on a `v*` tag |
+| board | [project 9](https://github.com/users/nathanssantos/projects/9), public, eight Status columns with `Decision needed` and `Blocked` first, plus Priority and Listening. **Listening is a single-select `yes`/`no`** — Projects v2 has no checkbox |
+| cards | the ten M0 cards `Done`; the five M1 cards on the board, `Specified`. M2 has only a README |
+| scripts | `board.sync`, `queue`, `open`, `move`, `comment`, `check`, `deliver`, all listed in `AGENTS.md › Commands` |
+| secrets | one: `BOARD_TOKEN`, used only by `sync-board.yml` |
+
+**What M0 left for you**
+
+- `M1-01` is the first card. `board.open 11` returns `CHECK` with no barrier — the `CHECK` is only
+  the dirty tree, if yours is dirty.
+- The skills call the modules directly; `/liminal` has never run a full iteration. Yours is the
+  first.
+- `board.check` and `board.comment` were written against their contract and unit-tested, but have
+  not been exercised in a real iteration.
 
 Until it is filled, **check yourself**: `git remote -v`, `gh project list --owner nathanssantos`,
 `pnpm check`, `uv run --directory tools python -m board.queue`. If anything from M0 is not standing,
