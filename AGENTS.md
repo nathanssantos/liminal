@@ -24,7 +24,8 @@ versioned file.
 3. `docs/process.md` — how work moves (SDD + loop). **§12 says what to read per area; §15 says
    when to stop and ask; §16 says which docs a change makes stale.**
 3½. `docs/product/strategy.md` and `docs/product/usability.md` — who it is for and what good looks
-   like; `docs/research/` — what the loop has learned about the domain.
+   like; `docs/design/principles.md` — the visual and interaction language; `docs/research/` — what
+   the loop has learned about the domain.
 4. `docs/memory/rules.md` — the section of the area you will touch. Then the ADRs in
    `docs/memory/decisions/` that cite that area, and `docs/memory/measurements.md`.
 5. The card's spec: `docs/specs/<milestone>/<id>.md`. No spec, no card.

@@ -11,7 +11,8 @@
 - Project agents in `.claude/agents/` (all read-only): reviewers `spec-reviewer`, `score-reviewer`,
   `engine-reviewer`, `music-reviewer`, `analysis-reviewer`, `brain-reviewer`,
   `conductor-reviewer`, `desktop-reviewer`, `usability-reviewer`, `docs-reviewer`; advisors
-  `research-scout`, `product-strategist`, `open-source-steward`. The table of who runs per path is in
+  `research-scout`, `product-strategist`, `open-source-steward`; and `ui-designer`, which writes
+  only under `docs/design/`. The table of who runs per path is in
   `docs/process.md › §5`. The machine's agents (`~/.claude/agents/`) still apply to UI and
   general quality.
 - No config and no token: the scripts use the authenticated `gh` and find the board by title.

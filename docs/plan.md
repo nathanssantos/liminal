@@ -7,7 +7,10 @@
 
 ## In one sentence
 
-**liminal is a platform for generating and steering music; the endless set is its first product.**
+**liminal is a platform for automated music production and live steering.** Two products on the
+same primitives: **Production** — from a brief and a reference to a complete track as an editable
+document, iterated with words, exported — and **Set** — the endless, steerable live set. The set
+ships first because it exercises every primitive; production follows as soon as the generators exist.
 
 You paste a YouTube link, type "melancholic techno, no vocals", press play — and the set plays
 until you tell it to stop. With an arc, with keys that move, with ideas that come back. And it
@@ -30,13 +33,19 @@ and audio comes back as numbers.**
 
 ## A platform, not one track
 
-The score document, the transforms, the generators, the style cards, the brains and the engine
-are **platform primitives**. The endless set is the first product built on them, because it
-exercises all of them and is what people will try first. Others compose the same primitives later:
-a track editor with the document as file format, an export pipeline (audio, MIDI, stems), a plugin
-that receives a score and plays it inside a DAW, new sources (local files, live input), new brains,
-new engines (samples, SuperCollider). Every spec and every doc describes the whole in these terms
-— nothing is written as if the set were the only thing.
+The score document, the transforms, the generators, the style cards, the brains, the soundcheck and
+the engine are **platform primitives**. Two products compose them:
+
+| Product | What it does | Where it lands |
+|---|---|---|
+| **Production** (automated music production) | brief + reference → a complete track as a document → iterate with prompts ("more bass in the drop", "a jazzier lead") → render → export (wav now; MIDI and stems later). Works without the live engine: main process + hidden window, and a headless door for batch production | generators and export in M3; production UI in M5 |
+| **Set** (live steering) | the endless set: reference queue with dwell times, handovers, live prompts, feedback, two clocks | M4 conductor, M5 booth |
+
+The set ships first because it exercises every primitive and is what people will try first. Others
+compose the same primitives later: a track editor with the document as file format, a plugin that
+receives a score and plays it inside a DAW, new sources (local files, live input), new brains, new
+engines (samples, SuperCollider). Every spec and every doc describes the whole in these terms —
+nothing is written as if the set, or a single track, were the only thing.
 
 ---
 
@@ -49,7 +58,8 @@ new engines (samples, SuperCollider). Every spec and every doc describes the who
 | 3 | **Steered by prompt** | a standing prompt changes the target card; a live prompt lands at the next phrase boundary, within 8 bars — measured by timestamp |
 | 4 | **Reference** | a YouTube link becomes a style card with BPM (±2) and key (exact or relative) right on 9 of 10 test tracks; the generated set stays within ±10% of the reference's band balance |
 | 5 | **More of this / less of this** | feedback changes the next section: the named measure moves in the asked direction |
-| 6 | **Reference queue and handover** | while playing, a new reference (YouTube now, a file later) joins a visible, reorderable queue; the set moves from the current style to the next within `HANDOVER_BARS`, with BPM inside the per-track budget, keys by neighbours only, and band balance reaching ±10% of the next card; analysis failure keeps the current target and says so. All read from the set log |
+| 7 | **Automated production** | from a reference and a prompt, the platform produces a **complete track** as a document (intro, build, drop, break, outro — at least four sections), within ±10% of the reference's bands; a prompt edit ("more bass in the drop") changes the named measure in the named section and nothing else; the track exports as wav that `ffprobe` reads with the right duration (MIDI and stems later); the document round-trips through `stringify`/`parse` |
+| 6 | **Reference queue and handover** | while playing, a new reference (YouTube now, a file later) joins a visible, reorderable queue, each entry with an **adjustable dwell time** (how long the set stays in that style before travelling on; default 10 min, editable inline); the set moves from the current style to the next within `HANDOVER_BARS`, with BPM inside the per-track budget, keys by neighbours only, and band balance reaching ±10% of the next card; analysis failure keeps the current target and says so. All read from the set log |
 
 🔴 **The gate that applies to all five: nothing requires a terminal.** The terminal is for
 developing.
@@ -107,7 +117,7 @@ Every milestone has an observable gate. No milestone starts before the previous 
 | **M0 · Foundation** | repo, monorepo, CI, board, project skills, agent instructions | CI green with one real test per package; `/queue` lists the board's cards; `/start #n` opens a card |
 | **M1 · Sound** | score document + engine + app shell | the app opens, plays 16 bars of a fixed score, stops. The same score rendered offline twice yields identical bytes |
 | **M2 · Ear** | analyzer: YouTube → style card; measure a wav | BPM and key right on 9 of 10 tracks; a score rendered by our own engine has its BPM and key recovered by the analyzer |
-| **M3 · Composition** | generators and transforms from the card | "more bass" is a diff, and energy below 120 Hz rises in the measurement. A generated section lands within ±10% of the reference's bands |
+| **M3 · Composition** | generators and transforms from the card; the first **Production** door | "more bass" is a diff, and energy below 120 Hz rises in the measurement. A generated section lands within ±10% of the reference's bands. A **complete track** (≥ 4 sections) is generated from a card, edited by one prompt, and exported as a wav `ffprobe` reads |
 | **M4 · Conducting** | conductor + brains: endless set, reference queue and handover | 60 min with no gap on the rules brain; then on the LLM. 10 s of injected brain latency produces no gap. A live prompt lands in ≤ 8 bars. A second reference queued mid-set is reached within `HANDOVER_BARS` with no budget broken |
 | **M5 · Booth** | the rich UI | set timeline, energy curve, current and queued references, prompts and feedback — all without a terminal |
 

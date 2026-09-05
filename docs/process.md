@@ -127,7 +127,7 @@ the next** (§7). If there is no next → **planning iteration** (§10).
 ### 2 · Open
 
 Read the area's memory (§12): the section in `rules.md`, the ADRs that cite it,
-`measurements.md`. Then `/start #<issue>`: its gates, what the repo already solves, and the
+`measurements.md`. A UI card also gets its **design brief** first (`ui-designer`, §5). Then `/start #<issue>`: its gates, what the repo already solves, and the
 area's reviewer in **design mode** (§5) with the whole spec and a ban on writing code. Branch
 `feat/<nº>-<slug>` from `main`; card → `In progress`.
 
@@ -272,11 +272,19 @@ The machine's agents (`~/.claude/agents/`) still apply to UI and general quality
 | `apps/desktop/src/renderer` | `desktop-reviewer` | `ui-quality-reviewer`, `accessibility-auditor`, `design-system-guardian`, `performance-auditor` |
 | `docs/specs`, `docs/plan.md` | `spec-reviewer` | — |
 | any code change | `docs-reviewer` (are the docs still true?) | — |
-| `apps/desktop/src/renderer` (also) | `usability-reviewer` | — |
+| `apps/desktop/src/renderer` (also) | `usability-reviewer`; **`ui-designer` before implementation** (design brief in `docs/design/`) | — |
 | lockfile, `pyproject` | — | `dependency-guardian` |
 
 Advisors by iteration type (read-only, their output is input): planning → `product-strategist`,
 `usability-reviewer`; research → `research-scout`; release → `open-source-steward`, `docs-reviewer`.
+
+**UI work: design before build.** A card that adds or changes a screen runs the `ui-designer` at
+opening (§3.2): it researches control and layout references with sources, and writes the design
+brief `docs/design/<card>.md` — layout, components and their states, tokens to add, motion,
+keyboard map — against `docs/design/principles.md`. The `usability-reviewer` reviews the brief; the
+implementation follows it; `ui-quality-reviewer` and `usability-reviewer` check the result against
+it. A card may set `design_review: true` in its frontmatter when the owner wants to see the brief
+(or a design canvas) before code; then the card waits in `Blocked` until `design: ok`.
 
 **Design mode.** On opening, the area's reviewer receives the spec and answers with the approach,
 the discarded alternative and the reason — no code. Same agent; different question.
@@ -531,6 +539,7 @@ Every PR leaves the repo's documentation **true**. The rule is not "update the d
 | `docs/specs/**` | a criterion changed in implementation |
 | `docs/process.md`, `.claude/skills/**`, `.claude/agents/**` | the way of working changed |
 | `docs/product/**` | audience, positioning, flows, measures changed |
+| `docs/design/**` | a screen, a component, a token, an interaction changed |
 | `docs/memory/**` | something was learned, decided or measured |
 | `AGENTS.md › Commands`, `CLAUDE.md` | a script or a target changed |
 | `CHANGELOG.md` | anything a user would notice |

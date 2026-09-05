@@ -86,7 +86,8 @@ guarantees, `className`, third-party libraries, typos.
 
 ## 5 · What only the screen proves
 
-🔴 **Touched the renderer → open the app.** Playwright over CDP to use and measure; `shot <state>`
+🔴 **Touched the renderer → open the app.** Compare with the design brief in `docs/design/<card>.md`:
+layout, states, tokens, motion, keyboard — deviations are findings, not taste. Playwright over CDP to use and measure; `shot <state>`
 per state and width (process §3.4). Lint, types and tests pass with the screen broken. A screenshot
 without measurements proves appearance, not alignment. Never someone else's data in a screenshot.
 

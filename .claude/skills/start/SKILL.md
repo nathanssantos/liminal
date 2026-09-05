@@ -56,6 +56,14 @@ Launch the **area's reviewer in design mode** (process §5 table), in the backgr
 The verdict is input. Whatever it proposes that changes shared behaviour or a screen outside the
 spec becomes a `question`, not a decision.
 
+## 4½ · UI cards: the design brief comes first
+
+A card that adds or changes a screen runs the `ui-designer` before any code: it researches control
+and layout references (with sources), and writes `docs/design/<card>.md` against
+`docs/design/principles.md` — layout, components and states, tokens, motion, keyboard map. The
+`usability-reviewer` reviews the brief. `design_review: true` in the frontmatter → the card waits in
+`Blocked` for the owner's `design: ok`.
+
 ## 5 · What is decided now, and what is declared
 
 Before the branch, in the chat, one screen: **the scope cut** (what is in, what is not, why) ·
