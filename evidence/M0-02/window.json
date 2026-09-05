@@ -1,0 +1,26 @@
+[
+  {
+    "state": "window",
+    "width": 1024,
+    "height": 900,
+    "title": "liminal",
+    "documentWidth": 1024,
+    "documentHeight": 900
+  },
+  {
+    "state": "window",
+    "width": 1440,
+    "height": 900,
+    "title": "liminal",
+    "documentWidth": 1440,
+    "documentHeight": 900
+  },
+  {
+    "state": "window",
+    "width": 1920,
+    "height": 900,
+    "title": "liminal",
+    "documentWidth": 1920,
+    "documentHeight": 900
+  }
+]
