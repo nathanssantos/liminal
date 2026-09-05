@@ -16,7 +16,15 @@
 | `board.comment` | `<nº> --file text.md [--label question]` | `{ url }`; **only inside `/liminal` or with approval said in the chat** |
 | `board.check` | `--area <path>` | `newComments[]` · `deadMocks[]` · `deadBranches[]` · `outOfArea[]` · `testsWithoutCriterion[]` · `dirtyTree` |
 | `board.deliver` | `--gates-only` \| `--rebase-only` \| `--open --title --description [--dry-run]` \| `--ready <pr>` \| `--merge <pr>` \| `--stale-description` \| `--stale-docs` | `verdict` and each gate's detail; never truncates command output (saves it to `evidence/_gates/<date>.log` and cites the path) |
-| `board.sync` | `[--dry-run] [--only M1]` | `created[]` · `updated[]` · `pulled[]` (GitHub → md) · `skeletons[]` · `movedByHuman[]` · `newComments[]` |
+| `board.sync` | `[--dry-run] [--only M1]` | `created[]` · `updated[]` · `pulled[]` (GitHub → md) · `skeletons[]` · `movedByHuman[]` · `newComments[]` · `closed[]` (issues closed because their card is `Done`) |
+
+## Status and issue state agree
+
+A card whose Status is `Done` has a **closed** issue: the merge closes it through `Closes #n`, and
+the sync closes any that was left open (`closed[]`), with a comment naming the merge or commit. The
+reverse is reported, not fixed: a closed issue whose card is not `Done` appears in
+`board.queue › cardsToMove`, because closing an issue by hand is a human signal (§11) and the
+loop decides what it means.
 
 ## `inbox` — what changed by human hand
 
