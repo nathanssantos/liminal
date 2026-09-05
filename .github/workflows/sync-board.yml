@@ -32,9 +32,21 @@ jobs:
           GH_TOKEN: ${{ secrets.BOARD_TOKEN }}
         run: uv run --directory tools python -m board.sync
       - if: steps.token.outputs.present == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.BOARD_TOKEN }}
         run: |
           git config user.name "liminal loop"
           git config user.email "noreply@github.com"
+          if git diff --quiet -- docs/specs; then
+            echo "the spec frontmatter is already current"
+            exit 0
+          fi
+          branch="docs/sync-board-${GITHUB_RUN_ID}"
+          git switch -c "$branch"
           git add docs/specs
-          git diff --cached --quiet || git commit -m "chore: sync the board [skip ci]"
-          git push
+          git commit -m "chore: write the issue numbers into the spec frontmatter"
+          git push -u origin "$branch"
+          gh pr create --base main --head "$branch" \
+            --title "chore: write the issue numbers into the spec frontmatter" \
+            --body "The board sync ran on main and the frontmatter moved."
+          gh pr merge "$branch" --squash --auto --delete-branch
