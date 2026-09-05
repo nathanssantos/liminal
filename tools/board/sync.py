@@ -117,6 +117,9 @@ class Sync:
         stored = card.sync.get("hash")
         remote = body_hash(strip_footer(issue["body"] or "") + issue["title"])
         if stored is not None and remote != stored:
+            if self.matches(card, issue):
+                self.push(card, issue)
+                return
             if self.tree_is_dirty():
                 self.report.pulled.append(
                     {
@@ -129,6 +132,11 @@ class Sync:
             self.pull(card, issue)
             return
         self.push(card, issue)
+
+    def matches(self, card: Card, issue: dict[str, Any]) -> bool:
+        rendered = card.issue_body(self.github.repo)
+        same_body = strip_footer(issue["body"] or "") == strip_footer(rendered)
+        return same_body and issue["title"] == card.issue_title
 
     def push(self, card: Card, issue: dict[str, Any]) -> None:
         body = card.issue_body(self.github.repo)

@@ -197,3 +197,31 @@ def test_a_dirty_tree_postpones_the_pull_instead_of_switching_branches(
 
     assert opened == []
     assert "dirty" in str(report.pulled[0]["skipped"])
+
+
+def test_a_stale_hash_alone_does_not_open_a_pull_request(
+    repo: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import board.sync as sync_module
+
+    github = FakeGitHub()
+    Sync(repo, github, FakeBoard()).run()
+    path = repo / SPECS / "M9-test" / "M9-01.md"
+    document = frontmatter.parse(path.read_text(encoding="utf-8"))
+    sync = document.front["sync"]
+    assert isinstance(sync, dict)
+    sync["hash"] = "0000000000000000"
+    path.write_text(frontmatter.dump(document), encoding="utf-8")
+
+    opened: list[int] = []
+    monkeypatch.setattr(
+        sync_module, "open_sync_pull_request", lambda root, card, number: opened.append(number)
+    )
+
+    report = Sync(repo, github, FakeBoard([make_item(100, status.SPECIFIED)])).run()
+
+    assert opened == []
+    assert report.pulled == []
+    refreshed = frontmatter.parse(path.read_text(encoding="utf-8")).front["sync"]
+    assert isinstance(refreshed, dict)
+    assert refreshed["hash"] != "0000000000000000"
