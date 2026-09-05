@@ -1,0 +1,40 @@
+name: sync-board
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - docs/specs/**
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+      - id: token
+        env:
+          BOARD_TOKEN: ${{ secrets.BOARD_TOKEN }}
+        run: |
+          if [ -n "$BOARD_TOKEN" ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "no BOARD_TOKEN secret: the board sync runs in the loop, on the machine"
+          fi
+      - if: steps.token.outputs.present == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.BOARD_TOKEN }}
+        run: uv run --directory tools python -m board.sync
+      - if: steps.token.outputs.present == 'true'
+        run: |
+          git config user.name "liminal loop"
+          git config user.email "noreply@github.com"
+          git add docs/specs
+          git diff --cached --quiet || git commit -m "chore: sync the board [skip ci]"
+          git push

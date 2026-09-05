@@ -1,0 +1,51 @@
+query BoardItems($project: ID!, $cursor: String) {
+  node(id: $project) {
+    ... on ProjectV2 {
+      items(first: 100, after: $cursor) {
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        nodes {
+          id
+          content {
+            ... on Issue {
+              number
+              title
+              state
+              url
+              labels(first: 30) {
+                nodes {
+                  name
+                }
+              }
+              milestone {
+                title
+              }
+            }
+          }
+          fieldValues(first: 30) {
+            nodes {
+              ... on ProjectV2ItemFieldSingleSelectValue {
+                name
+                field {
+                  ... on ProjectV2FieldCommon {
+                    name
+                  }
+                }
+              }
+              ... on ProjectV2ItemFieldTextValue {
+                text
+                field {
+                  ... on ProjectV2FieldCommon {
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
