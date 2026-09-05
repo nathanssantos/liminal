@@ -8,6 +8,7 @@
 | 2026-08 (another project) | latency per decision, persistent `stream-json` session, haiku | median **2,075 ms**; 9,674 tokens from cache | same | `brain`: horizon budget |
 | 2026-09-05 | versions on the npm registry | tone 15.1.22 · @strudel/core 1.2.6 · superdough 1.3.0 · tonal 6.4.3 · node-web-audio-api 2.2.0 · @tonejs/midi 2.0.28 | `npm view` | `stack.md` |
 | 2026-09-05 | tools on the machine | node 25.9.0 · ffmpeg (with `ebur128`, `astats`) · python3 with numpy and scipy · **no** librosa, yt-dlp, fluidsynth, sox | `command -v`, `find_spec` | setup: what to install |
+| 2026-09-05 | versions pinned at setup | node 24.18.0 · pnpm 11.20.0 · turbo 2.10.12 · typescript 6.0.3 · biome 2.5.12 · vitest 4.1.11 · electron 44.2.0 · electron-vite 5.0.0 · vite 7.3.6 · react 19.2.8 · tailwindcss 4.3.3 · @playwright/test 1.63.0 · ruff 0.16.6 · mypy 2.3.1 · pytest 9.1.1 | `npm view`, PyPI JSON API | `stack.md`, M0-01 to M0-04 |
 
 ## To measure in the first milestones
 

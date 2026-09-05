@@ -9,5 +9,5 @@
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "types": ["node", "vite/client"]
   },
-  "include": ["src", "e2e", "electron.vite.config.ts", "playwright.config.ts"]
+  "include": ["src", "e2e", "tools", "electron.vite.config.ts", "playwright.config.ts"]
 }

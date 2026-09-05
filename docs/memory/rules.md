@@ -83,6 +83,9 @@
 - ⚠️ **A native module in Electron's main needs a rebuild for Electron's ABI.** Avoided by
   decision: audio plays in the renderer and `node-web-audio-api` only enters tests, in plain
   Node. See ADR-0002.
+- ⚠️ **`electron-vite` 5 caps Vite at 7** (peer `^5 || ^6 || ^7`), so the newest Vite does not fit.
+  The pinned pair is electron-vite 5.0.0 + Vite 7.3.6 + Electron 44.2.0 + `@vitejs/plugin-react`
+  5.2.0. `@vitejs/plugin-react` 6 needs Vite 8 and is therefore out. (measured 2026-09-05, `npm view`)
 
 ## process
 
@@ -91,3 +94,13 @@
   `git grep`. (measured on another project)
 - 🔴 **Truncated output lies twice**: `| tail` hides the error in the middle **and** zeroes the
   exit code. No gate truncates. (measured on another project)
+- 🔴 **`--reapply-cherry-picks` does NOT stop the drop.** git reapplies the commit and then drops it
+  as empty — `dropping <sha> … patch contents already upstream` — while printing
+  `Successfully rebased`. What catches it is comparing the commit count before and after, which is
+  what `board.deliver --rebase-only` does. (measured 2026-09-05, test
+  `rebase only aborts when git silently drops a commit`)
+- ⚠️ **Projects v2 has no checkbox field.** The `Listening` field of the board is a single-select
+  with `yes` and `no`; the board scripts read it as a boolean. (measured 2026-09-05)
+- ⚠️ **Two commits made in the same second with the same tree, parent, message and author get the
+  same SHA.** A git fixture that needs two distinct commits must vary the message. (measured
+  2026-09-05, while writing the rebase test)
