@@ -94,9 +94,40 @@
 
 - 🔴 **superdough and Strudel do not run outside a browser.** Their "headless" is Puppeteer. An
   engine that must run in Node (CI, tests) cannot be Strudel. (measured: docs and issues, 2026-09)
-- ⚠️ **Tone.js in Node needs the polyfill before the import.** `import 'node-web-audio-api/polyfill'`
+- ⚠️ **Tone.js in Node needs the polyfill before the import.** `import 'node-web-audio-api/polyfill.js'`
   and only then `await import('tone')` — Tone uses `standardized-audio-context`, which does
-  `instanceof` against globals such as `window.AudioParam`. (measured: node-web-audio-api README)
+  `instanceof` against globals such as `window.AudioParam`.
+  ⚠️ Correction: the subpath carries the extension. `node-web-audio-api` 2.2.0 exports `.` and
+  `./polyfill.js` and nothing else, so the extensionless form the README suggests throws
+  `ERR_PACKAGE_PATH_NOT_EXPORTED`. The original note was taken from the README, not from a run.
+  (measured 2026-09-06, node 24.18.0)
+- 🔴 **Tone's `Transport.PPQ` is 192; the score's is 960.** A score tick is not a Tone tick, and
+  nothing warns about it: scheduling our ticks as Tone ticks plays the document five times too
+  fast. Convert through seconds, or set the transport's PPQ, and never pass a score tick to a Tone
+  API that wants ticks without saying which unit it is. (measured 2026-09-06)
+- 🔴 **Wrapping an `OfflineAudioContext` in `Tone.Context` renders audio but never moves the
+  transport.** Zero transport callbacks fire, silently: Tone reports the context as "suspended" and
+  its ticker is a wall clock. Nodes scheduled straight on the graph still sound, so the render is
+  not empty and nothing looks wrong. The offline path needs `Tone.OfflineContext(raw)`, whose
+  `render()` advances transport time. An engine that takes a raw context has to pick the wrapper
+  itself. (measured 2026-09-06)
+- ⭐ **Offline rendering is the fast way to prove timing, at the real tempo.** The 16-bar fixture at
+  128 BPM renders in ~112 ms against 30 s of wall clock, and the bar callbacks land on exact
+  times (1.875 s apart). Raising a fixture's BPM to make a real-clock test bearable trades the
+  tempo the product runs at for nothing. (measured 2026-09-06)
+- 🔴 **A Tone event built without `{ context }` binds to the global transport, not yours.**
+  `new tone.Part({ callback, events })` throws `Cannot read properties of undefined (reading
+  'value')` from `_getBpm`, because the global transport has no bpm in a Node process that never
+  called `Tone.setContext`. Every Tone object the engine builds carries the engine's context.
+  (measured 2026-09-06)
+- ⚠️ **Rewinding the transport makes `context.now()` slightly negative, and Tone rejects it.**
+  `transport.seconds = 0` then `part.stop()` throws `Value must be within [0, Infinity], got:
+  -3.6e-13`. Pass the time explicitly — `part.stop(0)`, `transport.stop(0)` — instead of letting
+  Tone read the clock. (measured 2026-09-06)
+- ⭐ **The guard that keeps `dispose()` honest is textual, not a counter.** A test asserts that
+  every `new tone.X` in the engine's sources sits inside `ledger.add(...)`, so a node added inline
+  fails the build instead of leaking. A wrapper that adds the node somewhere else defeats it — the
+  `ledger.add(` has to enclose the construction where a reader can see it. (measured 2026-09-06)
 - ⚠️ **`AudioWorklet` in `node-web-audio-api` runs synchronously**, with no thread of its own. Do
   not measure worklet latency in Node and call it product latency. (measured: docs)
 - ⚠️ **Determinism is per implementation.** Chromium × Node do not yield the same bytes. Compare

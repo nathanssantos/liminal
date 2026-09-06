@@ -73,6 +73,7 @@ versioned file.
 | `pnpm check` | Biome, tsc, Vitest, ruff, mypy, pytest — full output, never truncated |
 | `pnpm --filter desktop dev` | opens the app (with `--remote-debugging-port` so Playwright can attach) |
 | `pnpm --filter desktop shot <state>` | launches the app, drives it to the state, saves screenshot and measurements to `evidence/` |
+| `pnpm --filter engine play:fixture` | plays the sixteen-bar fixture through the speakers, for the listening gate |
 | `uv run --directory tools python -m analyzer` | the analyzer worker |
 | `uv run --directory tools python -m board.sync --dry-run` | mirrors the specs onto the board |
 | `uv run --directory tools python -m board.queue` | board, PRs, human inbox, git — what the skills read |

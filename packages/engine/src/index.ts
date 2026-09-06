@@ -1,1 +1,8 @@
-export {}
+export type { DowngradedCurve } from './automation.ts'
+export { MIN_EXPONENTIAL_VALUE } from './automation.ts'
+export type { BarEvent, Engine, EngineEvent, EngineOptions } from './engine.ts'
+export { createEngine, DEFAULT_LOOK_AHEAD_SECONDS } from './engine.ts'
+export type { EngineErrorCode } from './errors.ts'
+export { EngineError } from './errors.ts'
+export { SUPPORTED_PRESETS } from './instruments.ts'
+export { barSeconds, scoreSeconds, secondsToTicks, ticksToSeconds } from './time.ts'
