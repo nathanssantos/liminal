@@ -13,6 +13,8 @@ from board.stale import stale_docs
 
 GATES_LOG = Path("evidence") / "_gates"
 COMMENT = re.compile(r"^\+\s*(//|/\*|#(?!\!)|\*\s)")
+
+PROSE_AND_LOCKS = (":!*.lock", ":!*lock.yaml", ":!*.md", ":!*.json")
 ALLOWED_COMMENT = re.compile(r"biome-ignore|eslint-disable|noqa|type:\s*ignore|TODO\(#\d+\)|MOCK:")
 CONVENTIONAL = re.compile(
     r"^(feat|fix|docs|chore|ci|refactor|test|perf|build|style|revert)(\([a-z0-9-]+\))?!?: .+"
@@ -39,7 +41,7 @@ def check_gate(root: Path) -> Gate:
 
 
 def comments_gate(root: Path, base: str = "origin/main") -> Gate:
-    diff = git(root, "diff", f"{base}...HEAD", "--", ".", ":!*.lock", ":!*lock.yaml")
+    diff = git(root, "diff", f"{base}...HEAD", "--", ".", *PROSE_AND_LOCKS)
     offenders = [
         line
         for line in diff.splitlines()

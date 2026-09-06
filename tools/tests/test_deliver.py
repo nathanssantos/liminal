@@ -74,6 +74,22 @@ def test_the_gate_accepts_a_sanctioned_suppression(tmp_path: Path) -> None:
     assert comments_gate(root, base="main~1").passed is True
 
 
+def test_the_gate_reads_a_markdown_heading_as_prose_not_as_a_comment(tmp_path: Path) -> None:
+    root = repo_with_commit(tmp_path, "doc.md", "a line\n")
+    (root / "doc.md").write_text("a line\n\n# A heading\n", encoding="utf-8")
+    commit(root, "docs: add a heading")
+
+    assert comments_gate(root, base="main~1").passed is True
+
+
+def test_the_gate_still_reads_a_python_comment_as_a_comment(tmp_path: Path) -> None:
+    root = repo_with_commit(tmp_path, "script.py", "a = 1\n")
+    (root / "script.py").write_text("a = 1\n# a planted comment\n", encoding="utf-8")
+    commit(root, "feat: add a line")
+
+    assert comments_gate(root, base="main~1").passed is False
+
+
 def test_the_gate_rejects_a_commit_message_outside_the_convention(tmp_path: Path) -> None:
     root = repo_with_commit(tmp_path, "src.ts", "export const a = 1\n")
     (root / "src.ts").write_text("export const a = 2\n", encoding="utf-8")

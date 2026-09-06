@@ -154,6 +154,10 @@
   workflow that pushes to `main` fails — the board sync opens an auto-merging pull request instead.
   The alternative, leaving admins outside the protection, would let any owner token push straight to
   `main` and would make the gate a decoration. (measured 2026-09-05, M0-09)
+- ⚠️ **The zero-comment gate read a markdown heading as a comment.** `#` opens a comment in Python
+  and a heading in prose, so the first delivery that touched an ADR failed a gate it should have
+  passed. The gate now skips `.md` and `.json` and still catches `#` in code. (measured 2026-09-06,
+  the first real run of `board.deliver --merge`)
 - 🔴 **`git add -A` sweeps in whatever a review agent has on disk at that instant.** A reviewer's
   fuzz harness landed inside a commit whose `pnpm check` had run minutes earlier, when the file did
   not exist yet, so the gate was green and the branch was not. Stage by path while an agent is
