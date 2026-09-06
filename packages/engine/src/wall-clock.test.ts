@@ -1,3 +1,4 @@
+import type { Score } from '@liminal/score'
 import { sixteenBars } from '@liminal/score/fixtures'
 import { afterAll, describe, expect, it } from 'vitest'
 import { createEngine, DEFAULT_LOOK_AHEAD_SECONDS } from './engine.ts'
@@ -6,6 +7,14 @@ import { barSeconds } from './time.ts'
 const BARS_TO_HEAR = 2
 
 const AGE_SECONDS = 3
+
+const SILENT_GAIN_DB = -60
+
+const silent = (): Score => {
+  const score = structuredClone(sixteenBars)
+  score.mix.master.gainDb = SILENT_GAIN_DB
+  return score
+}
 
 const openContext = (): AudioContext | undefined => {
   try {
@@ -32,7 +41,7 @@ describe.skipIf(context === undefined)('the wall clock drives the transport', ()
     if (context === undefined) {
       return
     }
-    const engine = await createEngine({ context, score: sixteenBars })
+    const engine = await createEngine({ context, score: silent() })
     const seen: number[] = []
     engine.on('bar', (event) => {
       if (event !== undefined) {
@@ -58,7 +67,7 @@ describe.skipIf(context === undefined)('the wall clock drives the transport', ()
     await new Promise((resolve) => {
       setTimeout(resolve, AGE_SECONDS * 1000)
     })
-    const engine = await createEngine({ context, score: sixteenBars })
+    const engine = await createEngine({ context, score: silent() })
     const seen: number[] = []
     let positionAtFirstBar: number | undefined
     engine.on('bar', (event) => {
@@ -82,7 +91,7 @@ describe.skipIf(context === undefined)('the wall clock drives the transport', ()
       return
     }
     const automationId = sixteenBars.automation[0]?.id ?? ''
-    const engine = await createEngine({ context, score: sixteenBars })
+    const engine = await createEngine({ context, score: silent() })
     engine.play()
     await new Promise((resolve) => {
       setTimeout(resolve, 300)
@@ -97,10 +106,10 @@ describe.skipIf(context === undefined)('the wall clock drives the transport', ()
     if (context === undefined) {
       return
     }
-    const engine = await createEngine({ context, score: sixteenBars, lookAheadSeconds: 0.05 })
+    const engine = await createEngine({ context, score: silent(), lookAheadSeconds: 0.05 })
     expect(engine.lookAhead()).toBeCloseTo(0.05, 5)
     engine.dispose()
-    const byDefault = await createEngine({ context, score: sixteenBars })
+    const byDefault = await createEngine({ context, score: silent() })
     expect(byDefault.lookAhead()).toBeCloseTo(DEFAULT_LOOK_AHEAD_SECONDS, 5)
     byDefault.dispose()
   })
