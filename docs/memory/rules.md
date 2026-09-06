@@ -94,9 +94,147 @@
 
 - 🔴 **superdough and Strudel do not run outside a browser.** Their "headless" is Puppeteer. An
   engine that must run in Node (CI, tests) cannot be Strudel. (measured: docs and issues, 2026-09)
-- ⚠️ **Tone.js in Node needs the polyfill before the import.** `import 'node-web-audio-api/polyfill'`
+- ⚠️ **Tone.js in Node needs the polyfill before the import.** `import 'node-web-audio-api/polyfill.js'`
   and only then `await import('tone')` — Tone uses `standardized-audio-context`, which does
-  `instanceof` against globals such as `window.AudioParam`. (measured: node-web-audio-api README)
+  `instanceof` against globals such as `window.AudioParam`.
+  ⚠️ Correction: the subpath carries the extension. `node-web-audio-api` 2.2.0 exports `.` and
+  `./polyfill.js` and nothing else, so the extensionless form the README suggests throws
+  `ERR_PACKAGE_PATH_NOT_EXPORTED`. The original note was taken from the README, not from a run.
+  (measured 2026-09-06, node 24.18.0)
+- 🔴 **Tone's `Transport.PPQ` is 192; the score's is 960.** A score tick is not a Tone tick, and
+  nothing warns about it: scheduling our ticks as Tone ticks plays the document five times too
+  fast. Convert through seconds, or set the transport's PPQ, and never pass a score tick to a Tone
+  API that wants ticks without saying which unit it is. (measured 2026-09-06)
+- 🔴 **Wrapping an `OfflineAudioContext` in `Tone.Context` renders audio but never moves the
+  transport.** Zero transport callbacks fire, silently: Tone reports the context as "suspended" and
+  its ticker is a wall clock. Nodes scheduled straight on the graph still sound, so the render is
+  not empty and nothing looks wrong. The offline path needs `Tone.OfflineContext(raw)`, whose
+  `render()` advances transport time. An engine that takes a raw context has to pick the wrapper
+  itself. (measured 2026-09-06)
+- ⭐ **Offline rendering is the fast way to prove timing, at the real tempo.** The 16-bar fixture at
+  128 BPM renders in ~112 ms against 30 s of wall clock, and the bar callbacks land on exact
+  times (1.875 s apart). Raising a fixture's BPM to make a real-clock test bearable trades the
+  tempo the product runs at for nothing. (measured 2026-09-06)
+- 🔴 **A Tone event built without `{ context }` binds to the global transport, not yours.**
+  `new tone.Part({ callback, events })` throws `Cannot read properties of undefined (reading
+  'value')` from `_getBpm`, because the global transport has no bpm in a Node process that never
+  called `Tone.setContext`. Every Tone object the engine builds carries the engine's context.
+  (measured 2026-09-06)
+- ⚠️ **Rewinding the transport makes `context.now()` slightly negative, and Tone rejects it.**
+  `transport.seconds = 0` then `part.stop()` throws `Value must be within [0, Infinity], got:
+  -3.6e-13`. Pass the time explicitly — `part.stop(0)`, `transport.stop(0)` — instead of letting
+  Tone read the clock. (measured 2026-09-06)
+- ⭐ **The guard that keeps `dispose()` honest is textual, not a counter.** A test asserts that
+  every `new tone.X` in the engine's sources sits inside `ledger.add(...)`, so a node added inline
+  fails the build instead of leaking. A wrapper that adds the node somewhere else defeats it — the
+  `ledger.add(` has to enclose the construction where a reader can see it. (measured 2026-09-06)
+- 🔴 **A transport callback is handed a CONTEXT time, not a transport position.** Deriving the bar
+  from it works only while the context clock reads about zero at `play()` — true in every offline
+  render, and never in the app, where the context is born at startup and play comes later. Measured:
+  a context 31 s old emitted **no** bar events at all, silently, because every bar looked past the
+  end. The bar comes from `transport.getSecondsAtTime(time)`; the callback's `time` is for
+  scheduling nodes. (measured 2026-09-06)
+- 🔴 **`AudioParam` times are context times, so automation cannot be scheduled at construction.**
+  Points converted to score-relative seconds and handed straight to `setValueAtTime` fire against
+  the context clock: on a context older than the score, the whole sweep is already over before the
+  first note. Automation is planned at load and **applied inside transport callbacks**, which also
+  makes it replay on a second `play()`. (measured 2026-09-06)
+- ⭐ **The test that catches both is one that ages the context before playing.** Every offline test
+  creates a fresh context where context time equals transport time, so the two bugs above are
+  invisible to all of them. One live test that waits a few seconds before `play()` kills both.
+  (measured 2026-09-06)
+- ⚠️ **One transport per engine: two engines on one context fight.** The second engine's `stop()`
+  stops the first engine's music, and `transport.cancel(0)` would wipe events the host scheduled.
+  `createEngine` refuses a context that already drives an engine, and clears only the ids it
+  registered. (measured 2026-09-06)
+- ⚠️ **Disposing a Tone context closes the raw context underneath it.** `Context.dispose()` calls
+  `close()`, which closes the `AudioContext` it was given, so an engine that wraps a caller's
+  context must never dispose the wrapper — it would close the caller's device.
+  ⚠️ Correction: the ticker is **not** the price. `context.clockSource = 'offline'` releases the
+  wrapper's clock (the setter disposes the timeout or terminates the worker) and never touches the
+  raw context — measured: the device stays `running` afterwards, and the caller still closes it
+  itself. An engine that made the wrapper releases the clock on dispose and on a failed build.
+  (measured 2026-09-06)
+- 🔴 **A mutation run belongs in a worktree, never in the working tree.** An interrupted run left
+  `if (false && …)` sitting in `instruments.ts`, uncommitted, and the next measurements were taken
+  against sabotaged code — two tests "failed" for a reason that did not exist. `git diff HEAD` on
+  the sources is the check before trusting any number that follows a mutation pass.
+  (measured 2026-09-06)
+- ⭐ **A test renders only as far as it looks.** The engine suite spent 41 s of its 47 on six tests
+  that rendered the whole 30-second fixture to read a value at bar 8 or observe bar 4. Rendering to
+  the instant asserted, with the notes stripped where no one listens, took the same six from ~11 s
+  each to under 1 s and the suite from 47 s to 9 s — with every assertion unchanged. The cost is
+  the audio graph, not the test: 4 s of the fixture renders in 192 ms, and 48 ms with no notes.
+  (measured 2026-09-06)
+- 🔴 **Never stop the transport from inside the tick that is running.** `transport.stop(time)`
+  called at that same `time` rewinds the tick source while the clock loop is still in its window,
+  and every `Part` replays its first event: 165 attacks on a document holding 48, all the opening
+  chord, forty times in ~50 ms. A `PolySynth` prints `Max polyphony exceeded` and looks like a
+  dropped release; a monophonic voice retriggers in silence. The stop belongs in a
+  `context.setTimeout`, outside the tick. (⚠️ Correction: first written here as a race between the
+  releases and the stop, which it is not — the mechanism is the rewind, and it is deterministic per
+  configuration.) (measured 2026-09-06)
+- 🔴 **Offline does see it, and that is where the guard belongs.** The same rewind adds 6 ghost
+  attacks to an offline render of the fixture — deterministic, and cheap to assert. The engine
+  counts the notes it triggers, and the test compares that count with the document; a live test
+  alone would leave CI blind, because CI has no device. The bar events do not move: the bar
+  callback already refuses to fire past the score's length. (⚠️ Correction: a seventeenth `bar`
+  event was written here and does not reproduce.) (measured 2026-09-06)
+- 🔴 **A guard that makes the symptom impossible also makes the fix untestable.** The parts
+  once refused to trigger outside the playing state. In working code it changed no number; what it
+  did was let the stop go back inside the tick with the suite still green. The assertion has to sit
+  on the invariant itself — the notes triggered against the notes written — with nothing between it
+  and the defect. (measured 2026-09-06)
+- ⚠️ **A Tone `context.setTimeout` already cancels the lookahead, so arm it with a plain delay.**
+  It stores `now() + delay` and fires against `now()`, and `now()` carries the lookahead on both
+  sides. Subtracting the tick's `time` from `now()` to "correct" the anchor only moves the callback
+  earlier, by at most one update interval, and clamps to zero for any tail shorter than that — a
+  hat-only score would lose its tail entirely. (⚠️ Correction: this rule first claimed the plain
+  delay lands 0.15–0.2 s early; it does not.) (measured 2026-09-06)
+- 🔴 **Cancelling a Tone timeout does not stop it once the batch is dispatching.** `_timeoutLoop`
+  walks a **snapshot** of everything due, so a `clearTimeout` called from inside that batch removes
+  the entry from the timeline and not from the array being walked. The engine holds the id of its
+  one pending timeout and cancels it on `play()`, `stop()` and `dispose()` — **and** every deferred
+  action checks the state it was armed for. Without the second half a `play()` landing in the same
+  batch as the release tail cancelled a rewind that ran anyway: transport running, engine reporting
+  itself stopped, notes audible, no event, and only `dispose()` able to silence it. The guard is a
+  state token, not a session identity: it closes the race for the engine's own transitions, and
+  leaves a caller that owns timeouts on the same context able to drive `playing → idle → playing`
+  ahead of a snapshotted action. Nothing in the repo does that. (⚠️ Correction: this rule first said
+  cancelling on every transition was enough.) (measured 2026-09-06)
+- 🔴 **`transport.start(0)` is right only for the first start.** Offline the context clock begins at
+  zero, so the two agree once; on any later start the transport integrates from zero to the current
+  render time and jumps straight to the end, playing nothing and emitting nothing. `start()` with no
+  argument is right every time. (measured 2026-09-06)
+- ⭐ **The release tail is a musical number, so it comes from the presets.** How long the engine
+  keeps the transport after `ended` is the longest tail among the score's voices — the envelope's
+  release when it sustains, decay plus release when it does not. A constant would silently truncate
+  the first preset added with a longer release. It covers the voices only: the day a delay or a
+  reverb lands, the effect's own tail joins the sum. (measured 2026-09-06)
+- 🔴 **Whatever runs after the end has to survive `play()` landing in the middle of it.** During
+  the tail the engine is neither playing nor idle: a `play()` there once re-armed the end in the
+  transport's past and left the engine mute forever, with no error and no event. The engine keeps
+  three states, and `play()` during the tail rewinds before it starts. ⚠️ It is the rewind **followed
+  by a start** that has to leave the tick: rewinding alone from an `ended` listener is fine, which is
+  why `stop()` and `dispose()` do it synchronously and a test calls `stop()` from there and counts
+  the notes. (measured 2026-09-06)
+- 🔴 **Opening the audio device at module scope can hang the whole suite, past any timeout.**
+  `new AudioContext()` in `node-web-audio-api` is a synchronous native call; when the device is
+  wedged it blocks uninterruptibly, so the file hangs on import and `timeout 90` does not kill it.
+  The live tests are opt-in behind `LIMINAL_AUDIO_DEVICE=1`, and they say so when skipped. CI has
+  no device either way. (measured 2026-09-06)
+- ⚠️ **A reused Tone wrapper needs its clock put back.** `wrapContext` hands the same wrapper to
+  every engine built on one raw context — the wrapper is never disposed, because that would close
+  the caller's device, so building a new one per engine leaked its destination chain past the
+  ledger's sight. Reuse means `release()` parks the clock (`clockSource = 'offline'`) and the next
+  wrap restores it. That restore is defended only by the live suite: dropping it leaves the default
+  suite green and hangs live playback. (measured 2026-09-06)
+- 🔴 **A test that opens the audio device must be silent by default.** A timing test that plays
+  through the speakers runs on every `pnpm check`, on the owner's machine, in the middle of
+  something else — and worse, a review agent's mutation run replays it dozens of times from a
+  worktree pinned to an older commit, where the fix does not reach. The master goes to -60 dB in
+  the test; making sound is the job of `play:fixture`, which a human starts on purpose.
+  (measured 2026-09-06)
 - ⚠️ **`AudioWorklet` in `node-web-audio-api` runs synchronously**, with no thread of its own. Do
   not measure worklet latency in Node and call it product latency. (measured: docs)
 - ⚠️ **Determinism is per implementation.** Chromium × Node do not yield the same bytes. Compare

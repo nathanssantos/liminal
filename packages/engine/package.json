@@ -12,13 +12,16 @@
   "scripts": {
     "lint": "biome check .",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "vitest run"
+    "test": "vitest run",
+    "play:fixture": "node --experimental-strip-types scripts/play-fixture.ts"
   },
   "devDependencies": {
+    "node-web-audio-api": "2.2.0",
     "typescript": "6.0.3",
     "vitest": "4.1.11"
   },
   "dependencies": {
-    "@liminal/score": "workspace:*"
+    "@liminal/score": "workspace:*",
+    "tone": "15.1.22"
   }
 }
