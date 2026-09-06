@@ -3,7 +3,7 @@
   "round": 6,
   "head": "48af6b0cd33aad17a657da05b40a51b3478436e5",
   "reviewedHead": "48af6b0cd33aad17a657da05b40a51b3478436e5",
-  "deepPassHead": "e2806342e56bdf7ccd46b9f28227698e4916b5a1",
+  "deepPassHead": "48af6b0cd33aad17a657da05b40a51b3478436e5",
   "measured": [
     "packages/engine/package.json",
     "packages/engine/src/automation.ts",
@@ -161,5 +161,5 @@
       "note": "issue #62"
     }
   ],
-  "deepPassNote": "measured on e280634; the filter.q test and this record landed after, and a confirmation pass follows on the pushed head"
+  "deepPassNote": "round 6 measured e280634; the filter.q test at 48af6b0 was confirmed by a later pass that mutated engine.ts to resolve both filter targets to the cutoff and saw only the new test fail. packages/ and apps/ are identical between 48af6b0 and the head that carries this file."
 }
