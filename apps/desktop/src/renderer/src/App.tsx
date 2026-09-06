@@ -1,5 +1,6 @@
 import { ErrorStrip, Readout, Select, Slider, Toggle, Transport } from '@liminal/ui'
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
+import { actionFor, clampGain } from './shortcuts.ts'
 import {
   decibels,
   hintFor,
@@ -20,6 +21,32 @@ export function App() {
   const playing = shell.transport === 'playing'
   const guard = playing ? NO_PAUSE_REASON : playGuard(shell)
   const numbers = readoutOf(shell)
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.metaKey || event.ctrlKey || event.altKey) return
+      const action = actionFor(event.key, document.activeElement)
+      if (!action) return
+      const state = useShell.getState()
+      if (action.kind === 'toggle-transport') {
+        if (state.transport === 'playing') state.requestStop()
+        else if (playGuard(state) === undefined) state.requestPlay()
+      }
+      if (action.kind === 'toggle-mute') state.toggleMuted(!state.muted)
+      if (action.kind === 'nudge-volume') {
+        const next = clampGain(state.gainDb + action.by)
+        state.setGainDb(next)
+        state.commitGainDb(next)
+      }
+      if (action.kind === 'set-volume') {
+        state.setGainDb(action.gainDb)
+        state.commitGainDb(action.gainDb)
+      }
+      event.preventDefault()
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
 
   return (
     <main className="shell">

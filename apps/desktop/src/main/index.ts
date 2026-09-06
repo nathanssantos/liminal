@@ -2,9 +2,9 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { CHANNELS, scoreLoad } from '@liminal/protocol'
 import { sixteenBars } from '@liminal/score/fixtures'
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, session as electronSession, ipcMain } from 'electron'
 import { createSession } from './session.ts'
-import { mainWindowOptions } from './window.ts'
+import { CONTENT_SECURITY_POLICY, mainWindowOptions } from './window.ts'
 
 const here = dirname(fileURLToPath(import.meta.url))
 
@@ -19,6 +19,17 @@ function listen(): void {
       session.handle(channel.name, payload),
     )
   }
+}
+
+function guardContent(): void {
+  electronSession.defaultSession.webRequest.onHeadersReceived((details, done) => {
+    done({
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': [CONTENT_SECURITY_POLICY],
+      },
+    })
+  })
 }
 
 function createWindow(): void {
@@ -37,6 +48,7 @@ function createWindow(): void {
 }
 
 void app.whenReady().then(() => {
+  if (!process.env.ELECTRON_RENDERER_URL) guardContent()
   listen()
   createWindow()
   app.on('activate', () => {

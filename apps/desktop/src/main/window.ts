@@ -3,6 +3,16 @@ import { WINDOW_BACKGROUND } from '@liminal/ui/colours'
 
 export const WINDOW_TITLE = 'liminal'
 
+export const CONTENT_SECURITY_POLICY = [
+  "default-src 'none'",
+  "script-src 'self'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data:",
+  "font-src 'self'",
+  "media-src 'self'",
+  "connect-src 'self'",
+].join('; ')
+
 export type WindowOptions = {
   title: string
   width: number

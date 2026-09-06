@@ -180,3 +180,54 @@ describe('what the whole screen announces', () => {
     expect(reached).toContainEqual(expect.stringContaining('Mute'))
   })
 })
+
+describe('the keys that work without the mouse, on the real screen', () => {
+  it('mutes with M even while a button has focus', async () => {
+    reset({ score: EXAMPLE })
+    render(<App />)
+    await userEvent.tab()
+    expect(screen.getByRole('button', { name: 'Play' })).toHaveFocus()
+    await userEvent.keyboard('m')
+    expect(useShell.getState().muted).toBe(true)
+  })
+
+  it('moves the volume a decibel at a time with the arrows', async () => {
+    reset({ score: EXAMPLE, gainDb: -12 })
+    render(<App />)
+    await userEvent.keyboard('{ArrowUp}')
+    expect(useShell.getState().gainDb).toBe(-11)
+    await userEvent.keyboard('{ArrowDown}{ArrowDown}')
+    expect(useShell.getState().gainDb).toBe(-13)
+  })
+
+  it('jumps the volume with a digit', async () => {
+    reset({ score: EXAMPLE })
+    render(<App />)
+    await userEvent.keyboard('0')
+    expect(useShell.getState().gainDb).toBe(-60)
+    await userEvent.keyboard('8')
+    expect(useShell.getState().gainDb).toBe(-12)
+  })
+
+  it('never lets a nudge leave the range', async () => {
+    reset({ score: EXAMPLE, gainDb: 0 })
+    render(<App />)
+    await userEvent.keyboard('{ArrowUp}{ArrowUp}')
+    expect(useShell.getState().gainDb).toBe(0)
+  })
+
+  it('leaves the arrows alone when the volume slider itself has focus', async () => {
+    reset({ score: EXAMPLE, gainDb: -12 })
+    render(<App />)
+    screen.getByRole('slider', { name: 'Volume' }).focus()
+    await userEvent.keyboard('{ArrowUp}')
+    expect(useShell.getState().gainDb).toBe(-11)
+  })
+
+  it('refuses Space when there is nothing to play', async () => {
+    reset({ devices: [] })
+    render(<App />)
+    await userEvent.keyboard(' ')
+    expect(useShell.getState().transport).toBe('stopped')
+  })
+})
