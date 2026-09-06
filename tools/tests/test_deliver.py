@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from board.check import dead_mocks
+from board.check import dead_mocks, report
 from board.deliver import comments_gate, commit_messages_gate, rebase_only
 from board.stale import missing_commands, missing_paths
 from tests.helpers import commit, repo_with_commit, run
@@ -154,3 +154,15 @@ def test_the_mock_scan_finds_a_mock_left_in_product_code(tmp_path: Path) -> None
     source.write_text("const bpm = 128\nconst key = 'MOCK: not a real key'\n", encoding="utf-8")
 
     assert dead_mocks(tmp_path) == ["packages/score/index.ts:2"]
+
+
+def test_check_reports_on_the_tree_it_is_pointed_at(tmp_path: Path) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+    (root / "packages" / "score").mkdir(parents=True)
+    marked = root / "packages" / "score" / "x.ts"
+    marked.write_text("const a = 1 // MOCK: not real\n", encoding="utf-8")
+
+    given = report(root, "packages")
+
+    assert given["root"] == str(root)
+    assert given["deadMocks"] == ["packages/score/x.ts:1"]
