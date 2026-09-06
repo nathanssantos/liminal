@@ -18,3 +18,4 @@ __pycache__/
 CLAUDE.local.md
 playwright-report/
 test-results/
+storybook-static/

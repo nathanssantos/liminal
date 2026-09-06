@@ -1,10 +1,9 @@
-import { readFileSync } from 'node:fs'
 import * as ts from 'typescript'
 
-export function declaredPropNames(filePath: string, typeName: string): string[] {
+export function declaredPropNames(text: string, typeName: string): string[] {
   const source = ts.createSourceFile(
-    filePath,
-    readFileSync(filePath, 'utf8'),
+    `${typeName}.tsx`,
+    text,
     ts.ScriptTarget.ESNext,
     true,
     ts.ScriptKind.TSX,
@@ -21,7 +20,7 @@ export function declaredPropNames(filePath: string, typeName: string): string[] 
       }
     }
   }
-  if (!found) throw new Error(`${filePath} declares no type named ${typeName}`)
+  if (!found) throw new Error(`no type named ${typeName} is declared`)
   return names
 }
 
