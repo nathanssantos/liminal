@@ -12,14 +12,19 @@ terminal. If the person does nothing, the app still shows what it is (an example
 
 | # | Flow | Steps we accept | Must be visible |
 |---|---|---|---|
+| F0 | **Set up the sound** | pick the output device once · the volume starts safe | the device in use, the volume, mute |
 | F1 | **First run → music** | open · (optional) paste a link · (optional) type a prompt · play | what is playing, the key and BPM, that it will not stop |
-| F2 | **Steer the set** | type a live prompt · see when it lands | "lands at the next phrase (in N bars)"; the change, when it happens |
+| F1½ | **Shape the sound now** | volume · mute · filter sweep · layers on/off — immediate, DJ-style | each control's state; that it acts now, not at the next phrase |
+| F2 | **Steer the set** | type a live prompt · turn the energy dial · next / hold · nudge the tempo · see when it lands | "lands at the next phrase (in N bars)"; the change, when it happens; undo of the last prompt |
 | F2b | **Queue the next reference** | paste a link while playing · see it analyzed · adjust how long to stay on it (a duration control on the entry, default 10 min, one gesture to change) · drag to reorder | the queue with dwell times, the current target, "moving toward <title> — N phrases left", an error with retry if analysis failed |
 | F3 | **Teach taste** | one control for "more of this", one for "less" | that it was heard, and what it will affect |
 | F4 | **Understand** | glance at the timeline | current section, energy curve, next transition, the reference card |
 | F5 | **Recover** | an error says what and how to fix; retry is one click; stop is always one click | the error, in the user's words |
-| F6 | **Keep** (after M5) | export what was heard | where it went |
+| F6 | **Keep** | record the set · "keep that" (the last N minutes) · save the set · export | recording state and size; where it went |
 | F7 | **Produce** (M3 headless, M5 UI) | paste a reference · write a brief · get a full track · say what to change · export | the track's sections, the soundcheck against the reference, what the last prompt changed (the diff, in words), the export location |
+
+The full list of controls and displays, with where each lands, is
+[controls.md](controls.md). A flow is complete when every control it names is on screen.
 
 ## Heuristics we check (adapted to an audio app)
 
@@ -27,8 +32,9 @@ terminal. If the person does nothing, the app still shows what it is (an example
    within 100 ms of any action; audio never starts or stops without a visual cue.
 2. **Match with the listener's language** — "reference track", "key", "tempo", "energy"; producer
    terms only behind a "details" affordance.
-3. **Control and freedom** — stop, undo a prompt (revert to the previous plan), skip to the next
-   section; nothing is irreversible without a confirmation.
+3. **Control and freedom** — stop, pause, mute, volume, undo a prompt (revert to the previous
+   plan), next section, hold; nothing is irreversible without a confirmation; the sound never
+   starts louder than the last time.
 4. **Consistency** — the same action lives in the same place with the same word on every screen.
 5. **Error prevention** — invalid links are caught on paste; a prompt that cannot be honoured says
    so before, not after.

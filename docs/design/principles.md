@@ -18,7 +18,7 @@ doing.
 
 ## Hierarchy
 
-1. The transport and what is playing now (section, key, tempo, bar).
+1. The transport, the output (volume, mute, device) and what is playing now (section, key, tempo, bar).
 2. The prompt box and the two feedback controls.
 3. The queue of references with dwell times and the handover progress.
 4. The timeline and the energy curve.
@@ -48,7 +48,12 @@ becomes a static indicator.
 
 | Control | Job | Rules |
 |---|---|---|
-| **Transport** | play / stop, always one click or one key away | large target, state visible without colour alone |
+| **Transport** | play / pause / stop, always one click or one key away | large target, state visible without colour alone; stop is deliberate, pause is the quick one |
+| **Volume** | master output gain, mute, the device in use | a slider with the value in dB, a mute toggle, the device name; starts at the safe level; keyboard `↑`/`↓`/`M` |
+| **Filter sweep** | one knob, low-pass ← flat → high-pass | centre detent; returns to flat on double-tap; immediate |
+| **Layer strip** | kick · hats · perc · bass · chords · pad · lead on/off, and later a trim each | seven equal toggles with the layer name and a level meter; number keys |
+| **Energy dial** | the target energy for the next phrases | 0–1, shows the current measured energy under the target; lands at the next phrase and says so |
+| **Next / Hold** | move on now, or stay one more phrase | two buttons beside the readout, with the bars until they act |
 | **Readout** | tempo, key, bar:beat, section | monospace, `tabular-nums`, no layout shift as digits change |
 | **Prompt box** | type a live prompt | shows when it will land ("next phrase, in N bars"); enter to send; history recall |
 | **Feedback pair** | more of this / less of this | two adjacent buttons, keyboard shortcuts, momentary confirmation |
@@ -56,6 +61,12 @@ becomes a static indicator.
 | **Timeline** | where we are and where we are going | sections as blocks, energy as a curve, handovers as gradients between reference colours; scrubbing is not available (the past is done, the future is a plan) |
 | **Soundcheck card** | target vs measured | small bars per band; within tolerance in `signal-ok`, outside in `signal-warn` |
 | **Error strip** | what went wrong and what to do | the user's words, one action, dismissible |
+| **Cue** | pre-listen to the next segment on the cue device | a headphone toggle; disabled with a reason when no cue device is set |
+| **Record / Keep** | record the set; keep the last N minutes; save the set | a record toggle with elapsed and size; "keep that" always one click while playing |
+| **Settings** | devices, safe volume, dwell default, brain, cache, theme, motion, shortcuts | one panel, grouped as in `docs/product/controls.md › Settings`; nothing hidden elsewhere |
+
+The complete inventory, with the milestone each control lands in, is
+[`docs/product/controls.md`](../product/controls.md).
 
 ## What we do not do
 
