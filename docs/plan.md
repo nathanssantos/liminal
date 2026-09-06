@@ -127,8 +127,11 @@ Every milestone has an observable gate. No milestone starts before the previous 
 | **M4 · Conducting** | conductor + brains: endless set, reference queue and handover, the listener's steering and shaping controls (energy, next, hold, tempo, filter, layers) | 60 min with no gap on the rules brain; then on the LLM. 10 s of injected brain latency produces no gap. A live prompt lands in ≤ 8 bars. A second reference queued mid-set is reached within `HANDOVER_BARS` with no budget broken |
 | **M5 · Booth** | the rich UI | every row of `controls.md` that lands in M1–M5 is on screen: timeline, energy curve, references and queue, prompts and feedback, cue, record and keep, settings — all without a terminal |
 
-Then, in this likely order: samples and soundfonts (genre reach), stems via Demucs, local mp3,
-set recording and export, remote control from a phone.
+Then, in the order the bets and the evidence ask for: **rework — any music into electronic**
+(bet B05 in [`product/bets.md`](product/bets.md): a content card with melody, harmony and
+structure; arrangement in the electronic idiom; reworks as segments of a set), samples and
+soundfonts (genre reach), stems via Demucs (which B05 also needs), local files, set recording and
+export, remote control from a phone.
 
 ---
 
@@ -143,6 +146,18 @@ set recording and export, remote control from a phone.
 | **LLM cost and latency** | persistent session (measured on another project: 10 s → 2 s per decision); rules brain as baseline and fallback; planning horizon |
 | **Native module in Electron** | avoided: audio plays in the renderer. `node-web-audio-api` only in tests, in plain Node |
 | **Packaging and signing the app** | M5 only. Until then, `electron-vite dev` |
+
+## Where this could go — the owner's direction, to be explored first
+
+**Any music, reworked as electronic.** A person gives one or more tracks — any genre — and the
+platform plays them back as electronic music: the melody and the harmony recognisable, the
+arrangement new, one track at a time or as a set with transitions, bridges and notes that make
+sense. It reuses everything above and adds two pieces: a **content card** (what the track says:
+melody, chords, structure) next to the style card (how it sounds), and **idiom arrangement** in
+`composition`. Recorded as bet B05; the first spikes come through the exploration iteration
+(process §18) and the milestone is proposed when they answer. It also names a constraint the
+product must respect: a rework of someone else's song is a derivative work — private listening
+and one's own material first; sharing is a course decision.
 
 ## Out of scope, and why
 

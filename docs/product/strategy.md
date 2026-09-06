@@ -23,6 +23,7 @@ kill each. The loop explores them (process §18) and brings proposals; the owner
 | Audience | What they want | What wins them | What loses them |
 |---|---|---|---|
 | **The listener who wants a set for right now** — working, driving, a party at home | press play, hear something good that does not stop, nudge it with words | one paste + one prompt + play; a set that surprises without derailing | silence, a glitch, a set that ignores the prompt |
+| **The listener who loves songs, not genres** (bet B05, to explore) | hear the songs they know, reworked as electronic, flowing as a set | recognising the melody in a new arrangement that sounds good; queueing songs, not styles | a melody pasted over a loop; a rework that does not sound like the song |
 | **The producer or DJ curious about generative tools** | control, inspection, the ability to say "why did it do that"; **automated production**: a full track from a brief and a reference, iterated with words, exported | the document (diffable music), the soundcheck numbers, the set log, transforms with claims, wav export now and stems/MIDI later | a black box, no export, no MIDI |
 | **The developer who wants to hack on it** (open source) | a clean codebase, a clear process, a way in | specs, ADRs, the loop, English everywhere, small packages | a bot-only repo with no human-friendly path |
 
@@ -32,8 +33,9 @@ chose. The third decides the repo's hygiene.
 ## Positioning
 
 **What it is:** a platform for automated music production and live steering — a complete track
-from a brief and a reference, editable as a document; and an endless, coherent set steered by words
-and references — on your machine.
+from a brief and a reference, editable as a document; an endless, coherent set steered by words
+and references; and, as the direction under exploration, **any music reworked as electronic**,
+alone or as a set — on your machine.
 
 **Against what exists:**
 

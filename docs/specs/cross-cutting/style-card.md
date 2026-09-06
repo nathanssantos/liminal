@@ -122,6 +122,29 @@ track list and expected values live in `tools/analyzer/tests/fixtures/real.json`
 
 ---
 
+## The content card — a sketch, for bet B05
+
+The style card says how a track **sounds**; a rework (bet B05) needs what it **says**. A second
+card, produced by the same worker, is sketched here so the schema can grow without breaking:
+
+```ts
+type ContentCard = {
+  version: 1
+  id: string
+  source: StyleCard['source'] | { kind: 'midi'; path: string } | { kind: 'score'; scoreId: string }
+  tempo: StyleCard['tempo']; key: StyleCard['key']
+  structure: { startBar: number; bars: number; role?: 'verse'|'chorus'|'bridge'|'intro'|'outro'; label: string }[]
+  melody: { at: Tick; duration: Tick; pitch: number; confidence: number; voice: 'lead'|'vocal'|'other' }[]
+  harmony: { bar: number; chord: string; root: number; quality: 'maj'|'min'|'dom7'|'min7'|'dim'|'sus'|'other'; confidence: number }[]
+  transcription: { method: string; stemSeparated: boolean; noteAccuracy?: number }
+}
+```
+
+Everything here is **assumed** until the B05 spikes measure it: which transcription works on real
+recordings, how confident chord recognition is per bar, whether stems are mandatory. From MIDI or a
+score the card is exact; from audio it carries confidence per note, and the arrangement step uses
+it (a low-confidence note is a candidate to drop or simplify).
+
 ## The current target and the queue
 
 The set holds a **current target card** and an ordered **queue** of upcoming references (plan
