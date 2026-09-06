@@ -197,8 +197,11 @@
   one pending timeout and cancels it on `play()`, `stop()` and `dispose()` — **and** every deferred
   action checks the state it was armed for. Without the second half a `play()` landing in the same
   batch as the release tail cancelled a rewind that ran anyway: transport running, engine reporting
-  itself stopped, notes audible, no event, and only `dispose()` able to silence it. (⚠️ Correction:
-  this rule first said cancelling on every transition was enough.) (measured 2026-09-06)
+  itself stopped, notes audible, no event, and only `dispose()` able to silence it. The guard is a
+  state token, not a session identity: it closes the race for the engine's own transitions, and
+  leaves a caller that owns timeouts on the same context able to drive `playing → idle → playing`
+  ahead of a snapshotted action. Nothing in the repo does that. (⚠️ Correction: this rule first said
+  cancelling on every transition was enough.) (measured 2026-09-06)
 - 🔴 **`transport.start(0)` is right only for the first start.** Offline the context clock begins at
   zero, so the two agree once; on any later start the transport integrates from zero to the current
   render time and jumps straight to the end, playing nothing and emitting nothing. `start()` with no

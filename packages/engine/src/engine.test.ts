@@ -604,7 +604,7 @@ describe('the engine restarted after the tail', () => {
       if (ended === 1) {
         context.setTimeout(() => {
           engine.play()
-        }, tail - 0.002)
+        }, tail - 0.00001)
       }
     })
     engine.play()
@@ -634,5 +634,24 @@ describe('the engine restarted after the tail', () => {
     expect(ended).toBe(2)
     expect(engine.triggeredNoteCount()).toBe(noteCount(score) * 2)
     engine.dispose()
+  })
+})
+
+describe('the engine disposed from a transport callback', () => {
+  it('triggers no note on a node it has already disposed', async () => {
+    const score = twoBars()
+    const { engine, render } = await offlineEngine(score)
+    let disposedAt: number | undefined
+    engine.on('bar', (event) => {
+      if (event?.bar === 1 && disposedAt === undefined) {
+        disposedAt = engine.pendingNodeCount()
+        engine.dispose()
+      }
+    })
+    engine.play()
+    await render()
+    expect(disposedAt).toBeGreaterThan(0)
+    expect(engine.pendingNodeCount()).toBe(0)
+    expect(engine.triggeredNoteCount()).toBeLessThan(noteCount(score))
   })
 })
