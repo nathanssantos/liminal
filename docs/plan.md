@@ -58,7 +58,7 @@ change when a bet is revised — by a decision of the owner, proposed by the loo
 | # | Requirement | How we know it is done |
 |---|---|---|
 | 1 | **Endless set** | plays 60 min with no audio gap and no intervention; stopping is the only end. The engine reports zero bars without content |
-| 2 | **Makes sense** | planned energy arc, followed; neighbouring keys between tracks (Camelot ±1 or relative); BPM moves at most 4 per track; a motif returns at least once every 20 min. All of it read from the set log |
+| 2 | **Makes sense** | planned energy arc, followed; neighbouring keys between tracks (Camelot ±1 or relative) or a bridge; BPM moves at most 4 per track; a motif returns at least once every 20 min; and the **craft metrics** hold — transitions on the phrase, no double bass, breaks that resolve, no transition repeated back to back ([`craft/mixing.md › Metrics`](craft/mixing.md)). All of it read from the set log |
 | 3 | **Steered by prompt** | a standing prompt changes the target card; a live prompt lands at the next phrase boundary, within 8 bars — measured by timestamp |
 | 4 | **Reference** | a YouTube link becomes a style card with BPM (±2) and key (exact or relative) right on 9 of 10 test tracks; the generated set stays within ±10% of the reference's band balance |
 | 5 | **More of this / less of this** | feedback changes the next section: the named measure moves in the asked direction |
@@ -124,7 +124,7 @@ Every milestone has an observable gate. No milestone starts before the previous 
 | **M1 · Sound** | score document + engine + app shell | the app opens, plays 16 bars of a fixed score, stops. The same score rendered offline twice yields identical bytes |
 | **M2 · Ear** | analyzer: YouTube → style card; measure a wav | BPM and key right on 9 of 10 tracks; a score rendered by our own engine has its BPM and key recovered by the analyzer |
 | **M3 · Composition** | generators and transforms from the card; the first **Production** door | "more bass" is a diff, and energy below 120 Hz rises in the measurement. A generated section lands within ±10% of the reference's bands. A **complete track** (≥ 4 sections) is generated from a card, edited by one prompt, and exported as a wav `ffprobe` reads |
-| **M4 · Conducting** | conductor + brains: endless set, reference queue and handover, the listener's steering and shaping controls (energy, next, hold, tempo, filter, layers) | 60 min with no gap on the rules brain; then on the LLM. 10 s of injected brain latency produces no gap. A live prompt lands in ≤ 8 bars. A second reference queued mid-set is reached within `HANDOVER_BARS` with no budget broken |
+| **M4 · Conducting** | conductor + brains: endless set, reference queue and handover, the listener's steering and shaping controls (energy, next, hold, tempo, filter, layers); the brain that knows the craft | 60 min with no gap on the rules brain; then on the LLM. 10 s of injected brain latency produces no gap. A live prompt lands in ≤ 8 bars. A second reference queued mid-set is reached within `HANDOVER_BARS` with no budget broken. The craft metrics hold over the whole hour, and the owner's ear agrees on the transitions |
 | **M5 · Booth** | the rich UI | every row of `controls.md` that lands in M1–M5 is on screen: timeline, energy curve, references and queue, prompts and feedback, cue, record and keep, settings — all without a terminal |
 
 Then, in the order the bets and the evidence ask for: **rework — any music into electronic**

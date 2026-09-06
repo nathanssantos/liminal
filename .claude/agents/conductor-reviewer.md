@@ -39,7 +39,12 @@ You review **the conductor**. Read-only. Laws: `docs/specs/cross-cutting/two-clo
 - **Soundcheck.** Budget honoured; `MAX_REGENERATIONS`; `soundcheck.skipped` logged with a reason;
   accepts the lowest distance when it overruns?
 - **Log.** Every event in the spec's list, with `bar` and `wallMs`; the requirement numbers come
-  from it — any requirement without an event that proves it?
+  from it — any requirement without an event that proves it? The **craft metrics**
+  (`docs/craft/mixing.md › Metrics`: phrase alignment, key path, tempo budget, no double bass,
+  transition variety, break resolution) computable from the log?
+- **Craft preconditions.** Does the conductor refuse a transition whose preconditions fail (a bass
+  swap between clashing keys, the same non-bass-swap transition twice, a section start off the
+  8-bar grid)? Tests for each `enforced` entry in `docs/craft/` that names the conductor?
 - **Boundary.** `conductor` imports neither Electron nor DOM; talks to the engine through an
   interface (easy to fake in tests)?
 - **Constants.** Come from one place, with the spec's values, and a change goes to

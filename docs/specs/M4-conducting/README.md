@@ -1,7 +1,9 @@
 # M4 · Conducting
 
 > The conductor and the brains: the endless set, the two clocks, the reference queue and its
-> handovers, prompts, feedback — and the listener's own controls for steering and shaping.
+> handovers, prompts, feedback — and the listener's own controls for steering and shaping. The
+> brain plays like a DJ because it reads [`docs/craft/`](../../craft/README.md) and the conductor
+> enforces it.
 > The spec is in [two-clocks.md](../cross-cutting/two-clocks.md); the controls in
 > [controls.md](../../product/controls.md).
 
@@ -18,12 +20,12 @@ measured what M4 consumes.
 | Id | Title | Listening |
 |---|---|---|
 | M4-01 | Segment queue, horizon invariant and synchronous `extend` (P1) | no |
-| M4-02 | `rules` brain and the plan schema (P2, P3) | no |
+| M4-02 | `rules` brain and the plan schema (P2, P3) — the schema forces transition kind, bars and reason, key path, break construction; the `rules` brain is the `enforced` craft | no |
 | M4-03 | Soundcheck loop: render in the hidden window, measure, accept/reject | no |
-| M4-04 | Coherence controllers: key, BPM, motif, energy, novelty, transition | **yes** |
+| M4-04 | Coherence controllers: key, BPM, motif, energy, novelty, transition — the transition catalogue with preconditions, phrase alignment, no double bass, break resolution; the craft metrics in the set log | **yes** |
 | M4-05 | Live and standing prompts, feedback vector (P5) | no |
 | M4-06 | Reference queue, dwell time and handover plans (P7–P10) | **yes** |
-| M4-07 | `claude` brain: persistent session, deadlines, cost log (P4) | no |
+| M4-07 | `claude` brain: the craft book compiled into the system prompt, persistent session, deadlines, cost log (P4), the `mistakes.md` self-check | no |
 | M4-08 | Planned controls: energy dial, next, hold, tempo target, and layer edits (instrument, pattern, register, effects, a prompt per layer) — the conductor side and the IPC | no |
 | M4-09 | Immediate controls in the engine output stage: master filter, layer on/off | **yes** |
 | M4-10 | Pause / resume, status events, the set log complete | no |
