@@ -81,6 +81,9 @@ versioned file.
 | `uv run --directory tools python -m board.open <nº>` | a card's gates, the area's memory, what the repo already has |
 | `uv run --directory tools python -m board.move <nº> "<Status>"` | moves a card; parking needs `--reason` |
 | `uv run --directory tools python -m board.comment <nº> --file text.md` | comments on an issue, optionally labelling it |
+| `uv run --directory tools python -m board.review --card <id> --prepare` | one worktree at HEAD with the install done, for every review agent of the round |
+| `uv run --directory tools python -m board.review --card <id> --scratch` | a throwaway copy of it, `node_modules` linked, for an agent that reverts a fix |
+| `uv run --directory tools python -m board.review --card <id> --state` | the review state: round, heads, findings |
 | `uv run --directory tools python -m board.check --area <path>` | dead mocks and branches, work out of the card's area |
 | `uv run --directory tools python -m board.deliver --gates-only` | the delivery gates, full output into `evidence/_gates/` |
 | `pnpm --filter desktop test:e2e` | Playwright with Electron opens the built app |
@@ -104,6 +107,6 @@ packages/conductor   the conductor
 packages/protocol    IPC channels
 tools/               one uv project, two packages:
   analyzer/          Python: yt-dlp, librosa, worker
-  board/             Python: sync, queue, open, move, comment, check, deliver
+  board/             Python: sync, queue, open, move, comment, check, review, deliver
 docs/                plan, architecture, process, specs, memory
 ```

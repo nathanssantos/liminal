@@ -9,9 +9,11 @@ from pathlib import Path
 from typing import Any
 
 from board.context import Context, emit, git, repo_root
+from board.review import merge_blockers
 from board.stale import stale_docs
 
 GATES_LOG = Path("evidence") / "_gates"
+BRANCH_ISSUE = re.compile(r"^feat/(\d+)-")
 COMMENT = re.compile(r"^\+\s*(//|/\*|#(?!\!)|\*\s)")
 
 PROSE_AND_LOCKS = (":!*.lock", ":!*lock.yaml", ":!*.md", ":!*.json")
@@ -78,6 +80,21 @@ def rebase_only(root: Path, base: str = "origin/main") -> dict[str, Any]:
     return {"verdict": "OK", "commits": after, "behind": behind}
 
 
+def review_gate(root: Path, card: str | None) -> Gate:
+    if card is None:
+        return Gate("review", False, "the branch does not name an issue with a card")
+    reasons = merge_blockers(root, card, git(root, "rev-parse", "HEAD"))
+    return Gate("review", not reasons, reasons)
+
+
+def card_on_this_branch(root: Path, context: Context) -> str | None:
+    match = BRANCH_ISSUE.match(git(root, "rev-parse", "--abbrev-ref", "HEAD"))
+    if match is None:
+        return None
+    card = context.card_by_issue(int(match.group(1)))
+    return card.id if card else None
+
+
 def gates(root: Path) -> dict[str, Any]:
     collected = [
         check_gate(root),
@@ -135,6 +152,12 @@ def main(argv: list[str] | None = None) -> int:
         return emit({"ready": arguments.ready})
     if arguments.merge:
         verdict = gates(root)
+        review = review_gate(root, card_on_this_branch(root, context))
+        verdict["gates"].append(
+            {"name": review.name, "passed": review.passed, "detail": review.detail}
+        )
+        if not review.passed:
+            verdict["verdict"] = "FAIL"
         if verdict["verdict"] != "PASS":
             return emit(verdict)
         context.github.runner(

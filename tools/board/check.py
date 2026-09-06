@@ -46,10 +46,11 @@ def tests_without_criterion(root: Path, area: str) -> list[str]:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="board.check")
     parser.add_argument("--area", default="packages")
+    parser.add_argument("--path")
     arguments = parser.parse_args(argv)
 
     context = Context.open()
-    root = context.root
+    root = Path(arguments.path) if arguments.path else context.root
     return emit(
         {
             "dirtyTree": bool(git(root, "status", "--porcelain")),
