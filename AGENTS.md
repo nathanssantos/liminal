@@ -84,7 +84,6 @@ versioned file.
 | `uv run --directory tools python -m board.review --card <id> --prepare` | one worktree at HEAD with the install done, for every review agent of the round |
 | `uv run --directory tools python -m board.review --card <id> --scratch` | a throwaway worktree with an install of its own, for an agent that reverts a fix |
 | `uv run --directory tools python -m board.review --card <id> --findings <file>` | writes a round's findings into the state |
-| `uv run --directory tools python -m board.review --card <id> --findings <file>` | writes a round's findings into the state |
 | `uv run --directory tools python -m board.review --card <id> --state` | the review state: round, heads, findings |
 | `uv run --directory tools python -m board.check --area <path>` | dead mocks and branches, work out of the card's area |
 | `uv run --directory tools python -m board.deliver --gates-only` | the delivery gates, full output into `evidence/_gates/` |

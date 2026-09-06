@@ -53,11 +53,15 @@ def save_state(root: Path, card: str, state: dict[str, Any]) -> None:
 BRANCH_ISSUE = re.compile(r"^feat/(\d+)-")
 
 
-def card_on_this_branch(root: Path) -> str | None:
+def issue_on_this_branch(root: Path) -> int | None:
     match = BRANCH_ISSUE.match(git(root, "rev-parse", "--abbrev-ref", "HEAD"))
-    if match is None:
+    return None if match is None else int(match.group(1))
+
+
+def card_on_this_branch(root: Path) -> str | None:
+    issue = issue_on_this_branch(root)
+    if issue is None:
         return None
-    issue = int(match.group(1))
     return next((card.id for card in load_cards(root / SPECS) if card.issue == issue), None)
 
 
@@ -184,9 +188,27 @@ def round_done(
     return state
 
 
+SEVERITIES = ("blocking", "major", "minor")
+
+STATUSES = ("open", "fixed", "discarded", "accepted")
+
+
+def refuse_malformed(findings: list[dict[str, Any]]) -> None:
+    for finding in findings:
+        if not isinstance(finding, dict):
+            raise ValueError(f"a finding is a mapping, not {type(finding).__name__}")
+        for field, allowed in (("severity", SEVERITIES), ("status", STATUSES)):
+            given = finding.get(field)
+            if given not in allowed:
+                raise ValueError(f"a finding's {field} is one of {allowed}, not {given!r}")
+
+
 def record_findings(root: Path, card: str, findings: list[dict[str, Any]]) -> dict[str, Any]:
+    refuse_malformed(findings)
     state = load_state(root, card)
-    state["findings"] = findings
+    replaced = {(f.get("agent"), f.get("round")) for f in findings}
+    kept = [f for f in state["findings"] if (f.get("agent"), f.get("round")) not in replaced]
+    state["findings"] = kept + findings
     save_state(root, card, state)
     return state
 

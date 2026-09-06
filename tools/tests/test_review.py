@@ -6,6 +6,8 @@ import shutil
 from collections.abc import Sequence
 from pathlib import Path
 
+import pytest
+
 from board.review import (
     branch_of,
     card_on_this_branch,
@@ -17,6 +19,9 @@ from board.review import (
     review_blockers,
     round_done,
     scratch,
+)
+from board.review import (
+    record_findings as record,
 )
 from tests.helpers import repo_with_commit, run
 
@@ -262,3 +267,62 @@ def test_findings_are_written_through_the_command_line(tmp_path: Path) -> None:
         os.chdir(here)
 
     assert [f["summary"] for f in load_state(root, "M1-02")["findings"]] == ["the tail rewinds"]
+
+
+def test_a_finding_with_a_severity_the_gate_cannot_read_is_refused(tmp_path: Path) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+
+    with pytest.raises(ValueError, match="severity"):
+        record(root, "M1-02", [{"severity": "Blocking", "status": "open", "summary": "s"}])
+
+    with pytest.raises(ValueError, match="status"):
+        record(root, "M1-02", [{"severity": "blocking", "summary": "s"}])
+
+
+def test_a_second_agent_in_one_round_does_not_erase_the_first(tmp_path: Path) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+    record(root, "M1-02", [
+        {
+            "agent": "engine-reviewer",
+            "round": 1,
+            "severity": "blocking",
+            "status": "open",
+            "summary": "one",
+        }
+    ])
+    record(root, "M1-02", [
+        {
+            "agent": "docs-reviewer",
+            "round": 1,
+            "severity": "minor",
+            "status": "open",
+            "summary": "two",
+        }
+    ])
+
+    assert sorted(f["summary"] for f in load_state(root, "M1-02")["findings"]) == ["one", "two"]
+
+
+def test_the_same_agent_reporting_a_round_again_replaces_its_own_findings(tmp_path: Path) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+    record(root, "M1-02", [
+        {
+            "agent": "engine-reviewer",
+            "round": 1,
+            "severity": "blocking",
+            "status": "open",
+            "summary": "one",
+        }
+    ])
+    record(root, "M1-02", [
+        {
+            "agent": "engine-reviewer",
+            "round": 1,
+            "severity": "blocking",
+            "status": "fixed",
+            "summary": "one",
+        }
+    ])
+
+    findings = load_state(root, "M1-02")["findings"]
+    assert [f["status"] for f in findings] == ["fixed"]

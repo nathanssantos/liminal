@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from board.context import Context, emit, git, repo_root
-from board.review import card_on_this_branch, merge_blockers
+from board.review import card_on_this_branch, issue_on_this_branch, merge_blockers
 from board.stale import stale_docs
 
 GATES_LOG = Path("evidence") / "_gates"
@@ -81,7 +81,10 @@ def rebase_only(root: Path, base: str = "origin/main") -> dict[str, Any]:
 
 def review_gate(root: Path, card: str | None) -> Gate:
     if card is None:
-        return Gate("review", True, "the branch carries no card, so there is no review to check")
+        issue = issue_on_this_branch(root)
+        if issue is not None:
+            return Gate("review", False, f"the branch names issue {issue}, which no spec claims")
+        return Gate("review", True, "the branch names no issue, so there is no review to check")
     reasons = merge_blockers(root, card, git(root, "rev-parse", "HEAD"))
     return Gate("review", not reasons, reasons)
 
