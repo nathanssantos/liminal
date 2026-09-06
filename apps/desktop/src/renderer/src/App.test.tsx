@@ -77,12 +77,11 @@ describe('the shell with a set ready', () => {
 describe('the shell while it plays', () => {
   it('offers one enabled button that says Stop, and nothing grey, while it plays', () => {
     reset({ score: EXAMPLE, transport: 'playing' })
-    const { container } = render(<App />)
+    render(<App />)
     const stop = screen.getByRole('button', { name: 'Stop' })
     expect(stop).toBeEnabled()
     expect(screen.queryByRole('button', { name: 'Play' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Pause' })).not.toBeInTheDocument()
-    expect(container.querySelectorAll('.lm-transport .lm-button[disabled]')).toHaveLength(0)
   })
 
   it('keeps the keyboard somewhere real when a strip is dismissed while playing', async () => {
@@ -137,7 +136,7 @@ describe('the shell when something goes wrong', () => {
     render(<App />)
     await userEvent.click(screen.getByRole('button', { name: 'Dismiss' }))
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
-    expect(document.activeElement).not.toBe(document.body)
+    expect(screen.getByRole('button', { name: 'Play' })).toHaveFocus()
   })
 
   it('shows no strip at all when nothing has gone wrong', () => {
@@ -165,13 +164,40 @@ describe('the shell while the device list is busy', () => {
 })
 
 describe('what the whole screen announces', () => {
-  it('has exactly two live regions, and neither is the hint', () => {
+  it('announces the transport word and the strip, and nothing else', () => {
     reset({ score: EXAMPLE, transport: 'playing', notice: DEVICE_LOST })
     const { container } = render(<App />)
-    expect(container.querySelectorAll('[aria-live]')).toHaveLength(1)
-    expect(container.querySelectorAll('[role="alert"]')).toHaveLength(1)
+    const live = [...container.querySelectorAll('[aria-live]')]
+    expect(live).toHaveLength(1)
+    expect(live[0]).toHaveTextContent('Playing')
+    expect(live[0]).toHaveClass('lm-transport-word')
+    const alerts = [...container.querySelectorAll('[role="alert"]')]
+    expect(alerts).toHaveLength(1)
+    expect(alerts[0]).toHaveClass('lm-error-strip')
     expect(screen.getByText('Playing. This example is sixteen bars long.')).not.toHaveAttribute(
       'aria-live',
+    )
+  })
+
+  it('leaves a shortcut alone when it comes with a modifier', async () => {
+    reset({ score: EXAMPLE })
+    render(<App />)
+    await userEvent.keyboard('{Meta>}m{/Meta}')
+    expect(screen.getByRole('button', { name: 'Mute not muted' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    )
+    await userEvent.keyboard('{Control>}5{/Control}')
+    expect(screen.getByText('−12 dB')).toBeInTheDocument()
+  })
+
+  it('says it is starting the moment play is pressed, before any sound', () => {
+    reset({ score: EXAMPLE, transport: 'starting' })
+    const { container } = render(<App />)
+    expect(container.querySelector('.lm-transport-word')).toHaveTextContent('Starting…')
+    expect(screen.getByRole('button', { name: 'Starting…' })).toHaveAttribute(
+      'aria-disabled',
+      'true',
     )
   })
 

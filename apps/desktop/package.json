@@ -10,7 +10,7 @@
     "lint": "biome check .",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
-    "test:e2e": "playwright test",
+    "test:e2e": "electron-vite build && playwright test",
     "shot": "electron-vite build && node tools/shot.ts"
   },
   "dependencies": {

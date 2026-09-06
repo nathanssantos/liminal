@@ -1,5 +1,6 @@
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { _electron as electron } from '@playwright/test'
 
@@ -83,7 +84,8 @@ const { state, id, selectors, steps } = parseArguments(process.argv.slice(2))
 const directory = resolve(process.cwd(), '..', '..', 'evidence', id)
 mkdirSync(directory, { recursive: true })
 
-const app = await electron.launch({ args: ['.'] })
+const profile = mkdtempSync(join(tmpdir(), 'liminal-shot-'))
+const app = await electron.launch({ args: ['.', `--user-data-dir=${profile}`] })
 const window = await app.firstWindow()
 await window.waitForLoadState('domcontentloaded')
 
@@ -127,5 +129,6 @@ for (const width of WIDTHS) {
 
 writeFileSync(join(directory, `${state}.json`), `${JSON.stringify(measurements, null, 2)}\n`)
 await app.close()
+rmSync(profile, { recursive: true, force: true })
 
 process.stdout.write(`${directory}\n`)

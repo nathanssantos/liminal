@@ -54,6 +54,10 @@ export function connect(
     const built = await createEngine({ context: new AudioContext(), score })
     built.setOutputGain(shell().gainDb)
     built.setMuted(shell().muted)
+    const chosen = shell().deviceId
+    if (chosen !== SYSTEM_DEFAULT.id) {
+      await built.setSinkId(chosen).catch(() => raise(SINK_UNAVAILABLE))
+    }
     undo.push(built.on('bar', () => void bridge.reportPosition(built.position())))
     undo.push(
       built.on('ended', () => {
@@ -80,9 +84,6 @@ export function connect(
       shell().setDeviceId(output.deviceId)
       engine?.setOutputGain(output.gainDb)
       engine?.setMuted(output.muted)
-      if (output.deviceId !== SYSTEM_DEFAULT.id) {
-        void engine?.setSinkId(output.deviceId).catch(() => raise(SINK_UNAVAILABLE))
-      }
     }),
   )
 

@@ -3,15 +3,20 @@ import { WINDOW_BACKGROUND } from '@liminal/ui/colours'
 
 export const WINDOW_TITLE = 'liminal'
 
-export const CONTENT_SECURITY_POLICY = [
+const POLICY = [
   "default-src 'none'",
   "script-src 'self'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data:",
   "font-src 'self'",
   "media-src 'self'",
-  "connect-src 'self'",
-].join('; ')
+]
+
+const HOT_RELOAD_NEEDS = "connect-src 'self' ws://localhost:* http://localhost:*"
+
+export const CONTENT_SECURITY_POLICY = [...POLICY, "connect-src 'self'"].join('; ')
+
+export const DEV_CONTENT_SECURITY_POLICY = [...POLICY, HOT_RELOAD_NEEDS].join('; ')
 
 export type WindowOptions = {
   title: string

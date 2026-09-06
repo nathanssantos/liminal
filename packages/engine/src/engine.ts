@@ -46,6 +46,7 @@ export type Engine = {
   setMuted: (muted: boolean) => void
   setSinkId: (id: string) => Promise<void>
   outputGain: () => number
+  appliedOutputGain: () => number
   muted: () => boolean
   downgradedCurves: () => readonly DowngradedCurve[]
   automationValueAt: (automationId: string, seconds: number) => number
@@ -131,7 +132,7 @@ async function buildEngine(options: EngineOptions, built: Built): Promise<Engine
   }
   const output = offline
     ? undefined
-    : ledger.add(new tone.Gain({ context, gain: SAFE_OUTPUT_GAIN_DB, units: 'decibels' }))
+    : ledger.add(new tone.Gain({ context, gain: dbToGain(SAFE_OUTPUT_GAIN_DB) }))
   if (output === undefined) {
     documentOut.toDestination()
   } else {
@@ -400,6 +401,7 @@ async function buildEngine(options: EngineOptions, built: Built): Promise<Engine
       await raw.setSinkId(id)
     },
     outputGain: () => outputGainDb,
+    appliedOutputGain: () => output?.gain.value ?? 1,
     muted: () => outputMuted,
     downgradedCurves: () => downgraded,
     automationValueAt: (automationId, seconds) => {

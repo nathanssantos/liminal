@@ -316,11 +316,37 @@
   The policy belongs in a `<meta http-equiv>` in the markup, which covers both the packaged app and
   the dev server. **A security control is proven where it lands, never where it is declared.**
   (found by the security review of M1-04, 2026-09-06)
+- 🔴 **A `Tone.Gain` built with `units: 'decibels'` reads every later write as decibels.** The output
+  stage was created that way and then written linearly: mute wrote `0`, which is **0 dB — full
+  gain**, and −12 dB wrote `0.251`, which is **+0.25 dB**. So mute never silenced anything and the
+  volume never attenuated, from M1-02 until it was measured. The node is linear now, matching what
+  `applyOutput` writes. **When a node carries units, every assignment to it carries them too.**
+  (measured 2026-09-06 against a live device)
 - 🔴 **An offline render has no output stage, so `setMuted` and `setOutputGain` do nothing there.**
   A test that renders offline with mute on and compares the samples passes with both methods
-  implemented as `() => {}` — it proves the stage is absent, not that mute works. The mute is proven
-  against a live context, in `wall-clock.test.ts`, which needs `LIMINAL_AUDIO_DEVICE=1`. (measured
-  2026-09-06: reverting `setMuted` fails that test and nothing else)
+  implemented as `() => {}` — it proves the stage is absent, not that mute works. ⚠️ Correction: a
+  first attempt to fix this asserted `engine.muted()`, the flag, which also proves nothing — gutting
+  `applyOutput` left it green. The mute is proven by reading what the stage actually applies
+  (`appliedOutputGain()`) against a live context, in `wall-clock.test.ts`, which needs
+  `LIMINAL_AUDIO_DEVICE=1`. **A control is proven by what it changes, never by the variable that
+  remembers it was asked.** (measured 2026-09-06: reverting either the write or the units fails it)
+- 🔴 **`will-navigate` does not fire for `about:blank`, so a navigation guard tested with it passes
+  either way.** The refusal test also passed against an unresolvable host, because at the moment it
+  read the URL the navigation was merely still pending. **A guard is proven with a target that would
+  actually commit** — here a `file://` path that exists on the machine, which changes `page.url()`
+  the moment the guard is removed. (measured 2026-09-06: removing `refuseNavigation` fails it)
+- 🔴 **An e2e script that does not build first proves whatever bundle is on disk.** `playwright test`
+  alone passed against a stale `out/`, and in a freshly prepared review worktree it failed all seven
+  tests because `out/` did not exist at all — a missing build reads as seven product defects.
+  `test:e2e` builds, then tests.
+- ⚠️ **A screenshot taken through the app's real user data directory carries the last run's
+  preferences.** Evidence meant to show the first-run volume showed `silent`, because a local
+  session had left the slider at the floor; the value in the code was never wrong. The shot tool
+  launches with a temporary `--user-data-dir` and removes it afterwards, like the e2e suite.
+  (found by the usability review of M1-04, 2026-09-06)
+- ⚠️ **Vitest runs with the repository root as the working directory, not the package's.** A test
+  that reads a file next to it resolves from `import.meta.dirname`; a relative path silently means
+  the root. (2026-09-06)
 - 🔴 **`Position.tick` is the tick INSIDE the beat, not the tick since the start.** A brief said
   elapsed was `ticksToSeconds(position.tick, bpm)` and it was implemented literally, so the readout
   sat at `0:00` through the whole set while bar and beat advanced beside it — the number is always

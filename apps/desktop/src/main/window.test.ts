@@ -1,6 +1,13 @@
+import { existsSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { colourToken } from '@liminal/ui/colours'
 import { describe, expect, it } from 'vitest'
-import { CONTENT_SECURITY_POLICY, mainWindowOptions, WINDOW_TITLE } from './window.ts'
+import {
+  CONTENT_SECURITY_POLICY,
+  DEV_CONTENT_SECURITY_POLICY,
+  mainWindowOptions,
+  WINDOW_TITLE,
+} from './window.ts'
 
 describe('the main window', () => {
   it('is titled liminal', () => {
@@ -30,9 +37,30 @@ describe('the content security policy', () => {
     expect(CONTENT_SECURITY_POLICY).toContain("connect-src 'self'")
   })
 
-  it('never allows eval or a remote origin', () => {
+  it('never allows eval, a remote origin or a wildcard in what ships', () => {
     expect(CONTENT_SECURITY_POLICY).not.toContain('unsafe-eval')
     expect(CONTENT_SECURITY_POLICY).not.toMatch(/https?:/)
     expect(CONTENT_SECURITY_POLICY).not.toContain('*')
+  })
+
+  it('lets the dev server reach its own hot reload, and nothing wider', () => {
+    expect(DEV_CONTENT_SECURITY_POLICY).toContain('ws://localhost:*')
+    expect(DEV_CONTENT_SECURITY_POLICY).not.toMatch(/connect-src[^;]*\bws:(?!\/)/)
+    expect(DEV_CONTENT_SECURITY_POLICY).not.toMatch(/https:/)
+  })
+
+  it('carries a placeholder into the markup, so nothing ships an unset policy', () => {
+    const markup = readFileSync(join(import.meta.dirname, '../renderer/index.html'), 'utf8')
+    expect(markup).toContain('http-equiv="Content-Security-Policy"')
+    expect(markup).toContain('%CONTENT_SECURITY_POLICY%')
+  })
+
+  it('is the policy the built app actually carries', () => {
+    const built = join(import.meta.dirname, '../../out/renderer/index.html')
+    if (!existsSync(built)) return
+    const markup = readFileSync(built, 'utf8')
+    expect(markup).toContain(CONTENT_SECURITY_POLICY)
+    expect(markup).not.toContain('%CONTENT_SECURITY_POLICY%')
+    expect(markup).not.toContain('localhost')
   })
 })

@@ -41,26 +41,42 @@ if (context === undefined) {
 }
 
 describe.skipIf(context === undefined)('muting acts on the output, not on the transport', () => {
-  it('drops the output to silence and brings it back, while the transport keeps its own count', async () => {
+  it('drops the output stage to silence and brings it back, while the transport keeps counting', async () => {
     const engine = await createEngine({
       context: context as unknown as Parameters<typeof createEngine>[0]['context'],
       score: silent(),
     })
+    const heard = engine.appliedOutputGain()
+    expect(heard).toBeGreaterThan(0)
+
     engine.play()
     await new Promise((done) => setTimeout(done, barSeconds(sixteenBars) * 1000))
-    const playingBefore = engine.position()
+    const before = engine.position()
 
     engine.setMuted(true)
-    expect(engine.muted()).toBe(true)
+    expect(engine.appliedOutputGain()).toBe(0)
     await new Promise((done) => setTimeout(done, barSeconds(sixteenBars) * 1000))
     const whileMuted = engine.position()
 
     engine.setMuted(false)
-    expect(engine.muted()).toBe(false)
+    expect(engine.appliedOutputGain()).toBeCloseTo(heard, 6)
 
-    expect(whileMuted.bar).toBeGreaterThan(playingBefore.bar - 1)
+    expect(whileMuted.bar).toBeGreaterThanOrEqual(before.bar)
     expect(engine.outputGain()).toBe(SAFE_OUTPUT_GAIN_DB)
     engine.stop()
+    engine.dispose()
+  })
+
+  it('lowers the output stage when the volume drops, without touching the document', async () => {
+    const engine = await createEngine({
+      context: context as unknown as Parameters<typeof createEngine>[0]['context'],
+      score: silent(),
+    })
+    const atSafe = engine.appliedOutputGain()
+    engine.setOutputGain(-40)
+    expect(engine.appliedOutputGain()).toBeLessThan(atSafe)
+    engine.setOutputGain(SAFE_OUTPUT_GAIN_DB)
+    expect(engine.appliedOutputGain()).toBeCloseTo(atSafe, 6)
     engine.dispose()
   })
 })

@@ -1,9 +1,129 @@
 {
   "card": "M1-04",
   "round": 0,
-  "head": "95701dc0a9f629c731884c7cdc5160247ce3fb92",
+  "head": "5ccfd03021607a7046617637ebc998c432dc9a51",
   "reviewedHead": null,
   "deepPassHead": null,
   "measured": [],
-  "findings": []
+  "findings": [
+    {
+      "agent": "security-auditor",
+      "round": 1,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "the CSP was declared but never reached the document, because a file:// response carries no headers"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 1,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "the mute proof was a test that passes with setMuted implemented as a no-op"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 1,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "four criteria named Playwright and no Playwright test existed"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 1,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "the spec said Stop freezes the position; the engine rewinds, by design"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 1,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "output:device changed direction and output:restore was added without the spec following"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 1,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "the brief still described elapsed from the tick inside the beat"
+    },
+    {
+      "agent": "desktop-reviewer",
+      "round": 1,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "the chosen device was never persisted: main validated against a list it can never have"
+    },
+    {
+      "agent": "desktop-reviewer",
+      "round": 1,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "two play presses before the engine resolved would build two engines"
+    },
+    {
+      "agent": "test-engineer",
+      "round": 1,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "main was told the set was playing even when the engine threw"
+    },
+    {
+      "agent": "test-engineer",
+      "round": 1,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "a second gainForDigit in the store, dead in production, was the one the safety test guarded"
+    },
+    {
+      "agent": "usability-reviewer",
+      "round": 1,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "the only orange control turned grey the moment music started, with its reason visible to nobody"
+    },
+    {
+      "agent": "accessibility-auditor",
+      "round": 1,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "dismissing a strip while playing dropped focus to the body, because the play button was disabled"
+    },
+    {
+      "agent": "accessibility-auditor",
+      "round": 1,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "the output bar had no accessible name and neither bar was a landmark"
+    },
+    {
+      "agent": "docs-reviewer",
+      "round": 1,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "the README still said there was nothing to hear"
+    },
+    {
+      "agent": "docs-reviewer",
+      "round": 1,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "the brief promised a chip ticking with the music that the screen never asked for"
+    },
+    {
+      "agent": "docs-reviewer",
+      "round": 1,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "the architecture channel list, the stack test row and the shot command row were stale"
+    },
+    {
+      "agent": "accessibility-auditor",
+      "round": 1,
+      "severity": "major",
+      "status": "open",
+      "summary": "single-key shortcuts have no way to be turned off or remapped, which SC 2.1.4 requires"
+    }
+  ]
 }

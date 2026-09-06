@@ -8,7 +8,7 @@ export const PREFERENCES_FILE = 'output.json'
 const preferencesSchema = z.strictObject({
   gainDb: z.number().min(OUTPUT_GAIN_DB.min).max(OUTPUT_GAIN_DB.max),
   muted: z.boolean(),
-  deviceId: z.string(),
+  deviceId: z.string().max(256),
 })
 
 export type OutputPreferences = z.infer<typeof preferencesSchema>
