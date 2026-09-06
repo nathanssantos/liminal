@@ -59,7 +59,7 @@ becomes a static indicator.
 | **Prompt box** | type a live prompt | shows when it will land ("next phrase, in N bars"); enter to send; history recall |
 | **Feedback pair** | more of this / less of this | two adjacent buttons, keyboard shortcuts, momentary confirmation |
 | **Queue entry** | a reference with its dwell time | title, state (analyzing / ready / failed), dwell time as a single-gesture control (drag or ±), remove, drag handle; the current target highlighted; the next with the handover countdown |
-| **Timeline** | where we are and where we are going | sections as blocks, energy as a curve, handovers as gradients between reference colours; scrubbing is not available (the past is done, the future is a plan) |
+| **Timeline** | where we are and where we are going, the way a DJ reads a deck | two views: an **overview** (sections, energy curve, handover gradients, playhead) and a **detail** with the **waveform and the beat/bar grid** of what plays and what is already rendered ahead, coloured by band, phrase markers, section lines, cue and loop marks; the unrendered future as an outline. The playhead is fixed and the waveform moves, on the beat. No scrubbing into the past; the future can be inspected. Designed only after the R26 brief on DJ app timelines (Rekordbox, Serato, Traktor, djay, Mixxx) says what people read at a glance and what we adapt because our future is a plan, not a file |
 | **Soundcheck card** | target vs measured | small bars per band; within tolerance in `signal-ok`, outside in `signal-warn` |
 | **Error strip** | what went wrong and what to do | the user's words, one action, dismissible |
 | **Cue** | pre-listen to the next segment on the cue device | a headphone toggle; disabled with a reason when no cue device is set |
