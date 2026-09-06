@@ -6,7 +6,7 @@ import { beforeAll, describe, expect, it } from 'vitest'
 import { offlineEngine, peakBetween, peakOf } from '../tests/harness.ts'
 import { createEngine } from './engine.ts'
 import { EngineError } from './errors.ts'
-import { scoreReleaseTailSeconds, SUPPORTED_PRESETS } from './instruments.ts'
+import { SUPPORTED_PRESETS, scoreReleaseTailSeconds } from './instruments.ts'
 import { barSeconds, scoreSeconds, ticksToSeconds } from './time.ts'
 import { loadTone } from './tone.ts'
 

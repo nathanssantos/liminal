@@ -166,11 +166,28 @@
   each to under 1 s and the suite from 47 s to 9 s — with every assertion unchanged. The cost is
   the audio graph, not the test: 4 s of the fixture renders in 192 ms, and 48 ms with no notes.
   (measured 2026-09-06)
-- 🔴 **The end of the document is not the end of the sound.** Stopping the transport at the last
-  tick cuts every release still ringing, and the race between those releases and the stop drops
-  voices — measured live: 1, 18 and 91 notes lost across three runs of the same 30-second fixture,
-  and zero when the end never arrived. Offline never sees it. The transport stops a release tail
-  after the last tick; `ended` still fires at it. (measured 2026-09-06)
+- 🔴 **Never stop the transport from inside the tick that is running.** `transport.stop(time)`
+  called at that same `time` rewinds the tick source while the clock loop is still in its window,
+  and every `Part` replays its first event: 165 attacks on a document holding 48, all the opening
+  chord, forty times in ~50 ms. A `PolySynth` prints `Max polyphony exceeded` and looks like a
+  dropped release; a monophonic voice retriggers in silence. The stop belongs in a
+  `context.setTimeout`, outside the tick. (⚠️ Correction: first written here as a race between the
+  releases and the stop, which it is not — the mechanism is the rewind, and it is deterministic per
+  configuration.) (measured 2026-09-06)
+- 🔴 **Offline does see it, and that is where the guard belongs.** The same rewind adds 6 ghost
+  attacks and a seventeenth `bar` event to an offline render of the fixture — deterministic, and
+  cheap to assert. The engine counts the notes it triggers, and the test compares that count with
+  the document; a live test alone would leave CI blind, because CI has no device. Pair it with an
+  offline peak reading past the tail: with the stop at the last tick the fixture is still audible
+  three seconds after its own end. (measured 2026-09-06)
+- ⭐ **The release tail is a musical number, so it comes from the presets.** How long the engine
+  keeps the transport after `ended` is the longest tail among the score's voices — the envelope's
+  release when it sustains, decay plus release when it does not. A constant would silently truncate
+  the first preset added with a longer release. (measured 2026-09-06)
+- 🔴 **Whatever runs after the end has to survive `play()` landing in the middle of it.** During
+  the tail the engine is neither playing nor idle: a `play()` there once re-armed the end in the
+  transport's past and left the engine mute forever, with no error and no event. The engine keeps
+  three states, and `play()` during the tail rewinds before it starts. (measured 2026-09-06)
 - 🔴 **Opening the audio device at module scope can hang the whole suite, past any timeout.**
   `new AudioContext()` in `node-web-audio-api` is a synchronous native call; when the device is
   wedged it blocks uninterruptibly, so the file hangs on import and `timeout 90` does not kill it.

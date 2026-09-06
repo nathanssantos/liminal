@@ -1,9 +1,7 @@
 import 'node-web-audio-api/polyfill.js'
 import { sixteenBars } from '@liminal/score/fixtures'
-import { createEngine } from '../src/index.ts'
+import { createEngine, scoreReleaseTailSeconds } from '../src/index.ts'
 import { scoreSeconds } from '../src/time.ts'
-
-const RELEASE_TAIL_SECONDS = 2
 
 const context = new AudioContext({ sampleRate: 48000 })
 const engine = await createEngine({ context, score: sixteenBars })
@@ -23,7 +21,7 @@ process.stdout.write(
 )
 engine.play()
 await finished
-await new Promise((resolve) => setTimeout(resolve, RELEASE_TAIL_SECONDS * 1000))
+await new Promise((resolve) => setTimeout(resolve, scoreReleaseTailSeconds(sixteenBars) * 1000))
 process.stdout.write('\ndone\n')
 engine.dispose()
 await context.close()
