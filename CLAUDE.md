@@ -5,7 +5,7 @@
 ## Skills and agents
 
 - Skills **of this repo** (`.claude/skills/`): `/queue` → `/start #n` → implement → `/review` →
-  `/deliver`, plus `/spec`, `/research` and `/release`. The whole loop is **`/liminal`**, and it
+  `/deliver`, plus `/spec`, `/research`, `/discover` and `/release`. The whole loop is **`/liminal`**, and it
   runs on its own with `/loop 3m /liminal`. None depends on the machine's skills; the scripts are
   in `tools/board`.
 - Project agents in `.claude/agents/` (all read-only): reviewers `spec-reviewer`, `score-reviewer`,

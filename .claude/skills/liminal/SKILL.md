@@ -46,7 +46,10 @@ open milestone · every `depends_on` `Done` · highest priority · lowest id. **
 | that either, but there is `Backlog` in the milestone | **spec iteration** (§9; skill `/spec`) — step S |
 | any card left to do in the milestone | **release + close the milestone and open the next** (§7, §14; skill `/release`) — step F |
 | next milestone in `plan.md` | **planning iteration** (§10; skill `/spec`) — step P |
-| anything workable (all in `Blocked`/`listening`) | **research iteration** (§13; skill `/research`) — step R. Never idle |
+| anything workable (all in `Blocked`/`listening`) | **discovery iteration** first if one is due (§17; skill `/discover`) — step G; otherwise **research iteration** (§13; skill `/research`) — step R. Never idle |
+
+🔴 **Discovery is due** after every UI card ships, every 5 card iterations, and at every
+milestone close before planning (§17). When due, it comes before the next card.
 
 🔴 **Before choosing:** `board.decisionsNeeded` not empty → **stop** (step D). The loop does not run
 while a course decision waits.
@@ -134,8 +137,8 @@ Waking with nothing to do ends in one line: "no new input; iteration N in progre
 
 ## F · Release, close and open a milestone (§7, §14) — `/release`
 
-1. Run the milestone gate proof (the milestone's row in `plan.md`); paste the evidence in the
-   `milestone` issue.
+1. Run a discovery iteration first (step G). Then the milestone gate proof (the milestone's row in
+   `plan.md`); paste the evidence in the `milestone` issue.
 2. Passed → `/release`: version tag, `CHANGELOG.md`, GitHub Release notes, `open-source-steward`
    pass; close the issue and the milestone; open the next milestone and create its `milestone`
    issue with the gate. Failed → new card in the milestone (spec on the spot, `Backlog`) and §1.
@@ -153,6 +156,14 @@ Waking with nothing to do ends in one line: "no new input; iteration N in progre
    new milestone is a course decision — `decision` issue to `Decision needed` with the proposal and
    the discarded alternatives, the options in the chat with a recommendation, and **stop** (step D).
    On approval (merged PR or a chat answer), create the milestone and its `milestone` issue. → §1.
+
+## G · Discovery iteration (§17) — `/discover`
+
+Walk every scenario in `docs/product/scenarios.md` with Playwright, as that person; run the
+`usability-reviewer` with **Expected but missing**; rank with the `product-strategist`; a small
+completeness gap inside the open milestone becomes a card now (improvement budget: a fifth of the
+milestone); a later one becomes an `idea`; a direction change becomes a `decision` and stops. A
+class of gap not in `docs/product/completeness.md` is added there in the same PR.
 
 ## R · Research iteration (§13) — `/research`
 

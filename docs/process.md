@@ -393,8 +393,44 @@ next is too vague to spec.
    saying so in the chat), reject by closing it, or change it by editing.
 5. Milestones are small: 5–10 cards. A big one becomes two.
 
-⚠️ **Planning does not invent requirements.** A new requirement comes from you (chat or `idea`).
-The loop proposes **order and cut**, not product.
+⚠️ **Planning does not invent direction — but it owns completeness.** A new *direction* (a new
+product, a new audience, a new principle) comes from you. Everything a person would reasonably
+expect from the flows, the scenarios and the platform frame is the loop's job to find and propose
+(§17) — the owner should never have to point out a missing volume control.
+
+---
+
+## 17 · Product discovery — the loop finds the gaps itself
+
+The biggest risk is not the code; it is evolving the product with improvements that make sense
+for the person using it, **without the owner having to bring them**. The loop owns that.
+
+**Instruments.** `docs/product/controls.md` (what exists and where it lands),
+`docs/product/completeness.md` (what a surface of each kind must offer — grown from every gap),
+`docs/product/scenarios.md` (people using the app, walked with Playwright), the research briefs
+(R15, R19: what comparable products offer and what people actually touch), and issues opened by
+others once the repo has users.
+
+**The discovery iteration** (skill `/discover`): walk every scenario as that person; run the
+`usability-reviewer` with its mandatory **Expected but missing** section; ask the
+`product-strategist` to rank; act on the result:
+
+| Gap | Action |
+|---|---|
+| completeness gap inside the open milestone, ≤ 1 card, no ADR, no new dependency or cost | a card **now**, within the improvement budget |
+| completeness gap for a later milestone | an `idea` issue citing the scenario step and the `completeness.md` row |
+| direction change | a `decision` issue → `Decision needed` → stop (§15) |
+| a class of gap not yet in `completeness.md` | a new row, same PR |
+
+**Cadence.** After every UI card ships; every 5 card iterations; at every milestone close, before
+planning; and whenever the owner asks "what is missing". It never counts as idle.
+
+**Improvement budget.** Up to a fifth of a milestone's cards may be loop-discovered improvements
+without asking. Beyond that, the extra ones wait for the planning iteration.
+
+**When the owner still has to point out a gap**, that is a process failure: the fix ships **and**
+the gap's class becomes a row in `completeness.md` in the same PR, so the next discovery
+iteration catches its siblings.
 
 ---
 
@@ -409,6 +445,7 @@ The loop proposes **order and cut**, not product.
 | comment `heard: ok` on a PR | releases the merge |
 | create an issue labelled `idea` | a product request: enters the next spec or planning iteration; if it is for the open milestone, it becomes a card right away |
 | create an issue labelled `research` | a research request: the next research iteration picks it |
+| point out something missing | a process failure, fixed as a card **and** recorded as a class in `docs/product/completeness.md` so the loop finds the next one itself (§17) |
 | move a card out of `Blocked` or `Decision needed` | you resolved it: the loop reads the last comment as the answer and resumes |
 | create an issue without a label | a hand-made card: the sync creates the `.md`, the spec iteration completes it |
 | add `blocked` | wait; removing the label releases |
@@ -492,6 +529,7 @@ users (Keep a Changelog), GitHub Release notes with how to try it and what to li
 | Cadence | What happens |
 |---|---|
 | every iteration | one card end to end; journal line; memory; docs current |
+| every 5 card iterations, and after every UI card | one discovery iteration (§17): scenarios walked, gaps to cards or ideas |
 | every 10 card iterations | one research iteration |
 | every milestone close | gate proven → release → memory cleanup → next milestone opened (or planning) |
 | every planning iteration | `product-strategist` and `usability-reviewer` advise; the proposal waits for your decision |
