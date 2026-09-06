@@ -16,7 +16,12 @@ const silent = (): Score => {
   return score
 }
 
+const WANTED = process.env.LIMINAL_AUDIO_DEVICE === '1'
+
 const openContext = (): AudioContext | undefined => {
+  if (!WANTED) {
+    return undefined
+  }
   try {
     return new AudioContext({ sampleRate: 48000 })
   } catch {
@@ -28,7 +33,9 @@ const context = openContext()
 
 if (context === undefined) {
   process.stdout.write(
-    'no audio output device: the wall-clock tests are skipped, and the real clock is unproven here\n',
+    WANTED
+      ? 'no audio output device: the wall-clock tests are skipped, and the real clock is unproven here\n'
+      : 'wall-clock tests skipped: set LIMINAL_AUDIO_DEVICE=1 to run them against the real device\n',
   )
 }
 

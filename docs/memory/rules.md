@@ -166,6 +166,11 @@
   each to under 1 s and the suite from 47 s to 9 s — with every assertion unchanged. The cost is
   the audio graph, not the test: 4 s of the fixture renders in 192 ms, and 48 ms with no notes.
   (measured 2026-09-06)
+- 🔴 **Opening the audio device at module scope can hang the whole suite, past any timeout.**
+  `new AudioContext()` in `node-web-audio-api` is a synchronous native call; when the device is
+  wedged it blocks uninterruptibly, so the file hangs on import and `timeout 90` does not kill it.
+  The live tests are opt-in behind `LIMINAL_AUDIO_DEVICE=1`, and they say so when skipped. CI has
+  no device either way. (measured 2026-09-06)
 - 🔴 **A test that opens the audio device must be silent by default.** A timing test that plays
   through the speakers runs on every `pnpm check`, on the owner's machine, in the middle of
   something else — and worse, a review agent's mutation run replays it dozens of times from a
