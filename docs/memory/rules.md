@@ -18,10 +18,16 @@
   exactly one: `BOARD_TOKEN`, a personal access token with the Projects scope, used only by the
   spec ↔ board sync workflow. Locally the scripts use the authenticated `gh` and need no token.
   Any second secret is a course decision (process §15). (decided 2026-09-05)
+- 🔴 **Never invent a commit identity.** `<login>@users.noreply.github.com` is attributed to whoever
+  owns that login on GitHub — a made-up one credited an unrelated real account as co-author, and
+  removing it took a history rewrite of `main` with the loop paused (2026-09-06). A human commits
+  with their own `git config`; automation commits as
+  `github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>`. Trailers follow the
+  same rule: no `Co-authored-by` with an address nobody controls.
 - ⚠️ **`gh project …` answers `unknown owner type` with a classic PAT that has only `project` and
-  `repo`.** Measured 2026-09-05 with the `BOARD_TOKEN` candidate. Assumed fix: add `read:org` to the
-  token (the `gh` owner lookup needs it even for a user-owned project). Direct `gh api graphql`
-  calls with `user(login:)` should not need it — the CI run of the sync is what proves either way.
+  `repo`.** Measured 2026-09-05 with `BOARD_TOKEN`. ⚠️ Correction: direct `gh api graphql` calls with
+  `user(login:)` do **not** need more — the CI sync ran green with `project` + `repo` alone before
+  `read:org` was added (run 33997931460). `read:org` is only for the `gh project` subcommands.
 - ⚠️ **The loop depends on no skill outside the repo.** Everything it calls is in
   `.claude/skills/` and `tools/board`; the only external prerequisite is an authenticated `gh`
   with the `project` scope.
