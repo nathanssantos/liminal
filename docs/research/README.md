@@ -5,4 +5,5 @@
 
 | Date | Brief | Topic | Confidence | Refresh by |
 |---|---|---|---|---|
+| 2026-09-06 | [Synthesis recipes for staple sounds](2026-09-06-synthesis-recipes.md) | R08 | medium | 2027-03 |
 | 2026-09-05 | [LLM + live-coding landscape](2026-09-05-llm-live-coding-landscape.md) | R01 | medium | 2026-12 |
