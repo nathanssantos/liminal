@@ -66,11 +66,28 @@ describe('tick arithmetic', () => {
     expect(() => tickToPosition(0.5, { beatsPerBar: 4, beatUnit: 4 })).toThrow(RangeError)
   })
 
-  it('keeps a tick past the middle of a bar inside that bar', () => {
+  it('keeps a tick past the middle of a bar and of a beat where it belongs', () => {
     const meter = { beatsPerBar: 4, beatUnit: 4 }
-    expect(tickToPosition(barToTick(2, meter) + 3000, meter).bar).toBe(2)
-    expect(tickToPosition(barToTick(2, meter) + 3839, meter).bar).toBe(2)
-    expect(tickToPosition(barToTick(3, meter), meter).bar).toBe(3)
+    expect(tickToPosition(barToTick(2, meter) + 3000, meter)).toEqual({
+      bar: 2,
+      beat: 3,
+      tick: 120,
+    })
+    expect(tickToPosition(barToTick(2, meter) + 3839, meter)).toEqual({
+      bar: 2,
+      beat: 3,
+      tick: 959,
+    })
+    expect(tickToPosition(barToTick(3, meter), meter)).toEqual({ bar: 3, beat: 0, tick: 0 })
+  })
+
+  it('places a tick inside a bar of seven eighths', () => {
+    const meter = { beatsPerBar: 7, beatUnit: 8 }
+    expect(tickToPosition(barToTick(1, meter) + 1000, meter)).toEqual({
+      bar: 1,
+      beat: 2,
+      tick: 40,
+    })
   })
 
   it('measures the score by the sum of its sections', () => {

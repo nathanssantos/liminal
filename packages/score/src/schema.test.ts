@@ -128,6 +128,39 @@ describe('the schema refuses what it cannot represent', () => {
     })
   }
 
+  it('refuses an unknown key on a sampler instrument, not only a synth one', () => {
+    const raw = rawFixture()
+    reach(raw, ['tracks', 0]).instrument = {
+      kind: 'sampler',
+      bank: 'acoustic-kit',
+      liminalUnknownKey: true,
+    }
+    expect(scoreSchema.safeParse(raw).success).toBe(false)
+  })
+
+  it('refuses an empty name where one identifies something', () => {
+    const emptied: [string, (raw: Raw) => void][] = [
+      ['the score id', (raw) => Object.assign(raw, { id: '' })],
+      ['a section id', (raw) => Object.assign(reach(raw, ['sections', 0]), { id: '' })],
+      ['a track id', (raw) => Object.assign(reach(raw, ['tracks', 0]), { id: '' })],
+      ['a clip id', (raw) => Object.assign(reach(raw, ['clips', 0]), { id: '' })],
+      ['the track a clip names', (raw) => Object.assign(reach(raw, ['clips', 0]), { trackId: '' })],
+      ['an automation id', (raw) => Object.assign(reach(raw, ['automation', 0]), { id: '' })],
+      [
+        'a sampler bank',
+        (raw) =>
+          Object.assign(reach(raw, ['tracks', 0]), {
+            instrument: { kind: 'sampler', bank: '' },
+          }),
+      ],
+    ]
+    for (const [what, empty] of emptied) {
+      const raw = rawFixture()
+      empty(raw)
+      expect(`${what}: ${scoreSchema.safeParse(raw).success}`).toBe(`${what}: false`)
+    }
+  })
+
   it('refuses an unknown key inside lineage', () => {
     const raw = rawFixture()
     raw.lineage = { label: 'a take', liminalUnknownKey: true }
