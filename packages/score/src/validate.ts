@@ -60,6 +60,13 @@ function checkWholeNumbers(score: Score, errors: Finding[]): void {
       path: ['meter', 'beatsPerBar'],
     })
   }
+  if (!isWholeAtLeast(score.meter.beatUnit, 1)) {
+    errors.push({
+      code: 'E1',
+      message: `score ${score.id} has a beat unit of ${score.meter.beatUnit}, which is not a whole number ≥ 1`,
+      path: ['meter', 'beatUnit'],
+    })
+  }
   if (!isWholeAtLeast(score.seed, 0)) {
     errors.push({
       code: 'E1',

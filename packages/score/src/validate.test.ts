@@ -77,6 +77,7 @@ describe('E1 rejects a number that is not whole', () => {
       (score) => Object.assign(score.automation[0]?.points[0] ?? {}, { at: 30720.5 }),
     ],
     ['beats per bar', (score) => Object.assign(score.meter, { beatsPerBar: 4.0005 })],
+    ['beat unit', (score) => Object.assign(score.meter, { beatUnit: 3.5 })],
     ['seed', (score) => Object.assign(score, { seed: 20260905.5 })],
   ]
 
@@ -361,6 +362,52 @@ describe('E9 rejects a number outside its range', () => {
       expect(codesOf(broken(mutate))).toContain('E9')
     })
   }
+
+  const infinite: [string, (score: Score) => void][] = [
+    ['bpm', (score) => Object.assign(score.tempo, { bpm: Number.POSITIVE_INFINITY })],
+    ['track gain', (score) => Object.assign(score.tracks[0] ?? {}, { gainDb: -Infinity })],
+    [
+      'automation point value',
+      (score) =>
+        Object.assign(score.automation[0]?.points[0] ?? {}, { value: Number.POSITIVE_INFINITY }),
+    ],
+    [
+      'effect parameter',
+      (score) => {
+        const effect = trackNamed(score, 'chords').fx[0]
+        if (effect !== undefined) {
+          effect.params.cutoff = Number.POSITIVE_INFINITY
+        }
+      },
+    ],
+    [
+      'instrument parameter',
+      (score) => {
+        trackNamed(score, 'kick').instrument = {
+          kind: 'synth',
+          preset: 'kick',
+          params: { decay: Number.POSITIVE_INFINITY },
+        }
+      },
+    ],
+  ]
+
+  for (const [what, mutate] of infinite) {
+    it(`E9 rejects an Infinity ${what}, which a range cannot hold either`, () => {
+      expect(codesOf(broken(mutate))).toContain('E9')
+    })
+  }
+
+  it('E9 points at the element it rejects, not only at its code', () => {
+    const score = broken((draft) => {
+      const effect = trackNamed(draft, 'chords').fx[0]
+      if (effect !== undefined) {
+        effect.params.cutoff = Number.NaN
+      }
+    })
+    const finding = validate(score).errors.find((error) => error.code === 'E9')
+    expect(finding?.path).toEqual(['tracks', 3, 'fx', 0, 'params', 'cutoff'])
+  })
 })
 
 describe('every finding names the element it is about', () => {
@@ -466,6 +513,18 @@ describe('validate warnings', () => {
         { at: 0, duration: first.length, pitch: 36, velocity: 0.9 },
         { at: 100, duration: 960, pitch: 36, velocity: 0.9 },
       ]
+    })
+    expect(warningsOf(score)).not.toContain('W3')
+  })
+
+  it('W3 ignores a note whose span is not a finite number of ticks', () => {
+    const score = broken((draft) => {
+      draft.sections = twoSections(draft)
+      const first = firstClip(draft)
+      const note = first.notes[0]
+      if (note !== undefined) {
+        note.duration = Number.NaN
+      }
     })
     expect(warningsOf(score)).not.toContain('W3')
   })

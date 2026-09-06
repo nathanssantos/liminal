@@ -122,7 +122,7 @@ type Mix = { master: { gainDb: number; limiter: boolean } }
 
 | # | Rule |
 |---|---|
-| E1 | every `Tick`/`Bar` is an integer ≥ 0; `length` and `duration` ≥ 1; `pitch`, `seed` and `meter.beatsPerBar` are whole numbers too — everything a tick is multiplied by |
+| E1 | every `Tick`/`Bar` is an integer ≥ 0; `length` and `duration` ≥ 1; `pitch`, `seed` and both `meter` fields are whole numbers too — everything a tick is multiplied by |
 | E2 | at least one section, contiguous from bar 0, no gap, no overlap, ordered by `startBar` |
 | E3 | unique ids within `sections`, `tracks`, `clips`, `automation` |
 | E4 | every `clip.trackId` and every `automation.target.trackId` exists in `tracks` |
