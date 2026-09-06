@@ -61,8 +61,10 @@ nothing is written as if the set, or a single track, were the only thing.
 | 7 | **Automated production** | from a reference and a prompt, the platform produces a **complete track** as a document (intro, build, drop, break, outro — at least four sections), within ±10% of the reference's bands; a prompt edit ("more bass in the drop") changes the named measure in the named section and nothing else; the track exports as wav that `ffprobe` reads with the right duration (MIDI and stems later); the document round-trips through `stringify`/`parse` |
 | 6 | **Reference queue and handover** | while playing, a new reference (YouTube now, a file later) joins a visible, reorderable queue, each entry with an **adjustable dwell time** (how long the set stays in that style before travelling on; default 10 min, editable inline); the set moves from the current style to the next within `HANDOVER_BARS`, with BPM inside the per-track budget, keys by neighbours only, and band balance reaching ±10% of the next card; analysis failure keeps the current target and says so. All read from the set log |
 
-🔴 **The gate that applies to all five: nothing requires a terminal.** The terminal is for
-developing.
+🔴 **The gate that applies to all: nothing requires a terminal.** The terminal is for developing.
+The UI controls everything a person needs — the inventory is
+[`docs/product/controls.md`](product/controls.md), and a milestone's UI is done when every control
+that lands in it is on screen.
 
 ---
 
@@ -118,8 +120,8 @@ Every milestone has an observable gate. No milestone starts before the previous 
 | **M1 · Sound** | score document + engine + app shell | the app opens, plays 16 bars of a fixed score, stops. The same score rendered offline twice yields identical bytes |
 | **M2 · Ear** | analyzer: YouTube → style card; measure a wav | BPM and key right on 9 of 10 tracks; a score rendered by our own engine has its BPM and key recovered by the analyzer |
 | **M3 · Composition** | generators and transforms from the card; the first **Production** door | "more bass" is a diff, and energy below 120 Hz rises in the measurement. A generated section lands within ±10% of the reference's bands. A **complete track** (≥ 4 sections) is generated from a card, edited by one prompt, and exported as a wav `ffprobe` reads |
-| **M4 · Conducting** | conductor + brains: endless set, reference queue and handover | 60 min with no gap on the rules brain; then on the LLM. 10 s of injected brain latency produces no gap. A live prompt lands in ≤ 8 bars. A second reference queued mid-set is reached within `HANDOVER_BARS` with no budget broken |
-| **M5 · Booth** | the rich UI | set timeline, energy curve, current and queued references, prompts and feedback — all without a terminal |
+| **M4 · Conducting** | conductor + brains: endless set, reference queue and handover, the listener's steering and shaping controls (energy, next, hold, tempo, filter, layers) | 60 min with no gap on the rules brain; then on the LLM. 10 s of injected brain latency produces no gap. A live prompt lands in ≤ 8 bars. A second reference queued mid-set is reached within `HANDOVER_BARS` with no budget broken |
+| **M5 · Booth** | the rich UI | every row of `controls.md` that lands in M1–M5 is on screen: timeline, energy curve, references and queue, prompts and feedback, cue, record and keep, settings — all without a terminal |
 
 Then, in this likely order: samples and soundfonts (genre reach), stems via Demucs, local mp3,
 set recording and export, remote control from a phone.

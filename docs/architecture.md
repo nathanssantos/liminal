@@ -76,7 +76,13 @@ runs in three places: renderer (live), hidden window (soundcheck), Node with `no
 (headless CI tests).
 
 Schedules with lookahead over Tone.js's `Transport`. Exposes current position (bar, beat, tick),
-`play`, `stop`, `load`, `dispose`, and `renderOffline(score) → wav`.
+`play`, `pause`, `stop`, `load`, `dispose`, and `renderOffline(score) → wav`.
+
+**Output stage.** After the document's master limiter sits an output stage the document does not
+know about: gain (volume), mute, the master filter sweep, layer on/off and trims, the sink
+(device), and later the cue bus. It exists only in the live engine — `renderOffline` stops at the
+limiter — so the soundcheck and every export are unaffected by what the listener touches. The
+inventory of controls, immediate versus planned, is `docs/product/controls.md`.
 
 ⚠️ **Determinism is per implementation.** Chromium twice → identical bytes. Chromium × Node →
 same duration and same measurements within tolerance, not the same bytes.
@@ -164,7 +170,9 @@ validates the Python output in tests.
 exposes only typed functions; `contextIsolation` on; no Node in the renderer.
 
 M1 channels: `score:load`, `transport:play`, `transport:stop`, `transport:position` (stream),
-`render:offline`. The rest arrive per milestone, in each card's spec.
+`render:offline`, `output:volume`, `output:mute`, `output:device`. The rest arrive per milestone,
+in each card's spec; every control in `docs/product/controls.md` maps to a channel, immediate ones
+handled in the renderer, planned ones forwarded to the conductor.
 
 ## Determinism
 
