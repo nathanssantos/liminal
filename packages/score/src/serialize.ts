@@ -1,16 +1,25 @@
+import type { $ZodIssue } from 'zod/v4/core'
 import type { Score } from './schema.ts'
 import { scoreSchema } from './schema.ts'
+import type { Finding } from './validate.ts'
 import { validate } from './validate.ts'
 
-export class ScoreParseError extends Error {
-  readonly problems: string[]
+export type ScoreParseFailure =
+  | { kind: 'json' }
+  | { kind: 'shape'; issues: readonly $ZodIssue[] }
+  | { kind: 'invariants'; findings: readonly Finding[] }
 
-  constructor(problems: string[]) {
-    super(`the document is not a valid score: ${problems.join('; ')}`)
+export class ScoreParseError extends Error {
+  readonly failure: ScoreParseFailure
+
+  constructor(message: string, failure: ScoreParseFailure, options?: { cause?: unknown }) {
+    super(message, options)
     this.name = 'ScoreParseError'
-    this.problems = problems
+    this.failure = failure
   }
 }
+
+const pathOf = (path: readonly PropertyKey[]) => (path.length === 0 ? '(root)' : path.join('.'))
 
 function withSortedKeys(value: unknown): unknown {
   if (Array.isArray(value)) {
@@ -18,7 +27,7 @@ function withSortedKeys(value: unknown): unknown {
   }
   if (value !== null && typeof value === 'object') {
     const source = value as Record<string, unknown>
-    const sorted: Record<string, unknown> = {}
+    const sorted = Object.create(null) as Record<string, unknown>
     for (const key of Object.keys(source).sort()) {
       sorted[key] = withSortedKeys(source[key])
     }
@@ -36,18 +45,30 @@ export function parse(json: string): Score {
   try {
     raw = JSON.parse(json)
   } catch (cause) {
-    throw new ScoreParseError([cause instanceof Error ? cause.message : 'unreadable JSON'])
+    throw new ScoreParseError(
+      `the document is not readable JSON: ${cause instanceof Error ? cause.message : 'unknown'}`,
+      { kind: 'json' },
+      { cause },
+    )
   }
   const shape = scoreSchema.safeParse(raw)
   if (!shape.success) {
+    const issues = shape.error.issues
     throw new ScoreParseError(
-      shape.error.issues.map((issue) => `${issue.path.join('.') || '(root)'}: ${issue.message}`),
+      `the document does not have the shape of a score: ${issues
+        .map((issue) => `${pathOf(issue.path)}: ${issue.message}`)
+        .join('; ')}`,
+      { kind: 'shape', issues },
+      { cause: shape.error },
     )
   }
   const { errors } = validate(shape.data)
   if (errors.length > 0) {
     throw new ScoreParseError(
-      errors.map((error) => `${error.path.join('.') || '(root)'}: ${error.code} ${error.message}`),
+      `the document breaks the score invariants: ${errors
+        .map((error) => `${pathOf(error.path)}: ${error.code} ${error.message}`)
+        .join('; ')}`,
+      { kind: 'invariants', findings: errors },
     )
   }
   return shape.data

@@ -35,10 +35,10 @@ describe('createRng', () => {
     }
   })
 
-  it('refuses an empty array and a max below 1', () => {
+  it('refuses a max below 1 and a max that is not whole', () => {
     const rng = createRng(1)
-    expect(() => rng.pick([])).toThrow(RangeError)
     expect(() => rng.int(0)).toThrow(RangeError)
+    expect(() => rng.int(2.5)).toThrow(RangeError)
   })
 })
 

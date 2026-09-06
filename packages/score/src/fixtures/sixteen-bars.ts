@@ -3,6 +3,14 @@ import type { Clip, Note, Score, Track } from '../schema.ts'
 import { PPQ } from '../schema.ts'
 import { ticksPerBar } from '../time.ts'
 
+const QUARTER = PPQ
+
+const EIGHTH = PPQ / 2
+
+const SIXTEENTH = PPQ / 4
+
+const THIRTY_SECOND = PPQ / 8
+
 const SEED = 20260905
 
 const BARS = 16
@@ -26,6 +34,14 @@ const CHORD_VOICINGS = [
   [52, 56, 59],
 ]
 
+function at<T>(items: readonly T[], index: number): T {
+  const item = items[index]
+  if (item === undefined) {
+    throw new RangeError(`the fixture asked for index ${index} of ${items.length}`)
+  }
+  return item
+}
+
 const CUTOFF_START = 800
 
 const CUTOFF_END = 8000
@@ -35,8 +51,8 @@ function kickNotes(): Note[] {
   for (let bar = 0; bar < BARS; bar += 1) {
     for (let beat = 0; beat < METER.beatsPerBar; beat += 1) {
       notes.push({
-        at: bar * TICKS_PER_BAR + beat * PPQ,
-        duration: PPQ / 4,
+        at: bar * TICKS_PER_BAR + beat * QUARTER,
+        duration: SIXTEENTH,
         pitch: KICK_PITCH,
         velocity: 0.9,
       })
@@ -47,12 +63,11 @@ function kickNotes(): Note[] {
 
 function hatNotes(): Note[] {
   const notes: Note[] = []
-  const eighth = PPQ / 2
   for (let bar = 0; bar < BARS; bar += 1) {
     for (let eighthIndex = 0; eighthIndex < METER.beatsPerBar * 2; eighthIndex += 1) {
       notes.push({
-        at: bar * TICKS_PER_BAR + eighthIndex * eighth,
-        duration: PPQ / 8,
+        at: bar * TICKS_PER_BAR + eighthIndex * EIGHTH,
+        duration: THIRTY_SECOND,
         pitch: HAT_PITCH,
         velocity: eighthIndex % 2 === 0 ? 0.5 : 0.8,
       })
@@ -61,18 +76,16 @@ function hatNotes(): Note[] {
   return notes
 }
 
+const BASS_NOTE_DURATION = 420
+
 function bassNotes(): Note[] {
   const notes: Note[] = []
-  const eighth = PPQ / 2
   for (let bar = 0; bar < BARS; bar += 1) {
-    const pitch = BASS_ROOTS[bar % BASS_ROOTS.length]
-    if (pitch === undefined) {
-      continue
-    }
+    const pitch = at(BASS_ROOTS, bar % BASS_ROOTS.length)
     for (let eighthIndex = 0; eighthIndex < METER.beatsPerBar * 2; eighthIndex += 1) {
       notes.push({
-        at: bar * TICKS_PER_BAR + eighthIndex * eighth,
-        duration: eighth - 60,
+        at: bar * TICKS_PER_BAR + eighthIndex * EIGHTH,
+        duration: BASS_NOTE_DURATION,
         pitch,
         velocity: 0.7,
       })
@@ -84,10 +97,7 @@ function bassNotes(): Note[] {
 function chordNotes(): Note[] {
   const notes: Note[] = []
   for (let bar = 0; bar < BARS; bar += 1) {
-    const voicing = CHORD_VOICINGS[bar % CHORD_VOICINGS.length]
-    if (voicing === undefined) {
-      continue
-    }
+    const voicing = at(CHORD_VOICINGS, bar % CHORD_VOICINGS.length)
     for (const pitch of voicing) {
       notes.push({
         at: bar * TICKS_PER_BAR,
@@ -146,7 +156,7 @@ export function buildSixteenBars(): Score {
     trackId: track.id,
     start: 0,
     length: LENGTH,
-    notes: notesByTrack[index] ?? [],
+    notes: at(notesByTrack, index),
   }))
   const scoreId = newId(rng)
   const automationId = newId(rng)
@@ -174,4 +184,14 @@ export function buildSixteenBars(): Score {
   }
 }
 
-export const sixteenBars: Score = buildSixteenBars()
+function deepFreeze<T>(value: T): T {
+  if (value !== null && typeof value === 'object') {
+    for (const nested of Object.values(value)) {
+      deepFreeze(nested)
+    }
+    Object.freeze(value)
+  }
+  return value
+}
+
+export const sixteenBars: Score = deepFreeze(buildSixteenBars())

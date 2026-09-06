@@ -53,7 +53,23 @@
 - ⚠️ **The Zod schema carries shape only; legality lives in `validate`.** Ranges and integrality
   in the schema would report Zod's own codes, and the invariant table needs `E9` plus the element
   id. `parse` is the only door that runs both — `scoreSchema.parse` alone accepts a document the
-  engine refuses. (decided 2026-09-06)
+  engine refuses. (decided 2026-09-06, ADR-0009)
+- 🔴 **A range check written as `value < min || value > max` accepts `NaN`.** Both comparisons are
+  false, so the value is judged inside the range. A transform computing `20 * Math.log10(0 / 0)`
+  produced a document `validate` called valid, and `NaN` on a Web Audio param poisons the graph.
+  Every range check starts with `Number.isFinite`. (measured 2026-09-06, mutation test
+  `NaN guard`)
+- 🔴 **Integrality has to cover what a tick is multiplied by, not only the tick.** `beatsPerBar`
+  was range-checked but never checked for wholeness: `4.0005` passed `validate` and made
+  `scoreLengthTicks` return `61447.68`, so the invariant meant to guard tick integrality was
+  itself computed in floating point. (measured 2026-09-06)
+- ⭐ **A test per invariant code is not a test per branch.** Nine `E` tests passed while twelve of
+  the invariants' branches survived being replaced by `if (false)`. The gate that found it was
+  mutation testing, not coverage: a table-driven case per sub-check, then a mutant per site.
+  (measured 2026-09-06, 20 of 20 mutants killed after the fix)
+- ⚠️ **`-0` round-trips through JSON as `0`.** A generated document with `gainDb: -0` broke the
+  round-trip equality test. Nothing musical depends on the sign of zero, so the behaviour is
+  stated in a test rather than fought. (measured 2026-09-06)
 - ⚠️ **A `Score` byte-compared against a committed file needs `eol=lf` in `.gitattributes`.**
   Without it the comparison passes on macOS and fails on a CRLF checkout. Biome also reformats a
   committed `.json`, so `stringify` emits exactly Biome's shape: two spaces, sorted keys, trailing

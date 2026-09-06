@@ -31,7 +31,7 @@ type Bar  = number            // integer ≥ 0
 
 type Score = {
   version: 1
-  id: string                  // ulid
+  id: string                  // 26 Crockford base32 characters
   seed: number                // uint32
   tempo: { bpm: number }      // 40..220
   meter: { beatsPerBar: number; beatUnit: 4 }   // beatsPerBar 2..12
@@ -122,15 +122,15 @@ type Mix = { master: { gainDb: number; limiter: boolean } }
 
 | # | Rule |
 |---|---|
-| E1 | every `Tick`/`Bar` is an integer ≥ 0; `length` and `duration` ≥ 1 |
-| E2 | sections contiguous from bar 0, no gap, no overlap, ordered by `startBar` |
+| E1 | every `Tick`/`Bar` is an integer ≥ 0; `length` and `duration` ≥ 1; `pitch`, `seed` and `meter.beatsPerBar` are whole numbers too — everything a tick is multiplied by |
+| E2 | at least one section, contiguous from bar 0, no gap, no overlap, ordered by `startBar` |
 | E3 | unique ids within `sections`, `tracks`, `clips`, `automation` |
 | E4 | every `clip.trackId` and every `automation.target.trackId` exists in `tracks` |
 | E5 | `clip.start + clip.length ≤ scoreLengthTicks(score)` |
 | E6 | every note fits its clip: `0 ≤ at`, `at + duration ≤ clip.length` |
 | E7 | clips on the same track do not overlap |
 | E8 | `automation.points` with strictly ascending `at` |
-| E9 | `bpm` 40..220; `pitch` 0..127; `velocity` 0..1; `gainDb` -60..6; `pan` -1..1; `energy` 0..1 |
+| E9 | `bpm` 40..220; `pitch` 0..127; `velocity` 0..1; `gainDb` -60..6; `pan` -1..1; `energy` 0..1; `seed` 0..2³²-1; `beatsPerBar` 2..12. `NaN` is outside every range |
 
 **Warnings** (valid, but probably wrong):
 
@@ -156,14 +156,26 @@ Ranges per role (MIDI): `sub` 24–48 · `bass` 28–60 · `chords` 48–84 · `
 | `sectionAt(score, tick)` | the section containing the tick |
 | `createRng(seed)` | xorshift32: `next() → [0,1)`, `int(max)`, `pick(array)`; **never** `Math.random` |
 | `stringify(score)` / `parse(json)` | JSON with sorted keys; `parse` validates |
-| `newId(rng)` | deterministic ulid from the PRNG, for reproducible ids |
+| `newId(rng)` | 26 Crockford base32 characters drawn from the PRNG: ULID-shaped, but with no timestamp, so ids never sort by creation |
 
 Seconds do **not** appear here. `ticksToSeconds` lives in the engine.
 
-The Zod schema carries **shape**: keys, types, enums and the discriminated union. Every legality
-rule — integrality, ranges, cross-references — lives in `validate`, so each one has a stable code
-and a message naming the element. `parse` runs both, in that order, and refuses a document either
-one rejects; the schema alone does not.
+The Zod schema carries **shape**: keys, types, enums and the two unions. Every legality rule —
+integrality, ranges, cross-references — lives in `validate`, so each one has a stable code and a
+message naming the element. `parse` runs both, in that order, and refuses a document either one
+rejects; the schema alone does not (ADR-0009).
+
+The schema is **strict**: an unknown key is an error, at every depth. A document from a newer
+version fails loudly instead of losing the field in silence, and an automation target that names
+both a `trackId` and the `master` matches neither branch instead of being reinterpreted.
+
+`NaN` and `Infinity` are rejected everywhere. The schema refuses them because JSON cannot carry
+them; `validate` refuses them because a range comparison against `NaN` is false on both sides, so
+a transform that divides by zero would otherwise produce a document that validates and then poisons
+an audio parameter.
+
+One asymmetry the round trip cannot close: `-0` comes back as `0`, because that is all JSON
+carries. Nothing musical depends on the sign of zero, and a test states it.
 
 The tick functions take a time signature structurally (`{ beatsPerBar, beatUnit }`), wider than the
 document's `Meter`. A v1 document is always `beatUnit: 4`, but the arithmetic is proven on 3/4 and

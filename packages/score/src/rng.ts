@@ -1,7 +1,7 @@
 export type Rng = {
   next: () => number
   int: (max: number) => number
-  pick: <T>(items: readonly T[]) => T
+  pick: <T>(items: readonly [T, ...T[]]) => T
 }
 
 const UINT32 = 0x100000000
@@ -35,16 +35,7 @@ export function createRng(seed: number): Rng {
   return {
     next,
     int,
-    pick: <T>(items: readonly T[]): T => {
-      if (items.length === 0) {
-        throw new RangeError('pick(items) needs a non-empty array')
-      }
-      const chosen = items[int(items.length)]
-      if (chosen === undefined) {
-        throw new RangeError('pick(items) drew an index outside the array')
-      }
-      return chosen
-    },
+    pick: <T>(items: readonly [T, ...T[]]): T => items[int(items.length)] as T,
   }
 }
 

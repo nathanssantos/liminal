@@ -43,6 +43,23 @@ describe('tick arithmetic', () => {
     })
   })
 
+  it('throws for a beat unit that does not divide the whole note', () => {
+    expect(() => tickToPosition(0, { beatsPerBar: 4, beatUnit: 7 })).toThrow(RangeError)
+    expect(() => barToTick(1, { beatsPerBar: 4, beatUnit: 0 })).toThrow(RangeError)
+  })
+
+  it('throws for a negative beat unit instead of walking backwards', () => {
+    expect(() => barToTick(1, { beatsPerBar: 4, beatUnit: -4 })).toThrow(RangeError)
+  })
+
+  it('throws for a tick before the start of the document', () => {
+    expect(() => tickToPosition(-1, { beatsPerBar: 4, beatUnit: 4 })).toThrow(RangeError)
+  })
+
+  it('throws for a tick that is not whole', () => {
+    expect(() => tickToPosition(0.5, { beatsPerBar: 4, beatUnit: 4 })).toThrow(RangeError)
+  })
+
   it('measures the score by the sum of its sections', () => {
     expect(scoreLengthBars(sixteenBars)).toBe(16)
     expect(scoreLengthTicks(sixteenBars)).toBe(16 * 4 * PPQ)

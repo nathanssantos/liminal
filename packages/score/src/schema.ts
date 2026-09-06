@@ -4,10 +4,6 @@ export const SCORE_VERSION = 1
 
 export const PPQ = 960
 
-const tick = z.number()
-const bar = z.number()
-const positive = z.number()
-
 export const tonicSchema = z.enum(['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'])
 
 export const modeSchema = z.enum(['major', 'minor', 'dorian', 'phrygian', 'lydian', 'mixolydian'])
@@ -55,32 +51,32 @@ export const automationParamSchema = z.enum([
 export const curveSchema = z.enum(['step', 'linear', 'exp'])
 
 export const instrumentRefSchema = z.discriminatedUnion('kind', [
-  z.object({
+  z.strictObject({
     kind: z.literal('synth'),
     preset: synthPresetSchema,
     params: z.record(z.string(), z.number()).optional(),
   }),
-  z.object({
+  z.strictObject({
     kind: z.literal('sampler'),
     bank: z.string().min(1),
     params: z.record(z.string(), z.number()).optional(),
   }),
 ])
 
-export const fxRefSchema = z.object({
+export const fxRefSchema = z.strictObject({
   kind: fxKindSchema,
   params: z.record(z.string(), z.number()),
 })
 
-export const sectionSchema = z.object({
+export const sectionSchema = z.strictObject({
   id: z.string().min(1),
   role: sectionRoleSchema,
-  startBar: bar,
-  bars: positive,
+  startBar: z.number(),
+  bars: z.number(),
   energy: z.number(),
 })
 
-export const trackSchema = z.object({
+export const trackSchema = z.strictObject({
   id: z.string().min(1),
   role: trackRoleSchema,
   instrument: instrumentRefSchema,
@@ -90,60 +86,60 @@ export const trackSchema = z.object({
   fx: z.array(fxRefSchema),
 })
 
-export const noteSchema = z.object({
-  at: tick,
-  duration: positive,
+export const noteSchema = z.strictObject({
+  at: z.number(),
+  duration: z.number(),
   pitch: z.number(),
   velocity: z.number(),
 })
 
-export const clipSchema = z.object({
+export const clipSchema = z.strictObject({
   id: z.string().min(1),
   trackId: z.string().min(1),
-  start: tick,
-  length: positive,
+  start: z.number(),
+  length: z.number(),
   notes: z.array(noteSchema),
 })
 
 export const automationTargetSchema = z.union([
-  z.object({ trackId: z.string().min(1), param: automationParamSchema }),
-  z.object({ master: z.literal('gainDb') }),
+  z.strictObject({ trackId: z.string().min(1), param: automationParamSchema }),
+  z.strictObject({ master: z.literal('gainDb') }),
 ])
 
-export const automationPointSchema = z.object({
-  at: tick,
+export const automationPointSchema = z.strictObject({
+  at: z.number(),
   value: z.number(),
   curve: curveSchema,
 })
 
-export const automationSchema = z.object({
+export const automationSchema = z.strictObject({
   id: z.string().min(1),
   target: automationTargetSchema,
   points: z.array(automationPointSchema),
 })
 
-export const mixSchema = z.object({
-  master: z.object({ gainDb: z.number(), limiter: z.boolean() }),
+export const mixSchema = z.strictObject({
+  master: z.strictObject({ gainDb: z.number(), limiter: z.boolean() }),
 })
 
-export const meterSchema = z.object({
+export const meterSchema = z.strictObject({
   beatsPerBar: z.number(),
   beatUnit: z.literal(4),
 })
 
-export const lineageSchema = z.object({
+export const lineageSchema = z.strictObject({
   parentId: z.string().min(1).optional(),
   styleCardId: z.string().min(1).optional(),
   label: z.string().min(1).optional(),
 })
 
-export const scoreSchema = z.object({
+export const scoreSchema = z.strictObject({
   version: z.literal(SCORE_VERSION),
   id: z.string().min(1),
   seed: z.number(),
-  tempo: z.object({ bpm: z.number() }),
+  tempo: z.strictObject({ bpm: z.number() }),
   meter: meterSchema,
-  key: z.object({ tonic: tonicSchema, mode: modeSchema }),
+  key: z.strictObject({ tonic: tonicSchema, mode: modeSchema }),
   sections: z.array(sectionSchema),
   tracks: z.array(trackSchema),
   clips: z.array(clipSchema),

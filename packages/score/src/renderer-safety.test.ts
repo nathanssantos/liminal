@@ -18,7 +18,7 @@ function sourceFiles(directory: string): string[] {
 describe('@liminal/score stays usable in the renderer', () => {
   it('imports no node builtin outside its tests', () => {
     const offenders = sourceFiles(SOURCE).filter((file) =>
-      /from 'node:/.test(readFileSync(file, 'utf8')),
+      /['"`]node:[a-z/]+['"`]/.test(readFileSync(file, 'utf8')),
     )
     expect(offenders).toEqual([])
   })

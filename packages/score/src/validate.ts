@@ -1,5 +1,5 @@
 import { PARAM_REQUIRES_FX, PITCHED_ROLE_RANGES, RANGES } from './constants.ts'
-import type { Automation, Clip, Score, Track } from './schema.ts'
+import type { Clip, Score } from './schema.ts'
 import { scoreLengthTicks, ticksPerBar } from './time.ts'
 
 export type FindingCode =
@@ -33,7 +33,31 @@ type Range = { min: number; max: number }
 const isWholeAtLeast = (value: number, minimum: number) =>
   Number.isInteger(value) && value >= minimum
 
-function checkE1(score: Score, errors: Finding[]): void {
+function* consecutivePairs<T>(items: readonly T[]): Generator<[T, T]> {
+  for (let index = 1; index < items.length; index += 1) {
+    const previous = items[index - 1]
+    const current = items[index]
+    if (previous !== undefined && current !== undefined) {
+      yield [previous, current]
+    }
+  }
+}
+
+function checkWholeNumbers(score: Score, errors: Finding[]): void {
+  if (!isWholeAtLeast(score.meter.beatsPerBar, 1)) {
+    errors.push({
+      code: 'E1',
+      message: `score ${score.id} has ${score.meter.beatsPerBar} beats per bar, which is not a whole number ≥ 1`,
+      path: ['meter', 'beatsPerBar'],
+    })
+  }
+  if (!isWholeAtLeast(score.seed, 0)) {
+    errors.push({
+      code: 'E1',
+      message: `score ${score.id} has seed ${score.seed}, which is not a whole number ≥ 0`,
+      path: ['seed'],
+    })
+  }
   score.sections.forEach((section, index) => {
     if (!isWholeAtLeast(section.startBar, 0)) {
       errors.push({
@@ -80,6 +104,13 @@ function checkE1(score: Score, errors: Finding[]): void {
           path: ['clips', index, 'notes', noteIndex, 'duration'],
         })
       }
+      if (!isWholeAtLeast(note.pitch, 0)) {
+        errors.push({
+          code: 'E1',
+          message: `note ${noteIndex} of clip ${clip.id} has pitch ${note.pitch}, which is not a whole MIDI number`,
+          path: ['clips', index, 'notes', noteIndex, 'pitch'],
+        })
+      }
     })
   })
   score.automation.forEach((automation, index) => {
@@ -95,7 +126,14 @@ function checkE1(score: Score, errors: Finding[]): void {
   })
 }
 
-function checkE2(score: Score, errors: Finding[]): void {
+function checkContiguousSections(score: Score, errors: Finding[]): void {
+  if (score.sections.length === 0) {
+    errors.push({
+      code: 'E2',
+      message: `score ${score.id} has no section, so it has no length`,
+      path: ['sections'],
+    })
+  }
   let expectedStart = 0
   score.sections.forEach((section, index) => {
     if (section.startBar !== expectedStart) {
@@ -109,7 +147,7 @@ function checkE2(score: Score, errors: Finding[]): void {
   })
 }
 
-function checkE3(score: Score, errors: Finding[]): void {
+function checkUniqueIds(score: Score, errors: Finding[]): void {
   const collections = [
     ['sections', score.sections],
     ['tracks', score.tracks],
@@ -118,7 +156,7 @@ function checkE3(score: Score, errors: Finding[]): void {
   ] as const
   for (const [name, items] of collections) {
     const seen = new Set<string>()
-    items.forEach((item: { id: string }, index: number) => {
+    items.forEach((item, index) => {
       if (seen.has(item.id)) {
         errors.push({
           code: 'E3',
@@ -131,8 +169,8 @@ function checkE3(score: Score, errors: Finding[]): void {
   }
 }
 
-function checkE4(score: Score, errors: Finding[]): void {
-  const trackIds = new Set(score.tracks.map((track: Track) => track.id))
+function checkTrackReferences(score: Score, errors: Finding[]): void {
+  const trackIds = new Set(score.tracks.map((track) => track.id))
   score.clips.forEach((clip, index) => {
     if (!trackIds.has(clip.trackId)) {
       errors.push({
@@ -154,7 +192,7 @@ function checkE4(score: Score, errors: Finding[]): void {
   })
 }
 
-function checkE5(score: Score, errors: Finding[]): void {
+function checkClipsInsideScore(score: Score, errors: Finding[]): void {
   const length = scoreLengthTicks(score)
   score.clips.forEach((clip, index) => {
     if (clip.start + clip.length > length) {
@@ -167,7 +205,7 @@ function checkE5(score: Score, errors: Finding[]): void {
   })
 }
 
-function checkE6(score: Score, errors: Finding[]): void {
+function checkNotesInsideClip(score: Score, errors: Finding[]): void {
   score.clips.forEach((clip, index) => {
     clip.notes.forEach((note, noteIndex) => {
       if (note.at < 0 || note.at + note.duration > clip.length) {
@@ -181,40 +219,32 @@ function checkE6(score: Score, errors: Finding[]): void {
   })
 }
 
-function checkE7(score: Score, errors: Finding[]): void {
-  const byTrack = new Map<string, Clip[]>()
-  for (const clip of score.clips) {
-    const clips = byTrack.get(clip.trackId) ?? []
-    clips.push(clip)
-    byTrack.set(clip.trackId, clips)
-  }
-  for (const [trackId, clips] of byTrack) {
-    const ordered = clips.toSorted((left, right) => left.start - right.start)
-    for (let index = 1; index < ordered.length; index += 1) {
-      const previous = ordered[index - 1]
-      const current = ordered[index]
-      if (previous === undefined || current === undefined) {
-        continue
-      }
-      if (current.start < previous.start + previous.length) {
+function checkClipsDoNotOverlap(score: Score, errors: Finding[]): void {
+  const byTrack = new Map<string, { clip: Clip; index: number }[]>()
+  score.clips.forEach((clip, index) => {
+    const placed = byTrack.get(clip.trackId) ?? []
+    placed.push({ clip, index })
+    byTrack.set(clip.trackId, placed)
+  })
+  for (const [trackId, placed] of byTrack) {
+    const ordered = placed.toSorted((left, right) => left.clip.start - right.clip.start)
+    for (const [previous, current] of consecutivePairs(ordered)) {
+      if (current.clip.start < previous.clip.start + previous.clip.length) {
         errors.push({
           code: 'E7',
-          message: `clips ${previous.id} and ${current.id} overlap on track ${trackId}`,
-          path: ['clips', score.clips.indexOf(current)],
+          message: `clips ${previous.clip.id} and ${current.clip.id} overlap on track ${trackId}`,
+          path: ['clips', current.index],
         })
       }
     }
   }
 }
 
-function checkE8(score: Score, errors: Finding[]): void {
-  score.automation.forEach((automation: Automation, index) => {
-    for (let pointIndex = 1; pointIndex < automation.points.length; pointIndex += 1) {
-      const previous = automation.points[pointIndex - 1]
-      const current = automation.points[pointIndex]
-      if (previous === undefined || current === undefined) {
-        continue
-      }
+function checkAscendingAutomation(score: Score, errors: Finding[]): void {
+  score.automation.forEach((automation, index) => {
+    let pointIndex = 0
+    for (const [previous, current] of consecutivePairs(automation.points)) {
+      pointIndex += 1
       if (current.at <= previous.at) {
         errors.push({
           code: 'E8',
@@ -227,10 +257,10 @@ function checkE8(score: Score, errors: Finding[]): void {
 }
 
 function outside(value: number, range: Range): boolean {
-  return value < range.min || value > range.max
+  return !Number.isFinite(value) || value < range.min || value > range.max
 }
 
-function checkE9(score: Score, errors: Finding[]): void {
+function checkRanges(score: Score, errors: Finding[]): void {
   if (outside(score.tempo.bpm, RANGES.bpm)) {
     errors.push({
       code: 'E9',
@@ -245,10 +275,10 @@ function checkE9(score: Score, errors: Finding[]): void {
       path: ['meter', 'beatsPerBar'],
     })
   }
-  if (outside(score.seed, RANGES.seed) || !Number.isInteger(score.seed)) {
+  if (outside(score.seed, RANGES.seed)) {
     errors.push({
       code: 'E9',
-      message: `score ${score.id} has seed ${score.seed}, which is not a uint32`,
+      message: `score ${score.id} has seed ${score.seed}, outside ${RANGES.seed.min}–${RANGES.seed.max}`,
       path: ['seed'],
     })
   }
@@ -286,7 +316,7 @@ function checkE9(score: Score, errors: Finding[]): void {
   })
   score.clips.forEach((clip, index) => {
     clip.notes.forEach((note, noteIndex) => {
-      if (outside(note.pitch, RANGES.pitch) || !Number.isInteger(note.pitch)) {
+      if (outside(note.pitch, RANGES.pitch)) {
         errors.push({
           code: 'E9',
           message: `note ${noteIndex} of clip ${clip.id} has pitch ${note.pitch}, outside MIDI ${RANGES.pitch.min}–${RANGES.pitch.max}`,
@@ -304,7 +334,7 @@ function checkE9(score: Score, errors: Finding[]): void {
   })
 }
 
-function checkW1(score: Score, warnings: Finding[]): void {
+function warnPitchOutsideRoleRange(score: Score, warnings: Finding[]): void {
   const roleById = new Map(score.tracks.map((track) => [track.id, track.role]))
   score.clips.forEach((clip, index) => {
     const role = roleById.get(clip.trackId)
@@ -324,7 +354,7 @@ function checkW1(score: Score, warnings: Finding[]): void {
   })
 }
 
-function checkW2(score: Score, warnings: Finding[]): void {
+function warnTrackWithoutClip(score: Score, warnings: Finding[]): void {
   const tracksWithClips = new Set(score.clips.map((clip) => clip.trackId))
   score.tracks.forEach((track, index) => {
     if (!tracksWithClips.has(track.id)) {
@@ -337,17 +367,27 @@ function checkW2(score: Score, warnings: Finding[]): void {
   })
 }
 
-function checkW3(score: Score, warnings: Finding[]): void {
+function warnSilentSection(score: Score, warnings: Finding[]): void {
   const perBar = ticksPerBar(score.meter)
+  const spans = score.clips
+    .flatMap((clip) =>
+      clip.notes.map((note) => ({
+        from: clip.start + note.at,
+        to: clip.start + note.at + note.duration,
+      })),
+    )
+    .toSorted((left, right) => left.from - right.from)
+  const latestEnd: number[] = []
+  let running = Number.NEGATIVE_INFINITY
+  for (const span of spans) {
+    running = Math.max(running, span.to)
+    latestEnd.push(running)
+  }
   score.sections.forEach((section, index) => {
     const start = section.startBar * perBar
     const end = start + section.bars * perBar
-    const sounds = score.clips.some((clip) =>
-      clip.notes.some((note) => {
-        const at = clip.start + note.at
-        return at < end && at + note.duration > start
-      }),
-    )
+    const startingBefore = countStartingBefore(spans, end)
+    const sounds = startingBefore > 0 && (latestEnd[startingBefore - 1] ?? 0) > start
     if (!sounds) {
       warnings.push({
         code: 'W3',
@@ -358,7 +398,21 @@ function checkW3(score: Score, warnings: Finding[]): void {
   })
 }
 
-function checkW4(score: Score, warnings: Finding[]): void {
+function countStartingBefore(spans: readonly { from: number }[], limit: number): number {
+  let low = 0
+  let high = spans.length
+  while (low < high) {
+    const middle = (low + high) >> 1
+    if ((spans[middle]?.from ?? Number.POSITIVE_INFINITY) < limit) {
+      low = middle + 1
+    } else {
+      high = middle
+    }
+  }
+  return low
+}
+
+function warnUnexposedAutomation(score: Score, warnings: Finding[]): void {
   const fxById = new Map(score.tracks.map((track) => [track.id, track.fx.map((fx) => fx.kind)]))
   score.automation.forEach((automation, index) => {
     const target = automation.target
@@ -383,18 +437,18 @@ function checkW4(score: Score, warnings: Finding[]): void {
 export function validate(score: Score): ValidationResult {
   const errors: Finding[] = []
   const warnings: Finding[] = []
-  checkE1(score, errors)
-  checkE2(score, errors)
-  checkE3(score, errors)
-  checkE4(score, errors)
-  checkE5(score, errors)
-  checkE6(score, errors)
-  checkE7(score, errors)
-  checkE8(score, errors)
-  checkE9(score, errors)
-  checkW1(score, warnings)
-  checkW2(score, warnings)
-  checkW3(score, warnings)
-  checkW4(score, warnings)
+  checkWholeNumbers(score, errors)
+  checkContiguousSections(score, errors)
+  checkUniqueIds(score, errors)
+  checkTrackReferences(score, errors)
+  checkClipsInsideScore(score, errors)
+  checkNotesInsideClip(score, errors)
+  checkClipsDoNotOverlap(score, errors)
+  checkAscendingAutomation(score, errors)
+  checkRanges(score, errors)
+  warnPitchOutsideRoleRange(score, warnings)
+  warnTrackWithoutClip(score, warnings)
+  warnSilentSection(score, warnings)
+  warnUnexposedAutomation(score, warnings)
   return { errors, warnings }
 }
