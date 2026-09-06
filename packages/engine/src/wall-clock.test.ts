@@ -2,7 +2,7 @@ import type { Score } from '@liminal/score'
 import { barToTick } from '@liminal/score'
 import { sixteenBars } from '@liminal/score/fixtures'
 import { afterAll, describe, expect, it } from 'vitest'
-import { createEngine, DEFAULT_LOOK_AHEAD_SECONDS, RELEASE_TAIL_SECONDS } from './engine.ts'
+import { createEngine, DEFAULT_LOOK_AHEAD_SECONDS } from './engine.ts'
 import { barSeconds, ticksToSeconds } from './time.ts'
 
 const BARS_TO_HEAR = 2
@@ -122,7 +122,7 @@ describe.skipIf(context === undefined)('the wall clock drives the transport', ()
     expect(halfwayIfItWereAbsolute).toBeCloseTo(800, 0)
   })
 
-  it('lets the last notes ring out instead of dropping voices at the final tick', async () => {
+  it('triggers only the notes it has, and plays again while the last ones still ring', async () => {
     if (context === undefined) {
       return
     }
@@ -138,26 +138,34 @@ describe.skipIf(context === undefined)('the wall clock drives the transport', ()
       notes: clip.notes.filter((note) => note.at < barToTick(2, score.meter)),
     }))
     score.automation = []
-    let dropped = 0
-    const warn = console.warn
-    console.warn = (...given: unknown[]) => {
-      if (String(given[0]).includes('polyphony')) {
-        dropped += 1
-      }
-    }
+    const written = score.clips.reduce((total, clip) => total + clip.notes.length, 0)
     const engine = await createEngine({ context, score })
     let ended = 0
+    const endings: Promise<void>[] = []
+    let announce: (() => void) | undefined
+    const nextEnding = () =>
+      new Promise<void>((resolve) => {
+        announce = resolve
+      })
+    endings.push(nextEnding())
     engine.on('ended', () => {
       ended += 1
+      announce?.()
     })
     engine.play()
+    await endings[0]
+    const triggeredOnce = engine.triggeredNoteCount()
+    endings.push(nextEnding())
     await new Promise((resolve) => {
-      setTimeout(resolve, barSeconds(score) * 2 * 1000 + RELEASE_TAIL_SECONDS * 1000 + 500)
+      setTimeout(resolve, 100)
     })
+    engine.play()
+    await endings[1]
+    const triggeredTwice = engine.triggeredNoteCount()
     engine.dispose()
-    console.warn = warn
-    expect(ended).toBe(1)
-    expect(dropped).toBe(0)
+    expect(ended).toBe(2)
+    expect(triggeredOnce).toBe(written)
+    expect(triggeredTwice).toBe(written * 2)
   })
 
   it('applies the lookahead a live context asks for', async () => {

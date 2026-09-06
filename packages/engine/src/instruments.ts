@@ -1,4 +1,4 @@
-import type { InstrumentRef, SynthPreset } from '@liminal/score'
+import type { InstrumentRef, Score, SynthPreset } from '@liminal/score'
 import { EngineError } from './errors.ts'
 import type { NodeLedger } from './graph.ts'
 import type { Tone, ToneContext, ToneNode } from './tone.ts'
@@ -6,6 +6,34 @@ import type { Tone, ToneContext, ToneNode } from './tone.ts'
 export type Voice = {
   node: ToneNode
   trigger: (pitch: number, durationSeconds: number, time: number, velocity: number) => void
+}
+
+const ENVELOPES = {
+  kick: { attack: 0.001, decay: 0.32, sustain: 0, release: 0.02 },
+  hat: { attack: 0.001, decay: 0.06, sustain: 0, release: 0.01 },
+  clap: { attack: 0.002, decay: 0.14, sustain: 0, release: 0.02 },
+  'bass-mono': { attack: 0.005, decay: 0.12, sustain: 0.7, release: 0.1 },
+  'sub-sine': { attack: 0.02, decay: 0.1, sustain: 0.9, release: 0.3 },
+  'poly-saw': { attack: 0.02, decay: 0.2, sustain: 0.6, release: 0.4 },
+  'pad-fm': { attack: 0.4, decay: 0.3, sustain: 0.8, release: 1.2 },
+  'lead-am': { attack: 0.01, decay: 0.2, sustain: 0.6, release: 0.3 },
+  noise: { attack: 0.01, decay: 0.3, sustain: 0, release: 0.02 },
+} satisfies Record<SynthPreset, { attack: number; decay: number; sustain: number; release: number }>
+
+export const PRESET_TAIL_SECONDS = Object.fromEntries(
+  Object.entries(ENVELOPES).map(([preset, envelope]) => [
+    preset,
+    envelope.sustain > 0 ? envelope.release : envelope.decay + envelope.release,
+  ]),
+) as Record<SynthPreset, number>
+
+export function scoreReleaseTailSeconds(score: Score): number {
+  return Math.max(
+    0,
+    ...score.tracks.map((track) =>
+      track.instrument.kind === 'synth' ? PRESET_TAIL_SECONDS[track.instrument.preset] : 0,
+    ),
+  )
 }
 
 type Build = (tone: Tone, context: ToneContext, ledger: NodeLedger) => Voice
@@ -43,7 +71,7 @@ const BUILDERS = {
           context,
           pitchDecay: 0.03,
           octaves: 6,
-          envelope: { attack: 0.001, decay: 0.32, sustain: 0, release: 0.02 },
+          envelope: ENVELOPES.kick,
         }),
       ),
     ),
@@ -53,7 +81,7 @@ const BUILDERS = {
       ledger.add(
         new tone.MetalSynth({
           context,
-          envelope: { attack: 0.001, decay: 0.06, release: 0.01 },
+          envelope: ENVELOPES.hat,
           harmonicity: 5.1,
           resonance: 4000,
           octaves: 1.5,
@@ -63,11 +91,7 @@ const BUILDERS = {
   clap: (tone, context, ledger) =>
     playsUnpitched(
       ledger.add(
-        new tone.NoiseSynth({
-          context,
-          noise: { type: 'white' },
-          envelope: { attack: 0.002, decay: 0.14, sustain: 0 },
-        }),
+        new tone.NoiseSynth({ context, noise: { type: 'white' }, envelope: ENVELOPES.clap }),
       ),
     ),
   'bass-mono': (tone, context, ledger) =>
@@ -78,7 +102,7 @@ const BUILDERS = {
           context,
           oscillator: { type: 'sawtooth' },
           filter: { Q: 2, type: 'lowpass' },
-          envelope: { attack: 0.005, decay: 0.12, sustain: 0.7, release: 0.1 },
+          envelope: ENVELOPES['bass-mono'],
           filterEnvelope: {
             attack: 0.005,
             decay: 0.15,
@@ -96,7 +120,7 @@ const BUILDERS = {
         new tone.Synth({
           context,
           oscillator: { type: 'sine' },
-          envelope: { attack: 0.02, decay: 0.1, sustain: 0.9, release: 0.3 },
+          envelope: ENVELOPES['sub-sine'],
         }),
       ),
     ),
@@ -108,10 +132,7 @@ const BUILDERS = {
           context,
           maxPolyphony: MAX_CHORD_VOICES,
           voice: tone.Synth,
-          options: {
-            oscillator: { type: 'sawtooth' },
-            envelope: { attack: 0.02, decay: 0.2, sustain: 0.6, release: 0.4 },
-          },
+          options: { oscillator: { type: 'sawtooth' }, envelope: ENVELOPES['poly-saw'] },
         }),
       ),
     ),
@@ -123,29 +144,19 @@ const BUILDERS = {
           context,
           harmonicity: 2,
           modulationIndex: 6,
-          envelope: { attack: 0.4, decay: 0.3, sustain: 0.8, release: 1.2 },
+          envelope: ENVELOPES['pad-fm'],
         }),
       ),
     ),
   'lead-am': (tone, context, ledger) =>
     playsPitched(
       tone,
-      ledger.add(
-        new tone.AMSynth({
-          context,
-          harmonicity: 3,
-          envelope: { attack: 0.01, decay: 0.2, sustain: 0.6, release: 0.3 },
-        }),
-      ),
+      ledger.add(new tone.AMSynth({ context, harmonicity: 3, envelope: ENVELOPES['lead-am'] })),
     ),
   noise: (tone, context, ledger) =>
     playsUnpitched(
       ledger.add(
-        new tone.NoiseSynth({
-          context,
-          noise: { type: 'pink' },
-          envelope: { attack: 0.01, decay: 0.3, sustain: 0 },
-        }),
+        new tone.NoiseSynth({ context, noise: { type: 'pink' }, envelope: ENVELOPES.noise }),
       ),
     ),
 } satisfies Record<SynthPreset, Build>

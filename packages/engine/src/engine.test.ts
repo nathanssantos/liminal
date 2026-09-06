@@ -3,10 +3,10 @@ import { barToTick, scoreLengthTicks } from '@liminal/score'
 import { sixteenBars } from '@liminal/score/fixtures'
 import { OfflineAudioContext } from 'node-web-audio-api'
 import { beforeAll, describe, expect, it } from 'vitest'
-import { offlineEngine, peakOf } from '../tests/harness.ts'
+import { offlineEngine, peakBetween, peakOf } from '../tests/harness.ts'
 import { createEngine } from './engine.ts'
 import { EngineError } from './errors.ts'
-import { SUPPORTED_PRESETS } from './instruments.ts'
+import { scoreReleaseTailSeconds, SUPPORTED_PRESETS } from './instruments.ts'
 import { barSeconds, scoreSeconds, ticksToSeconds } from './time.ts'
 import { loadTone } from './tone.ts'
 
@@ -17,6 +17,9 @@ const withoutNotes = (score: Score): Score => {
   }
   return silent
 }
+
+const noteCount = (score: Score): number =>
+  score.clips.reduce((total, clip) => total + clip.notes.length, 0)
 
 const clone = (mutate: (score: Score) => void): Score => {
   const copy = structuredClone(sixteenBars)
@@ -31,9 +34,17 @@ describe('the engine plays the fixture', () => {
   let pendingBefore = 0
   let pendingAfter = 0
   let disposedCount = 0
+  let triggered = 0
+  let peakPastTheTail = 0
+
+  const SILENCE_AFTER_THE_TAIL_SECONDS = 0.5
 
   beforeAll(async () => {
-    const { engine, render } = await offlineEngine(sixteenBars)
+    const tail = scoreReleaseTailSeconds(sixteenBars)
+    const { engine, render } = await offlineEngine(
+      sixteenBars,
+      scoreSeconds(sixteenBars) + tail + SILENCE_AFTER_THE_TAIL_SECONDS,
+    )
     engine.on('bar', (event) => {
       if (event !== undefined) {
         bars.push(event.bar)
@@ -43,7 +54,14 @@ describe('the engine plays the fixture', () => {
       endedAt = event?.time
     })
     engine.play()
-    peak = peakOf(await render())
+    const rendered = await render()
+    peak = peakOf(rendered)
+    peakPastTheTail = peakBetween(
+      rendered,
+      scoreSeconds(sixteenBars) + tail,
+      scoreSeconds(sixteenBars) + tail + SILENCE_AFTER_THE_TAIL_SECONDS,
+    )
+    triggered = engine.triggeredNoteCount()
     pendingBefore = engine.pendingNodeCount()
     engine.dispose()
     pendingAfter = engine.pendingNodeCount()
@@ -58,6 +76,11 @@ describe('the engine plays the fixture', () => {
   it('renders audio rather than silence, under the limiter', () => {
     expect(peak).toBeGreaterThan(0.05)
     expect(peak).toBeLessThanOrEqual(1)
+  })
+
+  it('triggers exactly the notes the document holds, and nothing after them', () => {
+    expect(triggered).toBe(noteCount(sixteenBars))
+    expect(peakPastTheTail).toBeLessThan(0.005)
   })
 
   it('dispose() leaves the context with no engine node', () => {

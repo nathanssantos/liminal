@@ -7,14 +7,12 @@ import { createEffect } from './effects.ts'
 import { EngineError } from './errors.ts'
 import type { NodeLedger } from './graph.ts'
 import { createLedger } from './graph.ts'
-import { createVoice } from './instruments.ts'
+import { createVoice, scoreReleaseTailSeconds } from './instruments.ts'
 import { barSeconds, scoreSeconds, secondsToTicks, ticksToSeconds } from './time.ts'
 import type { EngineContext, Tone, ToneContext, ToneNode } from './tone.ts'
 import { loadTone, rawContextOf, rendersOffline, wrapContext } from './tone.ts'
 
 export const DEFAULT_LOOK_AHEAD_SECONDS = 0.2
-
-export const RELEASE_TAIL_SECONDS = 1.5
 
 const ENGINES_BY_CONTEXT = new WeakSet<BaseAudioContext>()
 
@@ -32,6 +30,8 @@ export type Engine = {
   on: <E extends EngineEvent>(event: E, listener: (payload: EnginePayload[E]) => void) => () => void
   pendingNodeCount: () => number
   disposedNodeCount: () => number
+  triggeredNoteCount: () => number
+  releaseTailSeconds: () => number
   lookAhead: () => number
   downgradedCurves: () => readonly DowngradedCurve[]
   automationValueAt: (automationId: string, seconds: number) => number
@@ -148,7 +148,9 @@ async function buildEngine(options: EngineOptions, built: Built): Promise<Engine
     }
   }
 
-  let playing = false
+  const releaseTailSeconds = scoreReleaseTailSeconds(score)
+  let state: 'idle' | 'playing' | 'ringing' = 'idle'
+  let triggered = 0
   let disposed = false
   const listeners = new Map<EngineEvent, Set<(payload: never) => void>>()
   const emit = (event: EngineEvent, payload?: BarEvent) => {
@@ -176,6 +178,10 @@ async function buildEngine(options: EngineOptions, built: Built): Promise<Engine
       new tone.Part({
         context,
         callback: (time: number, event: (typeof events)[number]) => {
+          if (state !== 'playing') {
+            return
+          }
+          triggered += 1
           chain.trigger(event.pitch, event.duration, time, event.velocity)
         },
         events,
@@ -192,7 +198,7 @@ async function buildEngine(options: EngineOptions, built: Built): Promise<Engine
   scheduled.push(
     transport.scheduleRepeat(
       (time) => {
-        if (!playing) {
+        if (state !== 'playing') {
           return
         }
         const bar = Math.max(0, Math.round(transport.getSecondsAtTime(time) / perBar))
@@ -208,26 +214,12 @@ async function buildEngine(options: EngineOptions, built: Built): Promise<Engine
   for (const { param, move } of moves) {
     scheduled.push(
       transport.schedule((time) => {
-        if (playing) {
+        if (state === 'playing') {
           move.apply(param, time)
         }
       }, move.atTransportSeconds),
     )
   }
-
-  let endId: number | undefined
-  const armEnd = () => {
-    endId = transport.scheduleOnce((time) => {
-      endId = undefined
-      if (!playing) {
-        return
-      }
-      playing = false
-      emit('ended', { bar: Math.round(totalSeconds / perBar), time })
-      transport.stop(time + RELEASE_TAIL_SECONDS)
-    }, totalSeconds)
-  }
-  armEnd()
 
   const restoreStaticValues = () => {
     const now = Math.max(context.now(), 0)
@@ -237,12 +229,51 @@ async function buildEngine(options: EngineOptions, built: Built): Promise<Engine
     }
   }
 
-  return {
-    play: () => {
-      if (playing || disposed) {
+  const rewind = () => {
+    transport.stop(0)
+    transport.seconds = 0
+    restoreStaticValues()
+  }
+
+  let tailId: number | undefined
+  const cancelTail = () => {
+    if (tailId !== undefined) {
+      context.clearTimeout(tailId)
+      tailId = undefined
+    }
+  }
+
+  let endId: number | undefined
+  const armEnd = () => {
+    endId = transport.scheduleOnce((time) => {
+      endId = undefined
+      if (state !== 'playing') {
         return
       }
-      playing = true
+      state = 'ringing'
+      emit('ended', { bar: Math.round(totalSeconds / perBar), time })
+      tailId = context.setTimeout(() => {
+        tailId = undefined
+        if (state !== 'ringing') {
+          return
+        }
+        state = 'idle'
+        rewind()
+      }, releaseTailSeconds)
+    }, totalSeconds)
+  }
+  armEnd()
+
+  return {
+    play: () => {
+      if (disposed || state === 'playing') {
+        return
+      }
+      if (state === 'ringing') {
+        cancelTail()
+        rewind()
+      }
+      state = 'playing'
       if (endId === undefined) {
         armEnd()
       }
@@ -253,13 +284,12 @@ async function buildEngine(options: EngineOptions, built: Built): Promise<Engine
       }
     },
     stop: () => {
-      if (!playing || disposed) {
+      if (disposed || state === 'idle') {
         return
       }
-      playing = false
-      transport.stop(0)
-      transport.seconds = 0
-      restoreStaticValues()
+      state = 'idle'
+      cancelTail()
+      rewind()
       emit('stopped')
     },
     dispose: () => {
@@ -267,7 +297,8 @@ async function buildEngine(options: EngineOptions, built: Built): Promise<Engine
         return
       }
       disposed = true
-      playing = false
+      state = 'idle'
+      cancelTail()
       transport.stop(0)
       for (const id of scheduled) {
         transport.clear(id)
@@ -288,7 +319,7 @@ async function buildEngine(options: EngineOptions, built: Built): Promise<Engine
     position: () => {
       const seconds = Math.min(transport.seconds, totalSeconds)
       return tickToPosition(
-        Math.min(secondsToTicks(seconds, score.tempo.bpm), lengthTicks),
+        Math.min(secondsToTicks(seconds, score.tempo.bpm), Math.max(0, lengthTicks - 1)),
         score.meter,
       )
     },
@@ -303,6 +334,8 @@ async function buildEngine(options: EngineOptions, built: Built): Promise<Engine
     },
     pendingNodeCount: () => ledger.pending(),
     disposedNodeCount: () => ledger.disposed(),
+    triggeredNoteCount: () => triggered,
+    releaseTailSeconds: () => releaseTailSeconds,
     lookAhead: () => (offline ? 0 : context.lookAhead),
     downgradedCurves: () => downgraded,
     automationValueAt: (automationId, seconds) => {
