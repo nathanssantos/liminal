@@ -19,6 +19,15 @@ const withoutNotes = (score: Score): Score => {
   return silent
 }
 
+const channelPeak = (buffer: AudioBuffer, channel: number): number => {
+  const data = buffer.getChannelData(channel)
+  let peak = 0
+  for (let index = 0; index < data.length; index += 1) {
+    peak = Math.max(peak, Math.abs(data[index] ?? 0))
+  }
+  return peak
+}
+
 const noteCount = (score: Score): number =>
   score.clips.reduce((total, clip) => total + clip.notes.length, 0)
 
@@ -703,8 +712,7 @@ describe('the branches the fixture never reaches', () => {
     const engine = await playedToBarEight(score)
     const middle = engine.automationValueAt(automationId, (startSeconds + endSeconds) / 2)
     expect(engine.downgradedCurves()).toEqual([])
-    expect(middle).toBeGreaterThan(800)
-    expect(middle).toBeLessThan((800 + 8000) / 2)
+    expect(middle).toBeCloseTo(Math.sqrt(800 * 8000), 0)
     engine.dispose()
   })
 
@@ -749,7 +757,7 @@ describe('the branches the fixture never reaches', () => {
     engine.dispose()
   })
 
-  it('drives pan and filter q, not only the cutoff', async () => {
+  it('accepts pan and filter q as automation targets, not only the cutoff', async () => {
     const score = clone((draft) => {
       const first = draft.automation[0]
       if (first === undefined || !('trackId' in first.target)) {
@@ -774,6 +782,34 @@ describe('the branches the fixture never reaches', () => {
     const engine = await playedToBarEight(score)
     expect(engine.automationValueAt(`${automationId}-pan`, startSeconds)).toBeCloseTo(0.08, 4)
     expect(engine.automationValueAt(`${automationId}-q`, startSeconds)).toBeCloseTo(0.8, 3)
+    engine.dispose()
+  })
+
+  it('sends a hard-panned track to one side of the render, not both', async () => {
+    const score = clone((draft) => {
+      draft.tracks = draft.tracks.slice(0, 1)
+      draft.clips = draft.clips.filter((clip) => clip.trackId === draft.tracks[0]?.id)
+      const track = draft.tracks[0]
+      const first = draft.automation[0]
+      if (track === undefined || first === undefined) {
+        return
+      }
+      draft.automation = [
+        {
+          ...first,
+          id: `${first.id}-hard-pan`,
+          target: { trackId: track.id, param: 'pan' },
+          points: [{ at: 0, value: -1, curve: 'step' }],
+        },
+      ]
+    })
+    const { engine, render } = await offlineEngine(score, barSeconds(score) + 0.5)
+    engine.play()
+    const rendered = await render()
+    const left = channelPeak(rendered, 0)
+    const right = channelPeak(rendered, 1)
+    expect(left).toBeGreaterThan(0.05)
+    expect(right).toBeLessThan(left / 10)
     engine.dispose()
   })
 })
