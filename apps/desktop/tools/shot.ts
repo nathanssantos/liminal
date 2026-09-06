@@ -86,49 +86,52 @@ mkdirSync(directory, { recursive: true })
 
 const profile = mkdtempSync(join(tmpdir(), 'liminal-shot-'))
 const app = await electron.launch({ args: ['.', `--user-data-dir=${profile}`] })
-const window = await app.firstWindow()
-await window.waitForLoadState('domcontentloaded')
+try {
+  const window = await app.firstWindow()
+  await window.waitForLoadState('domcontentloaded')
 
-for (const step of steps) {
-  if ('click' in step) await window.click(step.click)
-  else await window.waitForTimeout(step.wait)
+  for (const step of steps) {
+    if ('click' in step) await window.click(step.click)
+    else await window.waitForTimeout(step.wait)
+  }
+
+  const measurements: Measurements[] = []
+  for (const width of WIDTHS) {
+    await window.setViewportSize({ width, height: HEIGHT })
+    const page = await window.evaluate(
+      ({ wanted, reported }) => ({
+        documentWidth: document.documentElement.clientWidth,
+        documentHeight: document.documentElement.clientHeight,
+        measured: wanted.flatMap((selector) =>
+          [...document.querySelectorAll(selector)].map((element) => {
+            const box = element.getBoundingClientRect()
+            const computed = getComputedStyle(element)
+            const styles: Record<string, string> = {}
+            for (const property of reported) styles[property] = computed.getPropertyValue(property)
+            return {
+              selector,
+              rect: { left: box.left, top: box.top, width: box.width, height: box.height },
+              styles,
+            }
+          }),
+        ),
+      }),
+      { wanted: selectors, reported: REPORTED_STYLES },
+    )
+    measurements.push({
+      state,
+      width,
+      height: HEIGHT,
+      title: await window.title(),
+      ...page,
+    })
+    await window.screenshot({ path: join(directory, `${state}-${width}.png`) })
+  }
+
+  writeFileSync(join(directory, `${state}.json`), `${JSON.stringify(measurements, null, 2)}\n`)
+} finally {
+  await app.close()
+  rmSync(profile, { recursive: true, force: true })
 }
-
-const measurements: Measurements[] = []
-for (const width of WIDTHS) {
-  await window.setViewportSize({ width, height: HEIGHT })
-  const page = await window.evaluate(
-    ({ wanted, reported }) => ({
-      documentWidth: document.documentElement.clientWidth,
-      documentHeight: document.documentElement.clientHeight,
-      measured: wanted.flatMap((selector) =>
-        [...document.querySelectorAll(selector)].map((element) => {
-          const box = element.getBoundingClientRect()
-          const computed = getComputedStyle(element)
-          const styles: Record<string, string> = {}
-          for (const property of reported) styles[property] = computed.getPropertyValue(property)
-          return {
-            selector,
-            rect: { left: box.left, top: box.top, width: box.width, height: box.height },
-            styles,
-          }
-        }),
-      ),
-    }),
-    { wanted: selectors, reported: REPORTED_STYLES },
-  )
-  measurements.push({
-    state,
-    width,
-    height: HEIGHT,
-    title: await window.title(),
-    ...page,
-  })
-  await window.screenshot({ path: join(directory, `${state}-${width}.png`) })
-}
-
-writeFileSync(join(directory, `${state}.json`), `${JSON.stringify(measurements, null, 2)}\n`)
-await app.close()
-rmSync(profile, { recursive: true, force: true })
 
 process.stdout.write(`${directory}\n`)

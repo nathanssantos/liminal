@@ -324,12 +324,15 @@
   (measured 2026-09-06 against a live device)
 - 🔴 **An offline render has no output stage, so `setMuted` and `setOutputGain` do nothing there.**
   A test that renders offline with mute on and compares the samples passes with both methods
-  implemented as `() => {}` — it proves the stage is absent, not that mute works. ⚠️ Correction: a
-  first attempt to fix this asserted `engine.muted()`, the flag, which also proves nothing — gutting
-  `applyOutput` left it green. The mute is proven by reading what the stage actually applies
-  (`appliedOutputGain()`) against a live context, in `wall-clock.test.ts`, which needs
+  implemented as `() => {}` — it proves the stage is absent, not that mute works. ⚠️ Two attempts to
+  prove it failed first: asserting `engine.muted()`, the flag, which stays green with `applyOutput`
+  gutted; and asserting `output.gain.value`, which reads back through the **same** unit conversion
+  the write goes through, so a node built with the wrong units returns exactly what was written.
+  The mute is proven by metering what leaves the app: a `Tone.Meter` on the context's destination,
+  a score that makes sound, and a level of `0` while muted, in `wall-clock.test.ts`, which needs
   `LIMINAL_AUDIO_DEVICE=1`. **A control is proven by what it changes, never by the variable that
-  remembers it was asked.** (measured 2026-09-06: reverting either the write or the units fails it)
+  remembers it was asked, and never by a getter symmetric with its setter.** (measured 2026-09-06:
+  it fails with the write removed, and with the node built as decibels either way round)
 - 🔴 **`will-navigate` does not fire for `about:blank`, so a navigation guard tested with it passes
   either way.** The refusal test also passed against an unresolvable host, because at the moment it
   read the URL the navigation was merely still pending. **A guard is proven with a target that would

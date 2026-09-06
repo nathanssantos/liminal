@@ -1,6 +1,7 @@
 import type { Score } from '@liminal/score'
 import { barToTick } from '@liminal/score'
 import { sixteenBars } from '@liminal/score/fixtures'
+import * as tone from 'tone'
 import { afterAll, describe, expect, it } from 'vitest'
 import { createEngine, DEFAULT_LOOK_AHEAD_SECONDS, SAFE_OUTPUT_GAIN_DB } from './engine.ts'
 import { barSeconds, ticksToSeconds } from './time.ts'
@@ -10,6 +11,8 @@ const BARS_TO_HEAR = 2
 const AGE_SECONDS = 3
 
 const SILENT_GAIN_DB = -60
+
+const OUTPUT_GAIN_DB_WELL_BELOW_SAFE = -40
 
 const silent = (): Score => {
   const score = structuredClone(sixteenBars)
@@ -40,43 +43,65 @@ if (context === undefined) {
   )
 }
 
+const SETTLE_MS = 400
+
+const LOUD_ENOUGH_TO_HEAR = 0.001
+
+const listening = (): { toneContext: tone.Context; level: () => number } | undefined => {
+  if (context === undefined) return undefined
+  const toneContext = new tone.Context({ context, clockSource: 'timeout' })
+  const meter = new tone.Meter({ context: toneContext, normalRange: true, smoothing: 0 })
+  toneContext.destination.connect(meter)
+  return { toneContext, level: () => meter.getValue() as number }
+}
+
 describe.skipIf(context === undefined)('muting acts on the output, not on the transport', () => {
-  it('drops the output stage to silence and brings it back, while the transport keeps counting', async () => {
-    const engine = await createEngine({
-      context: context as unknown as Parameters<typeof createEngine>[0]['context'],
-      score: silent(),
-    })
-    const heard = engine.appliedOutputGain()
-    expect(heard).toBeGreaterThan(0)
+  it('drops what leaves the app to silence and brings it back, while the transport keeps counting', async () => {
+    const ears = listening()
+    if (ears === undefined) return
+    const engine = await createEngine({ context: ears.toneContext, score: sixteenBars })
 
     engine.play()
     await new Promise((done) => setTimeout(done, barSeconds(sixteenBars) * 1000))
+    const loud = ears.level()
     const before = engine.position()
+    expect(loud).toBeGreaterThan(LOUD_ENOUGH_TO_HEAR)
 
     engine.setMuted(true)
-    expect(engine.appliedOutputGain()).toBe(0)
+    await new Promise((done) => setTimeout(done, SETTLE_MS))
+    expect(ears.level()).toBe(0)
     await new Promise((done) => setTimeout(done, barSeconds(sixteenBars) * 1000))
     const whileMuted = engine.position()
 
     engine.setMuted(false)
-    expect(engine.appliedOutputGain()).toBeCloseTo(heard, 6)
+    await new Promise((done) => setTimeout(done, SETTLE_MS))
+    expect(ears.level()).toBeGreaterThan(LOUD_ENOUGH_TO_HEAR)
 
-    expect(whileMuted.bar).toBeGreaterThanOrEqual(before.bar)
+    expect(whileMuted.bar).toBeGreaterThan(before.bar)
     expect(engine.outputGain()).toBe(SAFE_OUTPUT_GAIN_DB)
     engine.stop()
     engine.dispose()
   })
 
-  it('lowers the output stage when the volume drops, without touching the document', async () => {
-    const engine = await createEngine({
-      context: context as unknown as Parameters<typeof createEngine>[0]['context'],
-      score: silent(),
-    })
-    const atSafe = engine.appliedOutputGain()
-    engine.setOutputGain(-40)
-    expect(engine.appliedOutputGain()).toBeLessThan(atSafe)
+  it('lowers what leaves the app when the volume drops, without touching the document', async () => {
+    const ears = listening()
+    if (ears === undefined) return
+    const engine = await createEngine({ context: ears.toneContext, score: sixteenBars })
+
+    engine.play()
+    await new Promise((done) => setTimeout(done, barSeconds(sixteenBars) * 1000))
+    const atSafe = ears.level()
+    expect(atSafe).toBeGreaterThan(LOUD_ENOUGH_TO_HEAR)
+
+    engine.setOutputGain(OUTPUT_GAIN_DB_WELL_BELOW_SAFE)
+    await new Promise((done) => setTimeout(done, SETTLE_MS))
+    expect(ears.level()).toBeLessThan(atSafe / 2)
+
     engine.setOutputGain(SAFE_OUTPUT_GAIN_DB)
-    expect(engine.appliedOutputGain()).toBeCloseTo(atSafe, 6)
+    await new Promise((done) => setTimeout(done, SETTLE_MS))
+    expect(ears.level()).toBeGreaterThan(LOUD_ENOUGH_TO_HEAR)
+    expect(engine.appliedOutputGain()).toBeCloseTo(10 ** (SAFE_OUTPUT_GAIN_DB / 20), 6)
+    engine.stop()
     engine.dispose()
   })
 })

@@ -47,3 +47,10 @@ export function mainWindowOptions(preloadDirectory: string): WindowOptions {
     },
   }
 }
+
+export const policyHeaderFor = (
+  responseHeaders: Record<string, string[]> | undefined,
+): Record<string, string[]> => ({
+  ...responseHeaders,
+  'Content-Security-Policy': [CONTENT_SECURITY_POLICY],
+})

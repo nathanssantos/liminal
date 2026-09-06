@@ -80,6 +80,8 @@ test('the keyboard alone plays, changes the volume and the mute', async () => {
   await expect(page.locator('.lm-slider-value')).toHaveText('−30 dB')
   await page.keyboard.press('ArrowUp')
   await expect(page.locator('.lm-slider-value')).toHaveText('−29 dB')
+  await page.keyboard.press('ArrowDown')
+  await expect(page.locator('.lm-slider-value')).toHaveText('−30 dB')
   await page.keyboard.press('KeyM')
   await expect(page.getByRole('button', { name: 'Mute muted' })).toHaveAttribute(
     'aria-pressed',
@@ -201,6 +203,28 @@ test('the window refuses to navigate away from itself', async () => {
     return BrowserWindow.getAllWindows().length - windows
   })
   expect(opened).toBe(0)
+  await app.close()
+  rmSync(profile, { recursive: true, force: true })
+})
+
+test('the document the app ships carries the policy that was written for it', async () => {
+  const profile = ownProfile()
+  const app = await launch(profile)
+  const page = await app.firstWindow()
+  await page.waitForSelector('.shell')
+
+  const policy = await page.evaluate(
+    () =>
+      document
+        .querySelector('meta[http-equiv="Content-Security-Policy"]')
+        ?.getAttribute('content') ?? '',
+  )
+  expect(policy).toContain("default-src 'none'")
+  expect(policy).toContain("script-src 'self'")
+  expect(policy).toContain("connect-src 'self'")
+  expect(policy).not.toContain('%CONTENT_SECURITY_POLICY%')
+  expect(policy).not.toContain('localhost')
+  expect(policy).not.toMatch(/https?:/)
   await app.close()
   rmSync(profile, { recursive: true, force: true })
 })

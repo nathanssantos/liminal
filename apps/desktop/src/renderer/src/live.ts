@@ -141,7 +141,6 @@ export function connect(
       void bridge.setMuted({ muted }).catch(() => raise(CHANNEL_REFUSED))
     },
     chooseDevice: (deviceId) => {
-      const previous = shell().deviceId
       shell().setDevicesPending(true)
       void (async () => {
         try {
@@ -149,7 +148,6 @@ export function connect(
           shell().setDeviceId(deviceId)
           void bridge.chooseDevice({ id: deviceId })
         } catch (error) {
-          shell().setDeviceId(previous)
           raise(noticeForCode(codeOf(error)))
         } finally {
           shell().setDevicesPending(false)

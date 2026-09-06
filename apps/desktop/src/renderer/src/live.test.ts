@@ -236,7 +236,7 @@ describe('a set that never arrives', () => {
 })
 
 describe('choosing an output', () => {
-  it('keeps the output that still works when the new one refuses', async () => {
+  it('never moves the picker to an output the sound could not reach', async () => {
     const engine = fakeEngine()
     engine.setSinkId.mockRejectedValue(
       Object.assign(new Error('gone'), { code: 'sink-unavailable' }),

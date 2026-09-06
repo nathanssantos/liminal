@@ -1,8 +1,8 @@
 {
   "card": "M1-04",
-  "round": 0,
-  "head": "5ccfd03021607a7046617637ebc998c432dc9a51",
-  "reviewedHead": null,
+  "round": 1,
+  "head": "a99267fff2bfb52ea266d7db017ebdd897e80455",
+  "reviewedHead": "a99267fff2bfb52ea266d7db017ebdd897e80455",
   "deepPassHead": null,
   "measured": [],
   "findings": [
@@ -122,8 +122,141 @@
       "agent": "accessibility-auditor",
       "round": 1,
       "severity": "major",
-      "status": "open",
+      "status": "accepted",
       "summary": "single-key shortcuts have no way to be turned off or remapped, which SC 2.1.4 requires"
+    },
+    {
+      "agent": "test-engineer",
+      "round": 2,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "the restored output device never reached the engine, because it is applied before the engine exists"
+    },
+    {
+      "agent": "test-engineer",
+      "round": 2,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "the e2e suite did not build first, so it proved whatever bundle was on disk"
+    },
+    {
+      "agent": "test-engineer",
+      "round": 2,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "the navigation refusal test passed with the guard removed, because about:blank and an unresolvable host both leave the URL unchanged"
+    },
+    {
+      "agent": "test-engineer",
+      "round": 2,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "the seven e2e tests shared one profile directory and two of them deleted it"
+    },
+    {
+      "agent": "test-engineer",
+      "round": 2,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "the reentrancy guard, the modifier guard, the load timeout, the device revert and the play failure had no test"
+    },
+    {
+      "agent": "test-engineer",
+      "round": 2,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "a stubbed navigator survived into every later test in the file"
+    },
+    {
+      "agent": "test-engineer",
+      "round": 2,
+      "severity": "minor",
+      "status": "fixed",
+      "summary": "two assertions read through another package's class names or repeated the test above them"
+    },
+    {
+      "agent": "test-engineer",
+      "round": 2,
+      "severity": "major",
+      "status": "discarded",
+      "summary": "the device channel was said to answer the value stored before the write; keep reassigns preferences, and a test already asserts the answer"
+    },
+    {
+      "agent": "usability-reviewer",
+      "round": 2,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "the fresh screenshots showed the volume at silent, because the shot tool inherited the machine's stored preferences"
+    },
+    {
+      "agent": "usability-reviewer",
+      "round": 2,
+      "severity": "major",
+      "status": "accepted",
+      "summary": "a load that never arrives offers no in-app retry, only reopening the app"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 3,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "the mute proof read a getter symmetric with its setter, so a node built with the wrong units was invisible; the mute is metered now"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 3,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "the built-markup CSP test returned early when out/ was absent, which is every path that runs it; the policy is asserted on the live document in e2e"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 3,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "the wireframe in the design brief still named header.shell-deck and footer.shell-output"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 3,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "the review state file did not describe the review it is evidence of"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 3,
+      "severity": "minor",
+      "status": "fixed",
+      "summary": "the keyboard e2e never pressed ArrowDown"
+    },
+    {
+      "agent": "desktop-reviewer",
+      "round": 3,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "the device revert on failure was dead code, because the picker only moves after the sink change succeeds"
+    },
+    {
+      "agent": "desktop-reviewer",
+      "round": 3,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "the header half of the policy had no coverage at all"
+    },
+    {
+      "agent": "desktop-reviewer",
+      "round": 3,
+      "severity": "minor",
+      "status": "accepted",
+      "summary": "Transport accepts state playing without onPause when stopOnly is unset, and the main button then replays"
+    },
+    {
+      "agent": "usability-reviewer",
+      "round": 3,
+      "severity": "minor",
+      "status": "fixed",
+      "summary": "the shot tool left its temporary profile and a live app behind when a step threw"
     }
   ]
 }

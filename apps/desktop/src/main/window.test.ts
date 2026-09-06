@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { colourToken } from '@liminal/ui/colours'
 import { describe, expect, it } from 'vitest'
@@ -6,6 +6,7 @@ import {
   CONTENT_SECURITY_POLICY,
   DEV_CONTENT_SECURITY_POLICY,
   mainWindowOptions,
+  policyHeaderFor,
   WINDOW_TITLE,
 } from './window.ts'
 
@@ -54,13 +55,12 @@ describe('the content security policy', () => {
     expect(markup).toContain('http-equiv="Content-Security-Policy"')
     expect(markup).toContain('%CONTENT_SECURITY_POLICY%')
   })
+})
 
-  it('is the policy the built app actually carries', () => {
-    const built = join(import.meta.dirname, '../../out/renderer/index.html')
-    if (!existsSync(built)) return
-    const markup = readFileSync(built, 'utf8')
-    expect(markup).toContain(CONTENT_SECURITY_POLICY)
-    expect(markup).not.toContain('%CONTENT_SECURITY_POLICY%')
-    expect(markup).not.toContain('localhost')
+describe('a document served over http, which carries headers', () => {
+  it('is answered with the same policy, on top of whatever the response already had', () => {
+    const answered = policyHeaderFor({ 'content-type': ['text/html'] })
+    expect(answered['Content-Security-Policy']).toEqual([CONTENT_SECURITY_POLICY])
+    expect(answered['content-type']).toEqual(['text/html'])
   })
 })

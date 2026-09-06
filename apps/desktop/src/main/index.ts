@@ -5,7 +5,7 @@ import { sixteenBars } from '@liminal/score/fixtures'
 import { app, BrowserWindow, session as electronSession, ipcMain } from 'electron'
 import { readPreferences } from './preferences.ts'
 import { createSession } from './session.ts'
-import { CONTENT_SECURITY_POLICY, mainWindowOptions } from './window.ts'
+import { mainWindowOptions, policyHeaderFor } from './window.ts'
 
 const here = dirname(fileURLToPath(import.meta.url))
 
@@ -24,12 +24,7 @@ function listen(): void {
 
 function guardContent(): void {
   electronSession.defaultSession.webRequest.onHeadersReceived((details, done) => {
-    done({
-      responseHeaders: {
-        ...details.responseHeaders,
-        'Content-Security-Policy': [CONTENT_SECURITY_POLICY],
-      },
-    })
+    done({ responseHeaders: policyHeaderFor(details.responseHeaders) })
   })
 }
 
