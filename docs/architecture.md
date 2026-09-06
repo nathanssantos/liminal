@@ -70,13 +70,16 @@ Full spec: [score.md](specs/cross-cutting/score.md).
 
 ## The engine
 
-`@liminal/engine` is a class that receives an `AudioContext` (or `OfflineAudioContext`) and a
+`@liminal/engine` is a factory that receives an `AudioContext` (or `OfflineAudioContext`) and a
 document. It does not create contexts, touch the DOM, or know Electron. That is why the same code
 runs in three places: renderer (live), hidden window (soundcheck), Node with `node-web-audio-api`
 (headless CI tests).
 
-Schedules with lookahead over Tone.js's `Transport`. Exposes current position (bar, beat, tick),
-`play`, `pause`, `stop`, `load`, `dispose`, and `renderOffline(score) → wav`.
+`createEngine({ context, score })` returns an engine with `play`, `stop`, `dispose`, `position()`
+(bar, beat, tick) and `on('bar' | 'stopped' | 'ended')`. It schedules with lookahead over Tone.js's
+`Transport`, and converts ticks to seconds — the only place in the platform that does.
+`renderOffline` and `encodeWav` are standalone functions alongside it, not methods on the engine
+(M1-03).
 
 **Output stage.** After the document's master limiter sits an output stage the document does not
 know about: gain (volume), mute, the master filter sweep, layer on/off and trims, the sink
