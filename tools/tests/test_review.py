@@ -67,7 +67,7 @@ def test_prepare_reports_the_round_and_the_head_the_last_round_reviewed(tmp_path
     assert second["reviewPath"] != first["reviewPath"]
 
 
-def test_a_scratch_copy_links_node_modules_and_a_revert_in_it_stays_there(tmp_path: Path) -> None:
+def test_a_scratch_is_its_own_worktree_and_a_revert_in_it_stays_there(tmp_path: Path) -> None:
     root = repo_with_commit(tmp_path, "a.txt", "one")
     base = tmp_path / "review"
     runner = Recorder(root)
@@ -77,8 +77,10 @@ def test_a_scratch_copy_links_node_modules_and_a_revert_in_it_stays_there(tmp_pa
     copy = Path(scratch(root, "M1-02", base=base, runner=runner)["scratchPath"])
     (copy / "source.ts").write_text("the mutant\n", encoding="utf-8")
 
-    assert (copy / "node_modules").is_symlink()
-    assert (copy / "node_modules").resolve() == (prepared / "node_modules").resolve()
+    worktrees = [call for call in runner.calls if call[:3] == ["git", "worktree", "add"]]
+    assert [Path(call[4]) for call in worktrees] == [prepared, copy]
+    assert (copy / "node_modules").is_dir()
+    assert not (copy / "node_modules").is_symlink()
     assert (prepared / "source.ts").read_text(encoding="utf-8") == "the fix\n"
 
 

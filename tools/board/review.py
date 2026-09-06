@@ -90,11 +90,13 @@ def scratch(
     runner: Runner = shell,
 ) -> dict[str, Any]:
     prepared = Path(prepare(root, card, base=base, runner=runner)["reviewPath"])
+    head = git(root, "rev-parse", "HEAD")
     room = prepared.parent / f"{prepared.name}-scratch"
     room.mkdir(parents=True, exist_ok=True)
     path = room / f"copy-{len(list(room.iterdir()))}"
-    shutil.copytree(prepared, path, ignore=shutil.ignore_patterns("node_modules"))
-    (path / "node_modules").symlink_to(prepared / "node_modules", target_is_directory=True)
+    runner(["git", "worktree", "add", "--detach", str(path), head], root)
+    if runner(["pnpm", "install", "--offline"], path) != 0:
+        runner(["pnpm", "install"], path)
     return {"scratchPath": str(path), "of": str(prepared)}
 
 

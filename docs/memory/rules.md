@@ -280,6 +280,11 @@
 - ⚠️ **A reviewer never works in the loop's working copy.** It works on the prepared worktree at a
   pinned commit; rebasing or pushing the branch then changes nothing under it. (rule from the same
   card: a rebase mid-review moved the ground under an agent)
+- 🔴 **Never share a pnpm `node_modules` through a symlink.** pnpm reads the linked directory as
+  invalid, asks to purge it, and with no TTY fails outright — and had it succeeded it would have
+  taken the prepared tree's install with it. A throwaway worktree with its own offline install costs
+  about a second, and it also keeps the agent's git state out of the prepared tree.
+  (measured 2026-09-06)
 - ⚠️ **No `pnpm install` per agent.** `board.review --prepare` installs once per head; `--scratch`
   links `node_modules` for a throwaway copy. (measured: the install dominated each round)
 - **Recipes — what a deep pass runs per area** (grow these with every card):
