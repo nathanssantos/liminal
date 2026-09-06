@@ -30,7 +30,7 @@ jobs:
       - if: steps.token.outputs.present == 'true'
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "noreply@github.com"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - if: steps.token.outputs.present == 'true'
         env:
           GH_TOKEN: ${{ secrets.BOARD_TOKEN }}
