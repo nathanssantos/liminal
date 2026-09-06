@@ -40,7 +40,27 @@
 
 ## score
 
-- (empty — the first rule is born in M1-01)
+- 🔴 **xorshift32 has a fixed point at 0, and `seed: 0` is a legal document.** An unnormalized
+  state gives an endless stream of zeros: every `newId` identical (E3 fails) and every generated
+  note at tick 0. `createRng` normalizes `state = (seed >>> 0) || 0x9e3779b9`. (measured
+  2026-09-06, test `does not collapse on seed 0, which is xorshift32 fixed point`)
+- ⚠️ **`newId` ids are unique within one PRNG stream, never globally.** Two documents built from
+  the same seed get the **same** ids. Fine for E3, which is scoped per document; a hazard for
+  `lineage.parentId`, which points across documents. Whatever links two documents needs its own
+  identity, not `newId`. (measured 2026-09-06)
+- ⚠️ **The ids are ULID-shaped, not ULIDs.** All 26 characters come from the PRNG, so they carry
+  no timestamp and do not sort by creation. Sorting by id is meaningless. (decided 2026-09-06)
+- ⚠️ **The Zod schema carries shape only; legality lives in `validate`.** Ranges and integrality
+  in the schema would report Zod's own codes, and the invariant table needs `E9` plus the element
+  id. `parse` is the only door that runs both — `scoreSchema.parse` alone accepts a document the
+  engine refuses. (decided 2026-09-06)
+- ⚠️ **A `Score` byte-compared against a committed file needs `eol=lf` in `.gitattributes`.**
+  Without it the comparison passes on macOS and fails on a CRLF checkout. Biome also reformats a
+  committed `.json`, so `stringify` emits exactly Biome's shape: two spaces, sorted keys, trailing
+  newline. (decided 2026-09-06)
+- ⚠️ **`@liminal/score` must stay usable in the renderer**, so no `node:` import outside its
+  tests and `zod` as the only runtime dependency. A test asserts both, because the package's
+  tsconfig now carries node types for the byte-comparison test. (measured 2026-09-06)
 
 ## composition
 

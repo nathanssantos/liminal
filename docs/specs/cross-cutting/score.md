@@ -160,20 +160,44 @@ Ranges per role (MIDI): `sub` 24–48 · `bass` 28–60 · `chords` 48–84 · `
 
 Seconds do **not** appear here. `ticksToSeconds` lives in the engine.
 
+The Zod schema carries **shape**: keys, types, enums and the discriminated union. Every legality
+rule — integrality, ranges, cross-references — lives in `validate`, so each one has a stable code
+and a message naming the element. `parse` runs both, in that order, and refuses a document either
+one rejects; the schema alone does not.
+
+The tick functions take a time signature structurally (`{ beatsPerBar, beatUnit }`), wider than the
+document's `Meter`. A v1 document is always `beatUnit: 4`, but the arithmetic is proven on 3/4 and
+7/8 too, so a future meter costs no rewrite. Ticks per beat is `PPQ * 4 / beatUnit`, and a beat unit
+that does not divide it throws instead of rounding.
+
 ---
 
 ## Fixture: `sixteenBars`
 
-Used by the engine, the app shell and the determinism tests.
+Used by the engine, the app shell and the determinism tests. The bytes are committed as
+`packages/score/fixtures/sixteen-bars.json`, so every value below is fixed: two implementations
+of this description must produce the same file.
 
-- 128 BPM, 4/4, A minor, fixed `seed`
-- one `drop` section, 16 bars, `energy 0.8`
-- tracks: `kick` (four-on-the-floor), `hat` (eighths, accent on the off-beat), `bass`
-  (`bass-mono`, octave 2, eighths on A–G–F–E per bar), `chords` (`poly-saw`, Am–G–F–E, one whole
-  note per bar)
-- a filter on the `chords` track with `cutoff` automation rising from bar 8 to 16
+- `seed` 20260905, 128 BPM, 4/4, A minor, no `lineage`, master gain -1 dB with the limiter on
+- one `drop` section, `startBar` 0, 16 bars, `energy 0.8` — 3840 ticks per bar, 61440 in all
+- four tracks, in this order: `kick` (`synth`/`kick`, 0 dB), `hat` (`synth`/`hat`, -6 dB),
+  `bass` (`synth`/`bass-mono`, -3 dB), `chords` (`synth`/`poly-saw`, -9 dB, one `filter` effect
+  with `cutoff` 800 and `q` 1). All centred, none muted
+- one clip per track, `start` 0, `length` 61440 — the generator expands the repetitions, so the
+  16 bars are written out note by note
+- `kick`: pitch 36, four per bar on the beat, duration 240, velocity 0.9
+- `hat`: pitch 42, eighths, duration 120, velocity 0.5 on the beat and 0.8 off it
+- `bass`: eighths, duration 420, velocity 0.7, one root per bar cycling A2–G2–F2–E2
+  (MIDI 45, 43, 41, 40 — scientific pitch, A2 = 45)
+- `chords`: one triad per bar held for the whole bar, duration 3840, velocity 0.6, cycling
+  Am (57, 60, 64), G (55, 59, 62), F (53, 57, 60), E (52, 56, 59)
+- one automation on the `chords` track's `filter.cutoff`, two `linear` points: 800 at tick 30720
+  (bar 8) and 8000 at tick 61440 (the end of the document)
 
-Passes `validate` with no warnings. It is the document M1 plays, renders and compares.
+Ids come from `createRng(20260905)` through `newId`, drawn in this order: the section, the four
+tracks, the four clips, the score, the automation. Changing the order changes every id.
+
+Passes `validate` with no errors and no warnings. It is the document M1 plays, renders and compares.
 
 ---
 
