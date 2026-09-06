@@ -1,8 +1,9 @@
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { CHANNELS, scoreLoad } from '@liminal/protocol'
+import { CHANNELS, outputRestore, scoreLoad } from '@liminal/protocol'
 import { sixteenBars } from '@liminal/score/fixtures'
 import { app, BrowserWindow, session as electronSession, ipcMain } from 'electron'
+import { readPreferences } from './preferences.ts'
 import { createSession } from './session.ts'
 import { CONTENT_SECURITY_POLICY, mainWindowOptions } from './window.ts'
 
@@ -36,6 +37,7 @@ function createWindow(): void {
   const window = new BrowserWindow(mainWindowOptions(join(here, '..', 'preload')))
   window.on('ready-to-show', () => window.show())
   window.webContents.on('did-finish-load', () => {
+    window.webContents.send(outputRestore.name, readPreferences(app.getPath('userData')))
     window.webContents.send(scoreLoad.name, sixteenBars)
   })
 

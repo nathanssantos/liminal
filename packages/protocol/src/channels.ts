@@ -58,6 +58,17 @@ export const outputMute = defineChannel(
   nothing,
 )
 
+export const outputRestore = defineChannel(
+  'output:restore',
+  'mainToRenderer',
+  z.strictObject({
+    gainDb: z.number().min(OUTPUT_GAIN_DB.min).max(OUTPUT_GAIN_DB.max),
+    muted: z.boolean(),
+    deviceId: z.string(),
+  }),
+  nothing,
+)
+
 export const outputDevice = defineChannel(
   'output:device',
   'rendererToMain',
@@ -74,6 +85,7 @@ export const CHANNELS = [
   outputVolume,
   outputMute,
   outputDevice,
+  outputRestore,
 ] as const
 
 export type OutputDevices = z.infer<typeof outputDevicesSchema>

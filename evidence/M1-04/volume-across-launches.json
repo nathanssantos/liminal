@@ -1,0 +1,8 @@
+{
+  "what": "the volume a person set is what the app comes back to, and never louder",
+  "how": "two Electron launches through Playwright, on a userData directory removed first",
+  "atFirstRun": "−12 dB",
+  "afterSetting": "−30 dB",
+  "afterReopen": "−30 dB",
+  "at": "2026-09-06"
+}

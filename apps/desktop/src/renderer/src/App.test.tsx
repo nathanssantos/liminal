@@ -231,3 +231,25 @@ describe('the keys that work without the mouse, on the real screen', () => {
     expect(useShell.getState().transport).toBe('stopped')
   })
 })
+
+describe('muting is a listener control, not a transport control', () => {
+  it('leaves the transport playing and the position advancing', async () => {
+    reset({ score: EXAMPLE, transport: 'playing', position: { bar: 2, beat: 1, tick: 0 } })
+    render(<App />)
+    await userEvent.click(screen.getByRole('button', { name: 'Mute not muted' }))
+    expect(useShell.getState().muted).toBe(true)
+    expect(useShell.getState().transport).toBe('playing')
+    expect(useShell.getState().position).toEqual({ bar: 2, beat: 1, tick: 0 })
+    expect(screen.getByText('Playing. This example is sixteen bars long.')).toBeInTheDocument()
+  })
+
+  it('says muted in words, not only by colour', async () => {
+    reset({ score: EXAMPLE, transport: 'playing' })
+    render(<App />)
+    await userEvent.click(screen.getByRole('button', { name: 'Mute not muted' }))
+    expect(screen.getByRole('button', { name: 'Mute muted' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+  })
+})

@@ -67,6 +67,16 @@ export function connect(
   }
 
   undo.push(
+    bridge.onOutput((output) => {
+      shell().setGainDb(output.gainDb)
+      shell().setMuted(output.muted)
+      shell().setDeviceId(output.deviceId)
+      engine?.setOutputGain(output.gainDb)
+      engine?.setMuted(output.muted)
+    }),
+  )
+
+  undo.push(
     bridge.onScore((score) => {
       shell().setScore(score)
     }),

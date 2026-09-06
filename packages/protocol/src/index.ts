@@ -7,6 +7,7 @@ export {
   OUTPUT_GAIN_DB,
   outputDevice,
   outputMute,
+  outputRestore,
   outputVolume,
   SAFE_OUTPUT_GAIN_DB,
   scoreLoad,

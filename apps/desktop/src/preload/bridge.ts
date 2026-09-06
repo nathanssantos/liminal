@@ -4,6 +4,7 @@ import {
   engineError,
   outputDevice,
   outputMute,
+  outputRestore,
   outputVolume,
   scoreLoad,
   transportPlay,
@@ -57,6 +58,7 @@ const receiver =
     })
 
 export type Bridge = {
+  onOutput: ReturnType<typeof receiver<typeof outputRestore>>
   onScore: ReturnType<typeof receiver<typeof scoreLoad>>
   play: ReturnType<typeof sender<typeof transportPlay>>
   stop: ReturnType<typeof sender<typeof transportStop>>
@@ -69,6 +71,7 @@ export type Bridge = {
 
 export function createBridge(transport: Transport): Bridge {
   return {
+    onOutput: receiver(outputRestore, transport),
     onScore: receiver(scoreLoad, transport),
     play: sender(transportPlay, transport),
     stop: sender(transportStop, transport),

@@ -22,8 +22,9 @@ describe('the volume value', () => {
     expect(decibels(-12).charCodeAt(0)).toBe(0x2212)
   })
 
-  it('says silence at the bottom of the range rather than a number', () => {
-    expect(decibels(-60)).toBe('−∞ dB')
+  it('says silence at the bottom of the range in a word speech can read', () => {
+    expect(decibels(-60)).toBe('silent')
+    expect(decibels(-60)).not.toContain('∞')
   })
 
   it('writes the top of the range without a sign', () => {

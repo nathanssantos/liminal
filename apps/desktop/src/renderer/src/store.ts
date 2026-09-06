@@ -113,8 +113,12 @@ export function readout(position: Position): string {
   return `${String(position.bar + 1).padStart(2, '0')}:${position.beat + 1}`
 }
 
+export const SILENT = 'silent'
+
 export function decibels(gainDb: number): string {
-  return gainDb <= -60 ? '−∞ dB' : `−${Math.abs(gainDb)} dB`.replace('−0', '0')
+  if (gainDb <= OUTPUT_GAIN_DB.min) return SILENT
+  if (gainDb === 0) return '0 dB'
+  return `−${Math.abs(Math.round(gainDb))} dB`
 }
 
 export function gainForDigit(digit: number): number {

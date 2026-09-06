@@ -6,6 +6,7 @@ import { SYSTEM_DEFAULT, useShell } from './store.ts'
 
 function fakeBridge(): Bridge {
   return {
+    onOutput: vi.fn(() => () => {}),
     onScore: vi.fn(() => () => {}),
     play: vi.fn(async () => undefined),
     stop: vi.fn(async () => undefined),
@@ -109,5 +110,24 @@ describe('reading a code off whatever was thrown', () => {
     expect(codeOf(new Error('no'))).toBe('unknown')
     expect(codeOf('no')).toBe('unknown')
     expect(codeOf(undefined)).toBe('unknown')
+  })
+})
+
+describe('what the app remembers between runs', () => {
+  it('takes the stored volume, mute and device the moment main sends them', async () => {
+    const bridge = fakeBridge()
+    let deliver: ((output: unknown) => void) | undefined
+    Object.assign(bridge, {
+      onOutput: vi.fn((listener: (output: unknown) => void) => {
+        deliver = listener
+        return () => {}
+      }),
+    })
+    const live = connect(bridge, fakeMedia([output('default', 'System default')]))
+    deliver?.({ gainDb: -30, muted: true, deviceId: 'hdmi' })
+    expect(useShell.getState().gainDb).toBe(-30)
+    expect(useShell.getState().muted).toBe(true)
+    expect(useShell.getState().deviceId).toBe('hdmi')
+    live.stop()
   })
 })
