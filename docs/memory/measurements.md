@@ -15,7 +15,7 @@
 | 2026-09-06 | Tone.js transport resolution against the score's | `Transport.PPQ` **192** · score `PPQ` **960** | node 24.18.0, tone 15.1.22 over node-web-audio-api 2.2.0 | `engine`: tick conversion |
 | 2026-09-06 | offline render of the 16-bar fixture, 128 BPM, 48 kHz, Node | **112 ms** for 30 s of audio; 16 bar callbacks at exactly 1.875 s apart | `Tone.Offline`, node 24.18.0, tone 15.1.22, node-web-audio-api 2.2.0 | `engine`: the timing tests run offline, at the real tempo |
 | 2026-09-06 | transport under a caller-supplied offline context | `Tone.Context(raw)` → **0** transport callbacks; `Tone.OfflineContext(raw)` → all of them | 8 s render, same stack | `engine`: which wrapper the engine picks |
-| 2026-09-06 | the whole engine rendering the fixture offline (4 tracks, 368 notes, filter automation) | **6.9 s** for 30 s of audio; peak 0.585 under the limiter; 15 nodes created, 15 disposed | `Tone.OfflineContext`, node 24.18.0 | `engine`: the test suite runs in ~17 s |
+| 2026-09-06 | the whole engine rendering the fixture offline (4 tracks, 368 notes, filter automation) | **6.9 s** for 30 s of audio; peak 0.585 under the limiter; 19 nodes created, 19 disposed (⚠️ Correction: first written as 15, which was never measured) | `Tone.OfflineContext`, node 24.18.0 | `engine`: the test suite runs in ~17 s |
 
 
 | 2026-09-06 | one `engine-reviewer` round on M1-02, measure mode, own worktree + `pnpm install` | **25.8 min**, 51 tool calls, 114k tokens; second round 13.1 min, 51 calls, 107k | the loop's session log | `review`: why two passes and a prepared worktree |

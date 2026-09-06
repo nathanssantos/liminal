@@ -2,7 +2,7 @@ import type { Score } from '@liminal/score'
 import { sixteenBars } from '@liminal/score/fixtures'
 import { afterAll, describe, expect, it } from 'vitest'
 import { createEngine, DEFAULT_LOOK_AHEAD_SECONDS } from './engine.ts'
-import { barSeconds } from './time.ts'
+import { barSeconds, ticksToSeconds } from './time.ts'
 
 const BARS_TO_HEAR = 2
 
@@ -91,15 +91,27 @@ describe.skipIf(context === undefined)('the wall clock drives the transport', ()
       return
     }
     const automationId = sixteenBars.automation[0]?.id ?? ''
+    const firstPointSeconds = ticksToSeconds(
+      sixteenBars.automation[0]?.points[0]?.at ?? 0,
+      sixteenBars.tempo.bpm,
+    )
     const engine = await createEngine({ context, score: silent() })
     engine.play()
     await new Promise((resolve) => {
       setTimeout(resolve, 300)
     })
-    const early = engine.automationValueAt(automationId, context.currentTime)
+    const atTheRampStartIfItWereAbsolute = engine.automationValueAt(
+      automationId,
+      context.currentTime + firstPointSeconds,
+    )
+    const halfwayIfItWereAbsolute = engine.automationValueAt(
+      automationId,
+      context.currentTime + firstPointSeconds * 1.5,
+    )
     engine.stop()
     engine.dispose()
-    expect(early).toBeCloseTo(800, 0)
+    expect(atTheRampStartIfItWereAbsolute).toBeCloseTo(800, 0)
+    expect(halfwayIfItWereAbsolute).toBeCloseTo(800, 0)
   })
 
   it('applies the lookahead a live context asks for', async () => {

@@ -237,7 +237,7 @@ async function buildEngine(options: EngineOptions, built: Built): Promise<Engine
 
   return {
     play: () => {
-      if (playing) {
+      if (playing || disposed) {
         return
       }
       playing = true
@@ -251,7 +251,7 @@ async function buildEngine(options: EngineOptions, built: Built): Promise<Engine
       }
     },
     stop: () => {
-      if (!playing) {
+      if (!playing || disposed) {
         return
       }
       playing = false
