@@ -22,9 +22,12 @@
   hover, focus, active, disabled, loading, error, empty where it applies), tokens only (no loose
   value), keyboard and screen-reader behaviour, a story per state, a test per behaviour rule
   (React Testing Library + axe), and a screenshot at 1024/1440/1920 in the card's evidence.
-- **Stories are for design and review, not proof.** Storybook shows states in isolation; the gate
-  is still the real screen (`docs/process.md › §3.4`). A story that exists for a state nobody
-  reaches is dead code.
+- **Storybook exercises everything.** Every component has an autodocs page; every prop is an
+  `argType` with controls; a story per state and per variant (not one story with knobs — a story
+  is a named, reachable state the `ui-designer` and the reviewers can open by name); interaction
+  tests (`play`) for the keyboard contract; `addon-a11y` on every story; the three widths as
+  viewports. Stories are for design, review and evidence, not proof: the gate is still the real
+  screen (`docs/process.md › §3.4`). A story for a state nobody reaches is dead code.
 - **Change is additive.** A new variant is a new prop with a default that preserves what exists;
   the machine's `design-system-guardian` and the `ui-quality-reviewer` check every consumer.
 - **What shipped before the system is brought into it**, not left beside it: a screen or a
