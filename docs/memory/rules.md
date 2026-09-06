@@ -346,6 +346,13 @@
   from `process.cwd()`, so from any other directory it returned an empty list and the gate passed
   green over zero files. It resolves from its own module now and asserts a file count first.
 
+- 🔴 **Electron is not a browser: output devices come back named, with no prompt.** The rule that
+  `enumerateDevices()` hides labels until microphone permission is granted is a browser rule.
+  Measured in Electron 44.2.0: nine audio outputs with real ids and real labels, no request, no
+  macOS TCC dialog. A design that adds an opt-in step to earn device names is solving a problem this
+  runtime does not have — check the runtime before importing a browser constraint.
+  (measured 2026-09-06)
+
 ## review
 
 - 🔴 **A review that re-measures everything every round costs more than the implementation.**
