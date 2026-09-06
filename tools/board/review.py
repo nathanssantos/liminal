@@ -117,6 +117,7 @@ def round_done(
 ) -> dict[str, Any]:
     state = load_state(root, card)
     state["round"] = state["round"] + 1
+    state["head"] = head
     state["reviewedHead"] = head
     if deep:
         state["deepPassHead"] = head

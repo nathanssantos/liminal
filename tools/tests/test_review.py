@@ -116,6 +116,19 @@ def test_review_state_carries_findings_from_open_to_fixed_and_records_the_deep_p
     assert state["measured"] == ["packages/engine/src/engine.ts"]
 
 
+def test_finishing_a_round_moves_the_head_the_state_reports(tmp_path: Path) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+    base = tmp_path / "review"
+    runner = Recorder(root)
+    prepare(root, "M1-02", base=base, runner=runner)
+
+    round_done(root, "M1-02", "later")
+
+    state = load_state(root, "M1-02")
+    assert state["head"] == "later"
+    assert state["reviewedHead"] == "later"
+
+
 def test_the_merge_gate_refuses_while_a_blocking_finding_is_open(tmp_path: Path) -> None:
     root = repo_with_commit(tmp_path, "a.txt", "one")
     record_findings(
