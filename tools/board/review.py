@@ -52,6 +52,29 @@ def prepared_path(base: Path, branch: str, head: str) -> Path:
     return base / branch.replace("/", "-") / head
 
 
+def drop(root: Path, path: Path, runner: Runner) -> None:
+    runner(["git", "worktree", "remove", "--force", str(path)], root)
+    shutil.rmtree(path, ignore_errors=True)
+
+
+def drop_older_heads(root: Path, keep: Path, runner: Runner) -> list[str]:
+    room = keep.parent
+    if not room.exists():
+        return []
+    keeping = (keep.name, f"{keep.name}-scratch")
+    stale = sorted(entry for entry in room.iterdir() if entry.name not in keeping)
+    for entry in stale:
+        if entry.name.endswith("-scratch"):
+            for copy in sorted(entry.iterdir()):
+                drop(root, copy, runner)
+            shutil.rmtree(entry, ignore_errors=True)
+        else:
+            drop(root, entry, runner)
+    if stale:
+        runner(["git", "worktree", "prune"], root)
+    return [str(entry) for entry in stale]
+
+
 def prepare(
     root: Path,
     card: str,
@@ -62,6 +85,7 @@ def prepare(
     branch = git(root, "rev-parse", "--abbrev-ref", "HEAD")
     head = git(root, "rev-parse", "HEAD")
     path = prepared_path(base, branch, head)
+    dropped = drop_older_heads(root, path, runner)
     installed = False
     if not path.exists():
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -79,6 +103,7 @@ def prepare(
         "reviewedHead": state["reviewedHead"],
         "round": state["round"] + 1,
         "installed": installed,
+        "dropped": dropped,
     }
 
 

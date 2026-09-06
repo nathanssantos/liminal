@@ -182,3 +182,21 @@ def test_cleaning_the_scratch_room_unregisters_every_worktree_it_made(tmp_path: 
     assert removals == sorted([str(first), str(second)])
     assert ["git", "worktree", "prune"] in runner.calls
     assert not first.exists()
+
+
+def test_preparing_a_new_head_drops_the_trees_of_the_older_ones(tmp_path: Path) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+    base = tmp_path / "review"
+    runner = Recorder(root)
+    first = Path(prepare(root, "M1-02", base=base, runner=runner)["reviewPath"])
+    stale_scratch = Path(scratch(root, "M1-02", base=base, runner=runner)["scratchPath"])
+
+    (root / "b.txt").write_text("two", encoding="utf-8")
+    run(root, "add", "-A")
+    run(root, "commit", "-m", "chore: second")
+    second = prepare(root, "M1-02", base=base, runner=runner)
+
+    assert not first.exists()
+    assert not stale_scratch.exists()
+    assert Path(second["reviewPath"]).exists()
+    assert str(first) in second["dropped"]
