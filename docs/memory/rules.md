@@ -228,7 +228,7 @@
   the caller's device, so building a new one per engine leaked its destination chain past the
   ledger's sight. Reuse means `release()` parks the clock (`clockSource = 'offline'`) and the next
   wrap restores it. That restore is defended only by the live suite: dropping it leaves the default
-  55 tests green and hangs live playback. (measured 2026-09-06)
+  suite green and hangs live playback. (measured 2026-09-06)
 - 🔴 **A test that opens the audio device must be silent by default.** A timing test that plays
   through the speakers runs on every `pnpm check`, on the owner's machine, in the middle of
   something else — and worse, a review agent's mutation run replays it dozens of times from a

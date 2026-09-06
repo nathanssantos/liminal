@@ -1,14 +1,10 @@
 {
   "card": "M1-02",
   "round": 6,
-  "head": "7f1a762ad183011037cebfc81a1ccfc7a5393402",
-  "reviewedHead": "7f1a762ad183011037cebfc81a1ccfc7a5393402",
-  "deepPassHead": "9e1f12135f716b137fc7132b805d75e7c28cc060",
+  "head": "48af6b0cd33aad17a657da05b40a51b3478436e5",
+  "reviewedHead": "48af6b0cd33aad17a657da05b40a51b3478436e5",
+  "deepPassHead": "e2806342e56bdf7ccd46b9f28227698e4916b5a1",
   "measured": [
-    "docs/architecture.md",
-    "docs/memory/measurements.md",
-    "docs/memory/rules.md",
-    "docs/specs/M1-sound/M1-02.md",
     "packages/engine/package.json",
     "packages/engine/src/automation.ts",
     "packages/engine/src/effects.ts",
@@ -105,6 +101,65 @@
       "summary": "the Part callback is the only transport callback without a disposed guard",
       "status": "discarded",
       "round": 5
+    },
+    {
+      "agent": "engine-reviewer",
+      "severity": "major",
+      "file": "packages/engine/src/engine.ts",
+      "line": 424,
+      "summary": "both filter targets resolved to the cutoff with the whole suite green",
+      "status": "fixed",
+      "round": 6
+    },
+    {
+      "agent": "engine-reviewer",
+      "severity": "minor",
+      "file": "packages/engine/src/engine.test.ts",
+      "line": 715,
+      "summary": "the exponential ramp was asserted on an exact boundary that a tolerance would disarm",
+      "status": "fixed",
+      "round": 6
+    },
+    {
+      "agent": "engine-reviewer",
+      "severity": "minor",
+      "file": "packages/engine/src/tone.ts",
+      "line": 37,
+      "summary": "the clockSource restore is defended only by the live suite",
+      "status": "accepted",
+      "round": 6,
+      "note": "recorded in docs/memory/rules.md; CI has no device"
+    },
+    {
+      "agent": "engine-reviewer",
+      "severity": "minor",
+      "file": "packages/engine/src/engine.test.ts",
+      "line": 676,
+      "summary": "the reuse test drives an offline raw context, so it never enters the live arm it protects",
+      "status": "accepted",
+      "round": 6,
+      "note": "same gap as the clockSource rule, and documented with it"
+    },
+    {
+      "agent": "engine-reviewer",
+      "severity": "minor",
+      "file": "packages/engine/src/engine.test.ts",
+      "line": 689,
+      "summary": "perCycle[1] === perCycle[2] is the redundant half of the reuse test",
+      "status": "accepted",
+      "round": 6,
+      "note": "the other line catches the regression"
+    },
+    {
+      "agent": "engine-reviewer",
+      "severity": "minor",
+      "file": "packages/engine/src/automation.ts",
+      "line": 55,
+      "summary": "the from side of the exponential floor is unreached",
+      "status": "open",
+      "round": 6,
+      "note": "issue #62"
     }
-  ]
+  ],
+  "deepPassNote": "measured on e280634; the filter.q test and this record landed after, and a confirmation pass follows on the pushed head"
 }
