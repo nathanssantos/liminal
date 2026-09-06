@@ -655,3 +655,28 @@ describe('the engine disposed from a transport callback', () => {
     expect(engine.triggeredNoteCount()).toBeLessThan(noteCount(score))
   })
 })
+
+describe('the engine handed a raw context', () => {
+  it('wraps it once, however many engines drive it in turn', async () => {
+    const score = withoutNotes(twoBars())
+    const raw = new OfflineAudioContext(2, 48000, 48000)
+    let gains = 0
+    const createGain = raw.createGain.bind(raw)
+    raw.createGain = () => {
+      gains += 1
+      return createGain()
+    }
+    const perCycle: number[] = []
+    for (let cycle = 0; cycle < 3; cycle += 1) {
+      const before = gains
+      const engine = await createEngine({
+        context: raw as unknown as BaseAudioContext,
+        score,
+      })
+      engine.dispose()
+      perCycle.push(gains - before)
+    }
+    expect(perCycle[1]).toBe(perCycle[2])
+    expect(perCycle[0]).toBeGreaterThan(perCycle[1] ?? 0)
+  })
+})

@@ -24,16 +24,25 @@ export function loadTone(): Promise<Tone> {
 
 export type Wrapped = { context: ToneContext; owned: boolean }
 
+const WRAPPERS = new WeakMap<BaseAudioContext, ToneContext>()
+
 export function wrapContext(tone: Tone, context: EngineContext): Wrapped {
   if (isToneContext(context)) {
     return { context, owned: false }
   }
-  return {
-    context: rendersOffline(context)
-      ? new tone.OfflineContext(context as OfflineAudioContext)
-      : new tone.Context({ context: context as AudioContext, clockSource: 'timeout' }),
-    owned: true,
+  const raw = context as BaseAudioContext
+  const known = WRAPPERS.get(raw)
+  if (known !== undefined) {
+    if (!rendersOffline(raw)) {
+      known.clockSource = 'timeout'
+    }
+    return { context: known, owned: true }
   }
+  const made = rendersOffline(context)
+    ? new tone.OfflineContext(context as OfflineAudioContext)
+    : new tone.Context({ context: context as AudioContext, clockSource: 'timeout' })
+  WRAPPERS.set(raw, made)
+  return { context: made, owned: true }
 }
 
 export function rawContextOf(context: EngineContext): BaseAudioContext {
