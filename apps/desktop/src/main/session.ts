@@ -68,11 +68,9 @@ export function createSession(options: SessionOptions): Session {
       return {}
     },
     [outputDevice.name]: (payload) => {
-      const devices = options.devices?.() ?? []
-      const wanted = outputDevice.input.parse(payload).id
-      const known = devices.some((device) => device.id === wanted)
-      keep({ ...preferences, deviceId: known ? wanted : preferences.deviceId })
-      return { devices, selected: preferences.deviceId }
+      const chosen = outputDevice.input.parse(payload).id
+      keep({ ...preferences, deviceId: chosen })
+      return { devices: options.devices?.() ?? [], selected: preferences.deviceId }
     },
   }
 

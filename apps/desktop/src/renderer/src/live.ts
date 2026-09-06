@@ -2,7 +2,13 @@ import { createEngine, type Engine } from '@liminal/engine'
 import type { Score } from '@liminal/score'
 import type { Bridge } from '../../preload/bridge.ts'
 import { listOutputs, stillThere } from './devices.ts'
-import { CHANNEL_REFUSED, DEVICE_LOST, LOAD_GAVE_UP, noticeForCode } from './notices.ts'
+import {
+  CHANNEL_REFUSED,
+  DEVICE_LOST,
+  LOAD_GAVE_UP,
+  noticeForCode,
+  SINK_UNAVAILABLE,
+} from './notices.ts'
 import { attach, type ShellState, STILL_LOADING_MS, SYSTEM_DEFAULT, useShell } from './store.ts'
 
 type Shell = () => ShellState
@@ -23,6 +29,7 @@ export function connect(
 ): Live {
   const undo: (() => void)[] = []
   let engine: Engine | undefined
+  let building = false
   let frame = 0
 
   const raise = (notice: Parameters<ShellState['raise']>[0]) => shell().raise(notice)
@@ -73,6 +80,9 @@ export function connect(
       shell().setDeviceId(output.deviceId)
       engine?.setOutputGain(output.gainDb)
       engine?.setMuted(output.muted)
+      if (output.deviceId !== SYSTEM_DEFAULT.id) {
+        void engine?.setSinkId(output.deviceId).catch(() => raise(SINK_UNAVAILABLE))
+      }
     }),
   )
 
@@ -97,19 +107,23 @@ export function connect(
 
   const detach = attach({
     play: () => {
+      if (building) return
+      const score = shell().score
+      if (!score) return
+      building = true
       void (async () => {
-        const score = shell().score
-        if (!score) return
         try {
           engine ??= await build(score)
           engine.play()
           shell().setTransport('playing')
+          void bridge.play({})
         } catch (error) {
           shell().setTransport('stopped')
           raise(noticeForCode(codeOf(error)))
           void bridge.reportError({ code: codeOf(error), message: String(error) })
+        } finally {
+          building = false
         }
-        void bridge.play({})
       })()
     },
     stop: () => {

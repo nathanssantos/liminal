@@ -94,6 +94,31 @@ describe('Transport', () => {
     expect(screen.getByRole('button', { name: 'Play' })).toHaveFocus()
   })
 
+  it('offers one button that says Stop while playing, when the set can only be stopped', async () => {
+    const handlers = setup('playing', { stopOnly: true })
+    const only = screen.getAllByRole('button')
+    expect(only).toHaveLength(1)
+    expect(only[0]).toHaveAccessibleName('Stop')
+    expect(only[0]).toBeEnabled()
+    await userEvent.click(only[0] as HTMLElement)
+    expect(handlers.onStop).toHaveBeenCalledTimes(1)
+    expect(handlers.onPause).not.toHaveBeenCalled()
+  })
+
+  it('says Play, and only Play, when a stop-only transport is at rest', async () => {
+    const handlers = setup('stopped', { stopOnly: true })
+    const only = screen.getAllByRole('button')
+    expect(only).toHaveLength(1)
+    expect(only[0]).toHaveAccessibleName('Play')
+    await userEvent.click(only[0] as HTMLElement)
+    expect(handlers.onPlay).toHaveBeenCalledTimes(1)
+  })
+
+  it('never shows a disabled button while it is playing', () => {
+    setup('playing', { stopOnly: true })
+    for (const button of screen.getAllByRole('button')) expect(button).toBeEnabled()
+  })
+
   it('swallows activation while starting', async () => {
     const handlers = setup('starting')
     const play = screen.getByRole('button', { name: 'Starting…' })

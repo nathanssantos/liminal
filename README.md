@@ -30,10 +30,13 @@ exploration). The proposal itself evolves — the bets and the candidate uses ar
 
 ## Status
 
-**v0.0.0 — the foundation.** There is nothing to hear yet. What exists is the ground: the
-monorepo, the eight packages with their boundaries enforced by a test, an Electron shell that
-opens, a Python analyzer worker, continuous integration, and the board and scripts the autonomous
-loop runs on. Sound arrives in M1.
+**v0.0.0 — M1 · Sound, in progress.** The app plays. Open it and there is a sixteen-bar set
+already loaded: press play and it comes out of your speakers, with the tempo, the key, the bar and
+the elapsed time on screen, a volume that starts at a safe level and never comes back louder, a
+mute, and a picker for which output it goes to. Under it: the eight packages with their boundaries
+enforced by a test, a deterministic engine that also renders offline, the design system every
+screen composes from, a Python analyzer worker, continuous integration, and the board and scripts
+the autonomous loop runs on. The endless set and the steering arrive in M4.
 
 Follow the work on the [board](https://github.com/users/nathanssantos/projects/9).
 

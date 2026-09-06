@@ -109,20 +109,12 @@ export const useShell = create<ShellState>((set) => ({
   chooseDevice: (deviceId) => sink.chooseDevice(deviceId),
 }))
 
-export function readout(position: Position): string {
-  return `${String(position.bar + 1).padStart(2, '0')}:${position.beat + 1}`
-}
-
 export const SILENT = 'silent'
 
 export function decibels(gainDb: number): string {
   if (gainDb <= OUTPUT_GAIN_DB.min) return SILENT
   if (gainDb === 0) return '0 dB'
   return `−${Math.abs(Math.round(gainDb))} dB`
-}
-
-export function gainForDigit(digit: number): number {
-  return -60 + digit * 6
 }
 
 export const OUTPUT_GAIN_MIN_DB = OUTPUT_GAIN_DB.min
@@ -143,8 +135,6 @@ const HINTS: Record<Transport, string> = {
 const STILL_LOADING = 'The set is still loading.'
 const NOTHING_LOADED = 'Nothing is loaded yet.'
 const NO_DEVICE_HINT = 'No output device. Connect speakers or headphones.'
-
-export const NO_PAUSE_REASON = 'This set can only be stopped, not paused.'
 
 const STILL_LOADING_REASON = 'The set is still loading.'
 const LOAD_GAVE_UP_REASON = 'The set did not load.'
@@ -193,6 +183,11 @@ export function hintFor(
   if (shell.loadTimedOut) return NOTHING_LOADED
   if (!shell.score) return STILL_LOADING
   return HINTS[shell.transport]
+}
+
+export function beatOf(shell: Pick<ShellState, 'score' | 'position'>): number {
+  if (!shell.score) return 0
+  return shell.position.bar * shell.score.meter.beatsPerBar + shell.position.beat
 }
 
 export function readoutOf(shell: Pick<ShellState, 'score' | 'position'>): Numbers {

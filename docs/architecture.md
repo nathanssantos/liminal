@@ -183,7 +183,8 @@ validates the Python output in tests.
 exposes only typed functions; `contextIsolation` on; no Node in the renderer.
 
 M1 channels: `score:load`, `transport:play`, `transport:stop`, `transport:position` (stream),
-`render:offline`, `output:volume`, `output:mute`, `output:device`. The rest arrive per milestone,
+`engine:error`, `output:volume`, `output:mute`, `output:device`, `output:restore` (what the last
+run left, sent as the window paints). The rest arrive per milestone,
 in each card's spec; every control in `docs/product/controls.md` maps to a channel, immediate ones
 handled in the renderer, planned ones forwarded to the conductor.
 

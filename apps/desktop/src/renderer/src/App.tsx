@@ -2,10 +2,10 @@ import { ErrorStrip, Readout, Select, Slider, Toggle, Transport } from '@liminal
 import { useEffect, useRef } from 'react'
 import { actionFor, clampGain } from './shortcuts.ts'
 import {
+  beatOf,
   decibels,
   hintFor,
   MUTE_STATE_LABEL,
-  NO_PAUSE_REASON,
   OUTPUT_GAIN_MAX_DB,
   OUTPUT_GAIN_MIN_DB,
   playGuard,
@@ -19,7 +19,7 @@ export function App() {
   const play = useRef<HTMLButtonElement>(null)
   const device = useRef<HTMLButtonElement>(null)
   const playing = shell.transport === 'playing'
-  const guard = playing ? NO_PAUSE_REASON : playGuard(shell)
+  const guard = playing ? undefined : playGuard(shell)
   const numbers = readoutOf(shell)
 
   useEffect(() => {
@@ -49,18 +49,18 @@ export function App() {
   }, [])
 
   return (
-    <main className="shell">
-      <header className="shell-deck">
+    <div className="shell">
+      <section className="shell-deck" aria-label="Transport and the numbers">
         <div className="shell-column">
           <Transport
             size="lg"
             playRef={play}
             state={shell.transport === 'ended' ? 'stopped' : shell.transport}
             canPlay={guard === undefined}
-            canPause={false}
+            stopOnly
             {...(guard === undefined ? {} : { disabledReason: guard })}
+            beatPulseKey={beatOf(shell)}
             onPlay={shell.requestPlay}
-            onPause={() => {}}
             onStop={shell.requestStop}
           />
           <Readout
@@ -73,9 +73,9 @@ export function App() {
             playing={shell.transport === 'playing'}
           />
         </div>
-      </header>
+      </section>
 
-      <div className="shell-stage">
+      <main className="shell-stage">
         <div className="shell-column">
           {shell.notice ? (
             <ErrorStrip
@@ -95,9 +95,9 @@ export function App() {
             <p className="shell-hint">{hintFor(shell)}</p>
           </div>
         </div>
-      </div>
+      </main>
 
-      <footer className="shell-output">
+      <section className="shell-output" aria-label="Output">
         <div className="shell-column">
           <div className="shell-output-left">
             <div className="shell-volume">
@@ -135,7 +135,7 @@ export function App() {
             />
           </div>
         </div>
-      </footer>
-    </main>
+      </section>
+    </div>
   )
 }

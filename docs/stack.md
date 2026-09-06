@@ -10,7 +10,7 @@
 | Runtime | **Node 24 LTS** (`.nvmrc`), **pnpm 11**, **Turborepo** | Node 25 (installed on the machine) | LTS for the native test binary and for CI; pnpm and Turbo are what `marketmind` already uses |
 | Language | **TypeScript 6** strict, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `verbatimModuleSyntax`, pure ESM | — | index and optional errors are what escapes most in music code (note arrays, fields that "always come") |
 | Lint and format | **Biome** | ESLint + Prettier | one tool, one config, fast; `biome-ignore` is already the sanctioned form in the house rules |
-| Tests | **Vitest**; **Playwright** with Electron for the app; `node-web-audio-api` for the headless engine | Jest | Vitest is native ESM and matches the renderer's Vite |
+| Tests | **Vitest**; **jsdom** with **React Testing Library** for the renderer's screens; **Playwright** with Electron for the app; `node-web-audio-api` for the headless engine | Jest | Vitest is native ESM and matches the renderer's Vite; the screen tests cover the states, and Playwright covers what only a real window shows |
 | Schemas | **Zod 4** | Valibot, TypeBox | single source for the document, the IPC protocol, the style card and the LLM output; exports JSON Schema for Python |
 
 ## Desktop

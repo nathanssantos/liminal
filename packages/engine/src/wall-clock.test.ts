@@ -2,7 +2,7 @@ import type { Score } from '@liminal/score'
 import { barToTick } from '@liminal/score'
 import { sixteenBars } from '@liminal/score/fixtures'
 import { afterAll, describe, expect, it } from 'vitest'
-import { createEngine, DEFAULT_LOOK_AHEAD_SECONDS } from './engine.ts'
+import { createEngine, DEFAULT_LOOK_AHEAD_SECONDS, SAFE_OUTPUT_GAIN_DB } from './engine.ts'
 import { barSeconds, ticksToSeconds } from './time.ts'
 
 const BARS_TO_HEAR = 2
@@ -39,6 +39,31 @@ if (context === undefined) {
       : 'wall-clock tests skipped: set LIMINAL_AUDIO_DEVICE=1 to run them against the real device\n',
   )
 }
+
+describe.skipIf(context === undefined)('muting acts on the output, not on the transport', () => {
+  it('drops the output to silence and brings it back, while the transport keeps its own count', async () => {
+    const engine = await createEngine({
+      context: context as unknown as Parameters<typeof createEngine>[0]['context'],
+      score: silent(),
+    })
+    engine.play()
+    await new Promise((done) => setTimeout(done, barSeconds(sixteenBars) * 1000))
+    const playingBefore = engine.position()
+
+    engine.setMuted(true)
+    expect(engine.muted()).toBe(true)
+    await new Promise((done) => setTimeout(done, barSeconds(sixteenBars) * 1000))
+    const whileMuted = engine.position()
+
+    engine.setMuted(false)
+    expect(engine.muted()).toBe(false)
+
+    expect(whileMuted.bar).toBeGreaterThan(playingBefore.bar - 1)
+    expect(engine.outputGain()).toBe(SAFE_OUTPUT_GAIN_DB)
+    engine.stop()
+    engine.dispose()
+  })
+})
 
 describe.skipIf(context === undefined)('the wall clock drives the transport', () => {
   afterAll(async () => {

@@ -209,7 +209,7 @@ describe('measureBasic says whether anything is there', () => {
 })
 
 describe('the output stage belongs to the listener, not to the document', () => {
-  it('renders the same samples whether the engine is muted or not', async () => {
+  it('builds no output stage offline, so a listener control cannot reach the render', async () => {
     const score = twoBars()
     const heard = await offlineEngine(score, scoreSeconds(score))
     heard.engine.play()

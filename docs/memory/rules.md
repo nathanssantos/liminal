@@ -303,6 +303,24 @@
   **and** self-contained, because `require` of a TypeScript workspace package fails at runtime.
   Both failures are silent to lint, types and every test — the window simply comes up blank.
   (measured 2026-09-06, electron-vite 5.0.0)
+- 🔴 **Disabled is the treatment for a fault, and borrowing it to say a fault-free thing reads as
+  broken.** The transport shipped with the main button disabled while the set played, because this
+  engine has no pause, with the reason only in visually hidden text. At the one moment the product
+  should confirm it works, the single orange control turned the same grey as "still loading". The
+  screen now shows one button that reads **Play** at rest and **Stop** while playing. **The rule:
+  no control is disabled unless its reason is also in visible words on the screen.** (found by the
+  usability review of M1-04, 2026-09-06)
+- 🔴 **A CSP set through `onHeadersReceived` never reaches a `file://` document**, because a file
+  response carries no HTTP headers — and the packaged app loads the renderer with `loadFile`. The
+  policy existed, the test asserted the string, `pnpm check` was green, and nothing was enforced.
+  The policy belongs in a `<meta http-equiv>` in the markup, which covers both the packaged app and
+  the dev server. **A security control is proven where it lands, never where it is declared.**
+  (found by the security review of M1-04, 2026-09-06)
+- 🔴 **An offline render has no output stage, so `setMuted` and `setOutputGain` do nothing there.**
+  A test that renders offline with mute on and compares the samples passes with both methods
+  implemented as `() => {}` — it proves the stage is absent, not that mute works. The mute is proven
+  against a live context, in `wall-clock.test.ts`, which needs `LIMINAL_AUDIO_DEVICE=1`. (measured
+  2026-09-06: reverting `setMuted` fails that test and nothing else)
 - 🔴 **`Position.tick` is the tick INSIDE the beat, not the tick since the start.** A brief said
   elapsed was `ticksToSeconds(position.tick, bpm)` and it was implemented literally, so the readout
   sat at `0:00` through the whole set while bar and beat advanced beside it — the number is always

@@ -75,14 +75,22 @@ describe('the shell with a set ready', () => {
 })
 
 describe('the shell while it plays', () => {
-  it('keeps stop offered and explains why the main button cannot pause', () => {
+  it('offers one enabled button that says Stop, and nothing grey, while it plays', () => {
     reset({ score: EXAMPLE, transport: 'playing' })
-    render(<App />)
-    const play = screen.getByRole('button', { name: 'Play' })
-    expect(play).toBeDisabled()
-    expect(play).toHaveAccessibleDescription('This set can only be stopped, not paused.')
-    expect(screen.getByRole('button', { name: 'Stop' })).toBeEnabled()
+    const { container } = render(<App />)
+    const stop = screen.getByRole('button', { name: 'Stop' })
+    expect(stop).toBeEnabled()
+    expect(screen.queryByRole('button', { name: 'Play' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Pause' })).not.toBeInTheDocument()
+    expect(container.querySelectorAll('.lm-transport .lm-button[disabled]')).toHaveLength(0)
+  })
+
+  it('keeps the keyboard somewhere real when a strip is dismissed while playing', async () => {
+    reset({ score: EXAMPLE, transport: 'playing', notice: DEVICE_LOST })
+    render(<App />)
+    await userEvent.click(screen.getByRole('button', { name: 'Dismiss' }))
+    expect(document.activeElement).not.toBe(document.body)
+    expect(screen.getByRole('button', { name: 'Stop' })).toHaveFocus()
   })
 
   it('offers play again, from the top, once the set has ended', () => {

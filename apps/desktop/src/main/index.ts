@@ -33,8 +33,14 @@ function guardContent(): void {
   })
 }
 
+function refuseNavigation(window: BrowserWindow): void {
+  window.webContents.on('will-navigate', (event) => event.preventDefault())
+  window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }))
+}
+
 function createWindow(): void {
   const window = new BrowserWindow(mainWindowOptions(join(here, '..', 'preload')))
+  refuseNavigation(window)
   window.on('ready-to-show', () => window.show())
   window.webContents.on('did-finish-load', () => {
     window.webContents.send(outputRestore.name, readPreferences(app.getPath('userData')))

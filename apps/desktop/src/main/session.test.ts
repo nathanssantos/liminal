@@ -76,13 +76,12 @@ describe('the main process answers the channels the renderer calls', () => {
     })
   })
 
-  it('keeps the device it had when the one asked for is gone', async () => {
-    const { session } = aSession([{ id: 'default', label: 'System' }])
+  it('stores whichever device the renderer chose, because only the renderer can name one', async () => {
+    const { session } = aSession()
 
-    const answer = await session.handle('output:device', { id: 'vanished' })
+    await session.handle('output:device', { id: 'a-salted-id-main-cannot-resolve' })
 
-    expect(answer).toEqual({ devices: [{ id: 'default', label: 'System' }], selected: 'default' })
-    expect(session.preferences().deviceId).toBe('default')
+    expect(session.preferences().deviceId).toBe('a-salted-id-main-cannot-resolve')
   })
 
   it('refuses a channel it does not know, rather than answering nothing', async () => {

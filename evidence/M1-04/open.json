@@ -50,28 +50,6 @@
           "max-width": "none",
           "transition-duration": "0s"
         }
-      },
-      {
-        "selector": ".shell-stage",
-        "rect": {
-          "left": 0,
-          "top": 89,
-          "width": 1024,
-          "height": 722
-        },
-        "styles": {
-          "background-color": "rgba(0, 0, 0, 0)",
-          "color": "rgb(233, 237, 240)",
-          "font-family": "system-ui, -apple-system, \"Segoe UI\", Cantarell, \"Noto Sans\", sans-serif",
-          "font-size": "15px",
-          "min-height": "auto",
-          "padding-left": "24px",
-          "padding-right": "24px",
-          "border-bottom-width": "0px",
-          "border-bottom-color": "rgb(233, 237, 240)",
-          "max-width": "none",
-          "transition-duration": "0s"
-        }
       }
     ]
   },
@@ -126,28 +104,6 @@
           "max-width": "none",
           "transition-duration": "0s"
         }
-      },
-      {
-        "selector": ".shell-stage",
-        "rect": {
-          "left": 0,
-          "top": 89,
-          "width": 1440,
-          "height": 722
-        },
-        "styles": {
-          "background-color": "rgba(0, 0, 0, 0)",
-          "color": "rgb(233, 237, 240)",
-          "font-family": "system-ui, -apple-system, \"Segoe UI\", Cantarell, \"Noto Sans\", sans-serif",
-          "font-size": "15px",
-          "min-height": "auto",
-          "padding-left": "32px",
-          "padding-right": "32px",
-          "border-bottom-width": "0px",
-          "border-bottom-color": "rgb(233, 237, 240)",
-          "max-width": "none",
-          "transition-duration": "0s"
-        }
       }
     ]
   },
@@ -195,28 +151,6 @@
           "font-family": "system-ui, -apple-system, \"Segoe UI\", Cantarell, \"Noto Sans\", sans-serif",
           "font-size": "15px",
           "min-height": "88px",
-          "padding-left": "32px",
-          "padding-right": "32px",
-          "border-bottom-width": "0px",
-          "border-bottom-color": "rgb(233, 237, 240)",
-          "max-width": "none",
-          "transition-duration": "0s"
-        }
-      },
-      {
-        "selector": ".shell-stage",
-        "rect": {
-          "left": 0,
-          "top": 89,
-          "width": 1920,
-          "height": 722
-        },
-        "styles": {
-          "background-color": "rgba(0, 0, 0, 0)",
-          "color": "rgb(233, 237, 240)",
-          "font-family": "system-ui, -apple-system, \"Segoe UI\", Cantarell, \"Noto Sans\", sans-serif",
-          "font-size": "15px",
-          "min-height": "auto",
           "padding-left": "32px",
           "padding-right": "32px",
           "border-bottom-width": "0px",

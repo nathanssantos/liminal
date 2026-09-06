@@ -28,28 +28,6 @@
           "max-width": "none",
           "transition-duration": "0s"
         }
-      },
-      {
-        "selector": ".lm-transport",
-        "rect": {
-          "left": 24,
-          "top": 22,
-          "width": 258.21875,
-          "height": 44
-        },
-        "styles": {
-          "background-color": "rgba(0, 0, 0, 0)",
-          "color": "rgb(233, 237, 240)",
-          "font-family": "system-ui, -apple-system, \"Segoe UI\", Cantarell, \"Noto Sans\", sans-serif",
-          "font-size": "15px",
-          "min-height": "auto",
-          "padding-left": "0px",
-          "padding-right": "0px",
-          "border-bottom-width": "0px",
-          "border-bottom-color": "rgb(233, 237, 240)",
-          "max-width": "none",
-          "transition-duration": "0s"
-        }
       }
     ]
   },
@@ -82,28 +60,6 @@
           "max-width": "none",
           "transition-duration": "0s"
         }
-      },
-      {
-        "selector": ".lm-transport",
-        "rect": {
-          "left": 120,
-          "top": 22,
-          "width": 258.21875,
-          "height": 44
-        },
-        "styles": {
-          "background-color": "rgba(0, 0, 0, 0)",
-          "color": "rgb(233, 237, 240)",
-          "font-family": "system-ui, -apple-system, \"Segoe UI\", Cantarell, \"Noto Sans\", sans-serif",
-          "font-size": "15px",
-          "min-height": "auto",
-          "padding-left": "0px",
-          "padding-right": "0px",
-          "border-bottom-width": "0px",
-          "border-bottom-color": "rgb(233, 237, 240)",
-          "max-width": "none",
-          "transition-duration": "0s"
-        }
       }
     ]
   },
@@ -122,28 +78,6 @@
           "top": 12,
           "width": 562.765625,
           "height": 64
-        },
-        "styles": {
-          "background-color": "rgba(0, 0, 0, 0)",
-          "color": "rgb(233, 237, 240)",
-          "font-family": "system-ui, -apple-system, \"Segoe UI\", Cantarell, \"Noto Sans\", sans-serif",
-          "font-size": "15px",
-          "min-height": "auto",
-          "padding-left": "0px",
-          "padding-right": "0px",
-          "border-bottom-width": "0px",
-          "border-bottom-color": "rgb(233, 237, 240)",
-          "max-width": "none",
-          "transition-duration": "0s"
-        }
-      },
-      {
-        "selector": ".lm-transport",
-        "rect": {
-          "left": 360,
-          "top": 22,
-          "width": 258.21875,
-          "height": 44
         },
         "styles": {
           "background-color": "rgba(0, 0, 0, 0)",
