@@ -6,6 +6,7 @@ from pathlib import Path
 
 from board.review import (
     branch_of,
+    card_on_this_branch,
     clean_scratch,
     load_state,
     prepare,
@@ -210,3 +211,24 @@ def test_a_detached_head_gets_a_room_of_its_own_rather_than_one_called_head(
     run(root, "checkout", "--detach")
 
     assert branch_of(root) == "detached"
+
+
+def test_the_card_comes_from_the_branch_when_no_card_is_given(tmp_path: Path) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+    folder = root / "docs" / "specs" / "M1-sound"
+    folder.mkdir(parents=True)
+    (folder / "M1-06.md").write_text(
+        "---\nid: M1-06\ntitle: t\nmilestone: M1\narea: infra\npriority: P0\n"
+        "depends_on: []\nlistening: false\nissue: 55\n---\n\n## Context\n",
+        encoding="utf-8",
+    )
+    run(root, "checkout", "-b", "feat/55-board-review")
+
+    assert card_on_this_branch(root) == "M1-06"
+
+
+def test_no_card_when_the_branch_names_no_issue(tmp_path: Path) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+    run(root, "checkout", "-b", "docs/whatever")
+
+    assert card_on_this_branch(root) is None

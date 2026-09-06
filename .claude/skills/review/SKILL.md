@@ -16,7 +16,7 @@ reviewed.
 ## 0 · Prepare once per round
 
 ```bash
-uv run --directory tools python -m board.review --prepare
+uv run --directory tools python -m board.review --prepare   # --card <id> when the branch does not name one
 ```
 
 Creates (or refreshes) **one** detached worktree at the current HEAD under
@@ -25,7 +25,8 @@ store when possible), records `evidence/<id>/review.json` (`round`, `head`, `rev
 `findings[]` with status) and prints `reviewPath`. Every agent receives that path and works
 **there**, never in the loop's working copy — so the branch can be rebased or pushed while they
 run, and two agents never share a tree (each one that needs to edit or revert makes its own
-throwaway copy with `board.review --scratch`, which links `node_modules` instead of installing).
+throwaway copy with `board.review --scratch`, a worktree of its own with its own offline install —
+about a second; sharing `node_modules` through a link makes pnpm ask to purge the shared one).
 
 `board.check --area <path>` runs here too: `newComments`, `deadMocks`, `deadBranches`,
 `outOfArea`, `testsWithoutCriterion`.

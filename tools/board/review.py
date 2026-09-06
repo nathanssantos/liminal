@@ -2,13 +2,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import shutil
 import subprocess
 from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import Any
 
-from board.context import emit, git, repo_root
+from board.context import SPECS, emit, git, repo_root
+from board.specs import load_cards
 
 REVIEW_ROOT = Path("/tmp/liminal-review")
 EVIDENCE = Path("evidence")
@@ -46,6 +48,17 @@ def save_state(root: Path, card: str, state: dict[str, Any]) -> None:
     path = state_path(root, card)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(state, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+BRANCH_ISSUE = re.compile(r"^feat/(\d+)-")
+
+
+def card_on_this_branch(root: Path) -> str | None:
+    match = BRANCH_ISSUE.match(git(root, "rev-parse", "--abbrev-ref", "HEAD"))
+    if match is None:
+        return None
+    issue = int(match.group(1))
+    return next((card.id for card in load_cards(root / SPECS) if card.issue == issue), None)
 
 
 def branch_of(root: Path) -> str:
@@ -214,7 +227,7 @@ def changed_since(root: Path, deep: str, head: str) -> list[str]:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="board.review")
-    parser.add_argument("--card", required=True)
+    parser.add_argument("--card")
     parser.add_argument("--prepare", action="store_true")
     parser.add_argument("--scratch", action="store_true")
     parser.add_argument("--clean", action="store_true")
@@ -225,18 +238,21 @@ def main(argv: list[str] | None = None) -> int:
     arguments = parser.parse_args(argv)
 
     root = repo_root()
+    card = arguments.card or card_on_this_branch(root)
+    if card is None:
+        return emit({"error": "no --card given and the branch does not name an issue with a card"})
     if arguments.prepare:
-        return emit(prepare(root, arguments.card))
+        return emit(prepare(root, card))
     if arguments.scratch:
         if arguments.clean:
-            return emit(clean_scratch(root, arguments.card))
-        return emit(scratch(root, arguments.card))
+            return emit(clean_scratch(root, card))
+        return emit(scratch(root, card))
     if arguments.round_done:
         head = git(root, "rev-parse", "HEAD")
-        return emit(round_done(root, arguments.card, head, deep=arguments.deep,
+        return emit(round_done(root, card, head, deep=arguments.deep,
                                measured=list(arguments.measured)))
     if arguments.state:
-        return emit(load_state(root, arguments.card))
+        return emit(load_state(root, card))
     parser.print_help()
     return 1
 
