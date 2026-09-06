@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import re
 from pathlib import Path
+from typing import Any
 
 from board.context import Context, emit, git
 
@@ -43,22 +44,25 @@ def tests_without_criterion(root: Path, area: str) -> list[str]:
     return weak
 
 
+def report(root: Path, area: str) -> dict[str, Any]:
+    return {
+        "root": str(root),
+        "dirtyTree": bool(git(root, "status", "--porcelain")),
+        "deadMocks": dead_mocks(root),
+        "deadBranches": dead_branches(root),
+        "outOfArea": out_of_area(root, area),
+        "testsWithoutCriterion": tests_without_criterion(root, area),
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="board.check")
     parser.add_argument("--area", default="packages")
+    parser.add_argument("--path")
     arguments = parser.parse_args(argv)
 
-    context = Context.open()
-    root = context.root
-    return emit(
-        {
-            "dirtyTree": bool(git(root, "status", "--porcelain")),
-            "deadMocks": dead_mocks(root),
-            "deadBranches": dead_branches(root),
-            "outOfArea": out_of_area(root, arguments.area),
-            "testsWithoutCriterion": tests_without_criterion(root, arguments.area),
-        }
-    )
+    root = Path(arguments.path) if arguments.path else Context.open().root
+    return emit(report(root, arguments.area))
 
 
 if __name__ == "__main__":

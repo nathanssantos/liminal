@@ -277,11 +277,36 @@
   Measured on M1-02: 25.8 min and 51 tool calls for one deep reviewer round, 52 min for the test
   engineer, five rounds on one card. The fix: fast pass every round in read mode, deep pass once in
   measure mode, on one prepared worktree, incrementally. (measured 2026-09-06)
+- 🔴 **A gate the branch under review can write is a checklist, not a control.** `review.json`
+  lives in the repository, so the same loop that wants the merge writes it, commits it and reads it
+  back. It catches the loop skipping a step and nothing else. Making it a control needs the deep
+  pass recorded where the branch cannot reach — a check run, a pull request review, an issue
+  comment. Until then, every guard on it is about honesty, not security: refuse an empty measured
+  set, read the head from the pull request rather than the local checkout, and refuse a diff that
+  cannot be read. ⚠️ Only the head comes from the pull request — the state file and the other four
+  gates still read the local working tree, uncommitted changes included. (measured 2026-09-06)
+- 🔴 **A prepared worktree keyed by branch name alone is shared by every clone.** Two checkouts of
+  one branch, or any two detached heads, landed in the same directory under `/tmp`, and preparing
+  from one deleted the other's tree mid-review. The room carries a hash of the repository root, and
+  a tree is only deleted when `git worktree remove` accepted it. (measured 2026-09-06)
+- 🔴 **A file cannot record the hash of the commit that carries it.** Writing the head into
+  `review.json` and then amending the commit leaves the file naming a hash that exists on no branch,
+  and the merge gate then claims a review nobody can check out. `--round-done` records the head as
+  it stands when the round ends, which is a real commit; the record of that round travels in the
+  *next* commit, and the gate's "diff since the deep pass touches nothing measured" rule is what
+  covers the gap. (measured 2026-09-06)
 - ⚠️ **A reviewer never works in the loop's working copy.** It works on the prepared worktree at a
-  pinned commit; rebasing or pushing the branch then changes nothing under it. (rule from the same
-  card: a rebase mid-review moved the ground under an agent)
+  pinned commit; rebasing or pushing the branch then changes nothing under it. ⚠️ Preparing a *new*
+  head does drop the previous tree, so let a round finish before preparing the next. (rule from the
+  same card: a rebase mid-review moved the ground under an agent)
+- 🔴 **Never share a pnpm `node_modules` through a symlink.** pnpm reads the linked directory as
+  invalid, asks to purge it, and with no TTY fails outright — and had it succeeded it would have
+  taken the prepared tree's install with it. A throwaway worktree with its own offline install costs
+  about a second, and it also keeps the agent's git state out of the prepared tree.
+  (measured 2026-09-06)
 - ⚠️ **No `pnpm install` per agent.** `board.review --prepare` installs once per head; `--scratch`
-  links `node_modules` for a throwaway copy. (measured: the install dominated each round)
+  makes the throwaway copy a worktree with an offline install of its own, about a second.
+  (measured: the install dominated each round)
 - **Recipes — what a deep pass runs per area** (grow these with every card):
   - `engine`: `pnpm --filter engine test` (the touched files' tests, fast tempo where the spec
     allows); one `renderOffline` of `sixteenBars` at 48 kHz; node count before/after `dispose()`;

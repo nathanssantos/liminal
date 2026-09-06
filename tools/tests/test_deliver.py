@@ -1,11 +1,23 @@
 from __future__ import annotations
 
+import json
+from collections.abc import Sequence
 from pathlib import Path
 
-from board.check import dead_mocks
-from board.deliver import comments_gate, commit_messages_gate, rebase_only
+from board.check import dead_mocks, report
+from board.deliver import (
+    comments_gate,
+    commit_messages_gate,
+    merge_pull_request,
+    rebase_only,
+    review_gate,
+)
+from board.github import GitHub
+from board.review import round_done
 from board.stale import missing_commands, missing_paths
 from tests.helpers import commit, repo_with_commit, run
+
+A_HEAD = "0123456789abcdef0123456789abcdef01234567"
 
 AGENTS = "## Commands\n\n| Command | Does |\n|---|---|\n| `pnpm ghost` | nothing |\n"
 
@@ -154,3 +166,143 @@ def test_the_mock_scan_finds_a_mock_left_in_product_code(tmp_path: Path) -> None
     source.write_text("const bpm = 128\nconst key = 'MOCK: not a real key'\n", encoding="utf-8")
 
     assert dead_mocks(tmp_path) == ["packages/score/index.ts:2"]
+
+
+def test_check_reports_on_the_tree_it_is_pointed_at(tmp_path: Path) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+    (root / "packages" / "score").mkdir(parents=True)
+    marked = root / "packages" / "score" / "x.ts"
+    marked.write_text("const a = 1 // MOCK: not real\n", encoding="utf-8")
+
+    given = report(root, "packages")
+
+    assert given["root"] == str(root)
+    assert given["deadMocks"] == ["packages/score/x.ts:1"]
+
+
+def test_the_review_gate_lets_a_branch_that_names_no_issue_through(tmp_path: Path) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+
+    given = review_gate(root, "docs/craft-book", "head")
+
+    assert given.passed is True
+
+
+def test_the_review_gate_refuses_a_branch_naming_an_issue_no_spec_claims(tmp_path: Path) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+
+    given = review_gate(root, "feat/999-a-card-that-does-not-exist", "head")
+
+    assert given.passed is False
+    assert given.detail == (
+        "branch feat/999-a-card-that-does-not-exist names issue 999, which no spec claims"
+    )
+
+
+def test_the_review_gate_reads_the_head_it_is_given_not_the_local_one(tmp_path: Path) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+    folder = root / "docs" / "specs" / "M1-sound"
+    folder.mkdir(parents=True)
+    (folder / "M1-06.md").write_text(
+        "---\nid: M1-06\ntitle: t\nmilestone: M1\narea: infra\npriority: P0\n"
+        "depends_on: []\nlistening: false\nissue: 55\n---\n\n## Context\n",
+        encoding="utf-8",
+    )
+    round_done(root, "M1-06", "deep", deep=True, measured=["tools/board/review.py"])
+
+    on_the_deep_head = review_gate(root, "feat/55-board-review", "deep")
+    on_another_head = review_gate(root, "feat/55-board-review", "somewhere-else")
+
+    assert on_the_deep_head.passed is True
+    assert on_another_head.passed is False
+
+
+class Answers:
+    def __init__(self, head: dict[str, str]) -> None:
+        self.head = head
+        self.calls: list[list[str]] = []
+
+    def __call__(self, arguments: Sequence[str], stdin: str | None) -> str:
+        self.calls.append(list(arguments))
+        return json.dumps(self.head)
+
+    def merged(self) -> bool:
+        return any(call[:2] == ["pr", "merge"] for call in self.calls)
+
+
+def a_card_named(root: Path, issue: int) -> None:
+    folder = root / "docs" / "specs" / "M1-sound"
+    folder.mkdir(parents=True, exist_ok=True)
+    (folder / "M1-06.md").write_text(
+        "---\nid: M1-06\ntitle: t\nmilestone: M1\narea: infra\npriority: P0\n"
+        f"depends_on: []\nlistening: false\nissue: {issue}\n---\n\n## Context\n",
+        encoding="utf-8",
+    )
+
+
+def test_merging_asks_the_pull_request_for_its_branch_and_head(tmp_path: Path) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+    a_card_named(root, 55)
+    answers = Answers({"headRefName": "feat/55-board-review", "headRefOid": A_HEAD})
+    github = GitHub(owner="o", name="n", runner=answers)
+
+    given = merge_pull_request(github, root, 7, {"verdict": "PASS", "gates": []})
+
+    assert answers.calls[0][:3] == ["pr", "view", "7"]
+    assert "headRefName,headRefOid" in answers.calls[0]
+    assert given["verdict"] == "FAIL"
+    assert given["gates"][-1]["detail"] == ["no deep pass recorded"]
+    assert answers.merged() is False
+
+
+def test_merging_refuses_when_the_head_and_the_branch_arrive_the_wrong_way_round(
+    tmp_path: Path,
+) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+    a_card_named(root, 55)
+    answers = Answers({"headRefName": A_HEAD, "headRefOid": "feat/55-board-review"})
+    github = GitHub(owner="o", name="n", runner=answers)
+
+    given = merge_pull_request(github, root, 7, {"verdict": "PASS", "gates": []})
+
+    assert given["verdict"] == "FAIL"
+    assert answers.merged() is False
+
+
+def test_merging_refuses_when_the_pull_request_answers_a_field_it_does_not_know(
+    tmp_path: Path,
+) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+    a_card_named(root, 55)
+    answers = Answers({"headRef": "feat/55-board-review", "headRefOid": A_HEAD})
+    github = GitHub(owner="o", name="n", runner=answers)
+
+    given = merge_pull_request(github, root, 7, {"verdict": "PASS", "gates": []})
+
+    assert given["verdict"] == "FAIL"
+    assert answers.merged() is False
+
+
+def test_merging_a_reviewed_pull_request_asks_github_to_squash_it(tmp_path: Path) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+    a_card_named(root, 55)
+    round_done(root, "M1-06", A_HEAD, deep=True, measured=["tools/board/review.py"])
+    answers = Answers({"headRefName": "feat/55-board-review", "headRefOid": A_HEAD})
+    github = GitHub(owner="o", name="n", runner=answers)
+
+    given = merge_pull_request(github, root, 7, {"verdict": "PASS", "gates": []})
+
+    assert given == {"merged": 7}
+    assert answers.calls[-1] == [
+        "pr", "merge", "7", "--repo", "o/n", "--squash", "--delete-branch",
+    ]
+
+
+def test_a_branch_whose_name_is_all_hexadecimal_still_passes(tmp_path: Path) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+    answers = Answers({"headRefName": "deadbeef", "headRefOid": A_HEAD})
+    github = GitHub(owner="o", name="n", runner=answers)
+
+    given = merge_pull_request(github, root, 7, {"verdict": "PASS", "gates": []})
+
+    assert given == {"merged": 7}

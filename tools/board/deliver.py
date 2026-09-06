@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import subprocess
 from dataclasses import dataclass
@@ -9,6 +10,8 @@ from pathlib import Path
 from typing import Any
 
 from board.context import Context, emit, git, repo_root
+from board.github import GitHub
+from board.review import card_for_issue, issue_in_branch, merge_blockers
 from board.stale import stale_docs
 
 GATES_LOG = Path("evidence") / "_gates"
@@ -16,6 +19,8 @@ COMMENT = re.compile(r"^\+\s*(//|/\*|#(?!\!)|\*\s)")
 
 PROSE_AND_LOCKS = (":!*.lock", ":!*lock.yaml", ":!*.md", ":!*.json")
 ALLOWED_COMMENT = re.compile(r"biome-ignore|eslint-disable|noqa|type:\s*ignore|TODO\(#\d+\)|MOCK:")
+COMMIT = re.compile(r"^[0-9a-f]{40}$")
+
 CONVENTIONAL = re.compile(
     r"^(feat|fix|docs|chore|ci|refactor|test|perf|build|style|revert)(\([a-z0-9-]+\))?!?: .+"
 )
@@ -78,6 +83,54 @@ def rebase_only(root: Path, base: str = "origin/main") -> dict[str, Any]:
     return {"verdict": "OK", "commits": after, "behind": behind}
 
 
+def review_gate(root: Path, branch: str, head: str) -> Gate:
+    issue = issue_in_branch(branch)
+    if issue is None:
+        return Gate("review", True, f"branch {branch} names no issue, so there is no review")
+    card = card_for_issue(root, issue)
+    if card is None:
+        return Gate("review", False, f"branch {branch} names issue {issue}, which no spec claims")
+    reasons = merge_blockers(root, card, head)
+    return Gate("review", not reasons, reasons)
+
+
+def pull_request_head(github: GitHub, number: int) -> tuple[str, str]:
+    output = github.runner(
+        [
+            "pr", "view", str(number), "--repo", github.repo,
+            "--json", "headRefName,headRefOid",
+        ],
+        None,
+    )
+    seen = json.loads(output)
+    return str(seen.get("headRefName", "")), str(seen.get("headRefOid", ""))
+
+
+def merge_pull_request(
+    github: GitHub, root: Path, number: int, verdict: dict[str, Any]
+) -> dict[str, Any]:
+    branch, head = pull_request_head(github, number)
+    review = (
+        review_gate(root, branch, head)
+        if branch and COMMIT.match(head)
+        else Gate(
+            "review", False, f"pull request {number} answered branch {branch!r}, head {head!r}"
+        )
+    )
+    verdict["gates"].append(
+        {"name": review.name, "passed": review.passed, "detail": review.detail}
+    )
+    if not review.passed:
+        verdict["verdict"] = "FAIL"
+    if verdict["verdict"] != "PASS":
+        return verdict
+    github.runner(
+        ["pr", "merge", str(number), "--repo", github.repo, "--squash", "--delete-branch"],
+        None,
+    )
+    return {"merged": number}
+
+
 def gates(root: Path) -> dict[str, Any]:
     collected = [
         check_gate(root),
@@ -134,15 +187,7 @@ def main(argv: list[str] | None = None) -> int:
         )
         return emit({"ready": arguments.ready})
     if arguments.merge:
-        verdict = gates(root)
-        if verdict["verdict"] != "PASS":
-            return emit(verdict)
-        context.github.runner(
-            ["pr", "merge", str(arguments.merge), "--repo", context.github.repo,
-             "--squash", "--delete-branch"],
-            None,
-        )
-        return emit({"merged": arguments.merge})
+        return emit(merge_pull_request(context.github, root, arguments.merge, gates(root)))
     parser.print_help()
     return 1
 

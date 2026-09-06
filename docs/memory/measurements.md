@@ -22,6 +22,9 @@
 | 2026-09-06 | one `engine-reviewer` round on M1-02, measure mode, own worktree + `pnpm install` | **25.8 min**, 51 tool calls, 114k tokens; second round 13.1 min, 51 calls, 107k | the loop's session log | `review`: why two passes and a prepared worktree |
 | 2026-09-06 | the machine's `test-engineer` on M1-02 | **~52 min** | the loop's session log | `review`: the project override with a 30-min budget |
 | 2026-09-06 | rounds on M1-02 before the deep-pass rule | 3 rounds × 6 agents + 2 engine-only rounds | the loop's report | `review`: the 3-fast-rounds limit and the single deep pass |
+| 2026-09-06 | `board.review --prepare`, first call against a reuse | **1.1–1.8 s** to add the worktree and install from the warm store, **30–60 ms** to reuse it; the tree is **280–360 MB** of hardlinks, and grows with the lockfile | `board.review --card M1-06 --prepare` twice on the same head, node 24.18.0, pnpm 11.20.0 | `review`: one prepared tree per round instead of one install per agent |
+| 2026-09-06 | a fast review pass against the deep passes it replaces | fast pass **5.2 min**, 13 tool calls, 67k tokens · deep passes on the same card **25.8**, **13.1** and **8.6 min**, 51/51/29 tool calls, 114k/107k/93k tokens | `engine-reviewer` on M1-02, `mode: read` on a prepared worktree against `mode: measure` rounds | `review`: the fast pass is the round, the deep pass happens once |
+| 2026-09-06 | `board.review --scratch`, a throwaway worktree with its own offline install | **1.1–1.6 s**, and `pnpm --filter score test` runs in it. Sharing the prepared tree's `node_modules` through a symlink instead: pnpm refuses with `ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY` and would purge the shared install | the real repo, pnpm 11.20.0, node 24.18.0 | `review`: what a reverting agent gets |
 
 ## To measure in the first milestones
 
