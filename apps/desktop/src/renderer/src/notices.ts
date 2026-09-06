@@ -35,6 +35,13 @@ export const LOAD_GAVE_UP: Notice = {
   tone: 'error',
 }
 
+export const BRIDGE_MISSING: Notice = {
+  code: 'bridge-missing',
+  title: 'The app cannot reach its own audio.',
+  detail: 'Reopen the app to try again.',
+  tone: 'error',
+}
+
 export const CHANNEL_REFUSED: Notice = {
   code: 'channel-refused',
   title: 'Something the app sent was not understood, so it was not applied.',

@@ -12,8 +12,10 @@ export default defineConfig({
   },
   preload: {
     build: {
+      externalizeDeps: false,
       rollupOptions: {
         input: 'src/preload/index.ts',
+        output: { format: 'cjs', entryFileNames: 'index.cjs' },
       },
     },
   },

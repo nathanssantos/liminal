@@ -19,6 +19,6 @@ describe('the main window', () => {
   })
 
   it('loads the preload bundle from the given directory', () => {
-    expect(mainWindowOptions('/out/preload').webPreferences.preload).toBe('/out/preload/index.mjs')
+    expect(mainWindowOptions('/out/preload').webPreferences.preload).toBe('/out/preload/index.cjs')
   })
 })

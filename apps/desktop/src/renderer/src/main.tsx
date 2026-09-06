@@ -3,6 +3,8 @@ import { createRoot } from 'react-dom/client'
 import type { Bridge } from '../../preload/bridge.ts'
 import { App } from './App.tsx'
 import { connect } from './live.ts'
+import { BRIDGE_MISSING } from './notices.ts'
+import { useShell } from './store.ts'
 import './index.css'
 
 declare global {
@@ -14,7 +16,11 @@ declare global {
 const container = document.getElementById('root')
 if (!container) throw new Error('the renderer root element is missing')
 
-connect(window.liminal, navigator.mediaDevices)
+if (window.liminal) {
+  connect(window.liminal, navigator.mediaDevices)
+} else {
+  useShell.getState().raise(BRIDGE_MISSING)
+}
 
 createRoot(container).render(
   <StrictMode>

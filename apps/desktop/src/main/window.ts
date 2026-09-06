@@ -25,7 +25,7 @@ export function mainWindowOptions(preloadDirectory: string): WindowOptions {
     show: false,
     backgroundColor: WINDOW_BACKGROUND,
     webPreferences: {
-      preload: join(preloadDirectory, 'index.mjs'),
+      preload: join(preloadDirectory, 'index.cjs'),
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,

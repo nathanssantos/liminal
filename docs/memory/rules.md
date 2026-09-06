@@ -295,6 +295,18 @@
 - 🔴 **Vitest stubs every CSS import, `?raw` included, unless `test.css: true`.** A module that
   parses its own stylesheet reads an empty string and fails silently in tests while working in the
   real build. (measured 2026-09-06 on `@liminal/ui`)
+- 🔴 **`build.externalizeDeps: false` is the option that stops electron-vite externalising a
+  workspace package** — `ssr.noExternal`, `rollupOptions.external` and a `resolve.alias` to the
+  source are all ignored, and each one produced a byte-identical bundle that still carried
+  `require("@liminal/protocol")`. The preload needs it: it runs sandboxed, so it must be **CJS**
+  (`output.format: 'cjs'`; an ESM preload dies with `Cannot use import statement outside a module`)
+  **and** self-contained, because `require` of a TypeScript workspace package fails at runtime.
+  Both failures are silent to lint, types and every test — the window simply comes up blank.
+  (measured 2026-09-06, electron-vite 5.0.0)
+- 🔴 **A renderer that throws before `createRoot` shows a white window, not an error.** The shell
+  called `connect(window.liminal, …)` at module scope; with no preload the whole screen was blank
+  with one line in a console nobody had open. Render first, and let a missing bridge become a
+  strip the person can read.
 - 🔴 **electron-vite keeps a workspace package external in the main bundle**, whatever
   `ssr.noExternal` or `rollupOptions.external` say. So anything the main process imports from a
   workspace package must be a file **Node can run as it is** — plain `.mjs`, no TypeScript, no
