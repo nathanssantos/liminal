@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+import os
 import shutil
 from collections.abc import Sequence
 from pathlib import Path
@@ -9,6 +11,7 @@ from board.review import (
     card_on_this_branch,
     clean_scratch,
     load_state,
+    main,
     prepare,
     record_findings,
     review_blockers,
@@ -232,3 +235,30 @@ def test_no_card_when_the_branch_names_no_issue(tmp_path: Path) -> None:
     run(root, "checkout", "-b", "docs/whatever")
 
     assert card_on_this_branch(root) is None
+
+
+def test_a_measured_directory_covers_the_files_under_it(tmp_path: Path) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+    round_done(root, "M1-02", "deep", deep=True, measured=["packages/engine"])
+
+    assert review_blockers(root, "M1-02", "later", ["docs/journal.md"]) == []
+    assert review_blockers(root, "M1-02", "later", ["packages/engine/src/engine.ts"]) == [
+        "the deep pass was not run on later, and it measured packages/engine/src/engine.ts"
+    ]
+
+
+def test_findings_are_written_through_the_command_line(tmp_path: Path) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+    given = root / "findings.json"
+    given.write_text(
+        json.dumps([{"severity": "blocking", "status": "open", "summary": "the tail rewinds"}]),
+        encoding="utf-8",
+    )
+    here = Path.cwd()
+    try:
+        os.chdir(root)
+        main(["--card", "M1-02", "--findings", str(given)])
+    finally:
+        os.chdir(here)
+
+    assert [f["summary"] for f in load_state(root, "M1-02")["findings"]] == ["the tail rewinds"]

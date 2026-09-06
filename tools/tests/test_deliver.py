@@ -3,7 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 
 from board.check import dead_mocks, report
-from board.deliver import comments_gate, commit_messages_gate, rebase_only
+from board.deliver import comments_gate, commit_messages_gate, rebase_only, review_gate
+from board.review import round_done
 from board.stale import missing_commands, missing_paths
 from tests.helpers import commit, repo_with_commit, run
 
@@ -166,3 +167,21 @@ def test_check_reports_on_the_tree_it_is_pointed_at(tmp_path: Path) -> None:
 
     assert given["root"] == str(root)
     assert given["deadMocks"] == ["packages/score/x.ts:1"]
+
+
+def test_the_review_gate_lets_a_branch_without_a_card_through(tmp_path: Path) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+
+    given = review_gate(root, None)
+
+    assert given.passed is True
+
+
+def test_the_review_gate_stops_a_card_whose_deep_pass_never_ran(tmp_path: Path) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+    round_done(root, "M1-06", "head")
+
+    given = review_gate(root, "M1-06")
+
+    assert given.passed is False
+    assert given.detail == ["no deep pass recorded"]

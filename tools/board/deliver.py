@@ -81,7 +81,7 @@ def rebase_only(root: Path, base: str = "origin/main") -> dict[str, Any]:
 
 def review_gate(root: Path, card: str | None) -> Gate:
     if card is None:
-        return Gate("review", False, "the branch does not name an issue with a card")
+        return Gate("review", True, "the branch carries no card, so there is no review to check")
     reasons = merge_blockers(root, card, git(root, "rev-parse", "HEAD"))
     return Gate("review", not reasons, reasons)
 

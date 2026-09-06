@@ -136,7 +136,11 @@ def scratch(
     head = git(root, "rev-parse", "HEAD")
     room = prepared.parent / f"{prepared.name}-scratch"
     room.mkdir(parents=True, exist_ok=True)
-    path = room / f"copy-{len(list(room.iterdir()))}"
+    taken = len(list(room.iterdir()))
+    path = room / f"copy-{taken}"
+    while path.exists():
+        taken += 1
+        path = room / f"copy-{taken}"
     runner(["git", "worktree", "add", "--detach", str(path), head], root)
     if runner(["pnpm", "install", "--offline"], path) != 0:
         runner(["pnpm", "install"], path)
@@ -195,6 +199,10 @@ def open_blocking(state: dict[str, Any]) -> list[dict[str, Any]]:
     ]
 
 
+def under_any(path: str, measured: list[str]) -> bool:
+    return any(path == entry or path.startswith(entry.rstrip("/") + "/") for entry in measured)
+
+
 def review_blockers(root: Path, card: str, head: str, changed: list[str]) -> list[str]:
     state = load_state(root, card)
     reasons = [
@@ -206,8 +214,8 @@ def review_blockers(root: Path, card: str, head: str, changed: list[str]) -> lis
         return reasons
     if deep == head:
         return reasons
-    measured = set(state.get("measured", []))
-    touched = sorted(path for path in changed if path in measured)
+    measured = state.get("measured", [])
+    touched = sorted(path for path in changed if under_any(path, measured))
     if touched:
         reasons.append(f"the deep pass was not run on {head}, and it measured {', '.join(touched)}")
     return reasons
@@ -235,6 +243,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--round-done", action="store_true")
     parser.add_argument("--deep", action="store_true")
     parser.add_argument("--measured", nargs="*", default=[])
+    parser.add_argument("--findings")
     arguments = parser.parse_args(argv)
 
     root = repo_root()
@@ -247,6 +256,9 @@ def main(argv: list[str] | None = None) -> int:
         if arguments.clean:
             return emit(clean_scratch(root, card))
         return emit(scratch(root, card))
+    if arguments.findings:
+        given = json.loads(Path(arguments.findings).read_text(encoding="utf-8"))
+        return emit(record_findings(root, card, given))
     if arguments.round_done:
         head = git(root, "rev-parse", "HEAD")
         return emit(round_done(root, card, head, deep=arguments.deep,

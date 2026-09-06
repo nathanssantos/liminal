@@ -284,8 +284,9 @@
   *next* commit, and the gate's "diff since the deep pass touches nothing measured" rule is what
   covers the gap. (measured 2026-09-06)
 - ⚠️ **A reviewer never works in the loop's working copy.** It works on the prepared worktree at a
-  pinned commit; rebasing or pushing the branch then changes nothing under it. (rule from the same
-  card: a rebase mid-review moved the ground under an agent)
+  pinned commit; rebasing or pushing the branch then changes nothing under it. ⚠️ Preparing a *new*
+  head does drop the previous tree, so let a round finish before preparing the next. (rule from the
+  same card: a rebase mid-review moved the ground under an agent)
 - 🔴 **Never share a pnpm `node_modules` through a symlink.** pnpm reads the linked directory as
   invalid, asks to purge it, and with no TTY fails outright — and had it succeeded it would have
   taken the prepared tree's install with it. A throwaway worktree with its own offline install costs
