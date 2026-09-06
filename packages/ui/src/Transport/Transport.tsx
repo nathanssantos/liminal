@@ -53,7 +53,6 @@ export function Transport({
   ref,
 }: TransportProps) {
   const playing = state === 'playing'
-  const buttonSize = size === 'lg' ? 'lg' : 'md'
   const stopDisabled = state === 'stopped'
 
   return (
@@ -66,7 +65,7 @@ export function Transport({
     >
       <Button
         variant="primary"
-        size={buttonSize}
+        size={size}
         label={playing ? labels.pause : labels.play}
         iconStart={playing ? <PauseIcon /> : <PlayIcon />}
         loading={state === 'starting'}
@@ -77,7 +76,7 @@ export function Transport({
       />
       <Button
         variant="quiet"
-        size={buttonSize}
+        size={size}
         iconOnly
         label={labels.stop}
         iconStart={<StopIcon />}

@@ -42,13 +42,13 @@ props are in **bold**; the rest carry the default shown.
 | Component | Job | Props | On | Since |
 |---|---|---|---|---|
 | `tokens.css` | colour, space, radius, type, motion — roles, not values; both themes | — | — | M1-07 |
-| `Button` | an action | **`label`**, `variant` `'quiet'`, `size` `'md'`, `iconStart`, `iconEnd`, `iconOnly` `false`, `loading` `false`, `busyLabel` `'Working…'`, `disabled` `false`, `disabledReason`, `type` `'button'`, `asChild` `false`, `children`, `onClick` | Radix Slot | M1-07 |
+| `Button` | an action | **`label`**, `variant` `'quiet'`, `size` `'md'`, `iconStart`, `iconEnd`, `iconOnly` `false`, `loading` `false`, `busyLabel` `'Working…'`, `disabled` `false`, `disabledReason`, `asChild` `false`, `children`, `onClick` | Radix Slot | M1-07 |
 | `Toggle` | a two-state control with a name (mute, solo, a layer) | **`label`**, **`pressed`**, **`onPressedChange`**, `tone` `'accent'`, `size` `'md'`, `stateLabel` `{ on: 'on', off: 'off' }`, `disabled` `false`, `disabledReason` | Radix Toggle | M1-07 |
 | `Slider` | a value in a range with keyboard steps (volume, trims, dwell) | **`label`**, **`value`**, **`onValueChange`**, **`min`**, **`max`**, `onValueCommit`, `step` `1`, `largeStep` `step * 10`, `format` `String`, `orientation` `'horizontal'`, `showValue` `'always'`, `ticks`, `size` `'md'`, `disabled` `false`, `disabledReason` | Radix Slider | M1-07 |
 | `Select` | one of the system's options (output device) | **`label`**, **`value`**, **`onValueChange`**, **`items`**, `hideLabel` `false`, `placeholder` `'Choose…'`, `emptyLabel` `'Nothing to choose from'`, `loading` `false`, `invalid` `false`, `size` `'md'`, `disabled` `false`, `disabledReason` | Radix Select | M1-07 |
 | `Readout` | tempo · key · `bar:beat` · elapsed, `tabular-nums`, no layout shift | `tempo` `null`, `musicalKey` `null`, `bar` `null`, `beat` `null`, `elapsedMs` `null`, `playing` `false`, `size` `'md'`, `labels` | ours | M1-07 |
 | `Transport` | play / pause / stop with state visible without colour | **`state`**, **`onPlay`**, **`onPause`**, **`onStop`**, `beatPulseKey`, `canPlay` `true`, `disabledReason`, `labels`, `size` `'lg'` | ours + Button | M1-07 |
-| `ErrorStrip` | what went wrong and the one action | **`title`**, `detail`, `tone` `'error'`, `action`, `onDismiss`, `focusOnDismiss` | ours | M1-07 |
+| `ErrorStrip` | what went wrong and the one action | **`title`**, `detail`, `tone` `'error'`, `action`, `dismissal` (`onDismiss` and `focusOnDismiss` together, so a strip that closes always says where focus lands) | ours | M1-07 |
 | `Tooltip`, `Dialog`, `Popover`, `Tabs`, `Switch`, `Checkbox`, `Dropdown` | as needed | — | Radix | when a screen asks |
 | `Knob` | a rotary value with a centre detent (the filter sweep) | — | ours | M4 |
 | `Fader`, `Meter` | a level and the signal | — | ours | M4–M5 |

@@ -10,8 +10,16 @@ const meta = {
     label: { control: 'text' },
     pressed: { control: 'boolean' },
     onPressedChange: { action: 'pressedChange' },
-    tone: { control: 'inline-radio', options: ['accent', 'neutral', 'warn'] },
-    size: { control: 'inline-radio', options: ['sm', 'md', 'lg'] },
+    tone: {
+      control: 'inline-radio',
+      options: ['accent', 'neutral', 'warn'],
+      table: { defaultValue: { summary: 'accent' } },
+    },
+    size: {
+      control: 'inline-radio',
+      options: ['sm', 'md', 'lg'],
+      table: { defaultValue: { summary: 'md' } },
+    },
     stateLabel: { control: 'object' },
     disabled: { control: 'boolean' },
     disabledReason: { control: 'text' },

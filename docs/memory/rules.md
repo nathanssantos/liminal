@@ -311,6 +311,24 @@
 - ⚠️ **jsdom cannot judge colour contrast**, so `axe` reports it as incomplete rather than as a
   violation. Contrast is a unit test over `tokens.css` with the WCAG formula, plus the reviewer's
   measurement on the real screen.
+- 🔴 **A `prefers-reduced-motion` override must be at least as specific as the rule it cancels.**
+  `.lm-transport-shape[data-pulse] { animation: none }` lost to
+  `.lm-transport-shape[data-shape="playing"][data-pulse]`, so the beat kept pulsing with the
+  preference on. Lint, types and every test passed; only `emulateMedia({ reducedMotion: 'reduce' })`
+  plus a computed-style read found it. Every motion switch is measured, both ways. (measured
+  2026-09-06)
+- 🔴 **A Radix component goes uncontrolled the moment its `value` prop is absent.** Building the
+  prop conditionally (`{...(value === null ? {} : { value })}`, the shape
+  `exactOptionalPropertyTypes` pushes you towards) makes the trigger show a choice the consumer
+  never accepted, and a reset to `null` leaves the old label on screen. Pass a controlled empty
+  value instead. (measured 2026-09-06 with a probe test)
+- 🔴 **`axe` in jsdom sees only what is inside the element you hand it.** Radix portals its panel
+  into `document.body`, so scanning the render container checks everything except the part most
+  likely to be wrong. Scan `document.body`, and turn off `region` — a component rendered on its own
+  is never inside a landmark. (measured 2026-09-06)
+- ⚠️ **A gate that walks the tree must assert it walked something.** The loose-value scan globbed
+  from `process.cwd()`, so from any other directory it returned an empty list and the gate passed
+  green over zero files. It resolves from its own module now and asserts a file count first.
 
 ## review
 

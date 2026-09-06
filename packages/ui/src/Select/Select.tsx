@@ -30,6 +30,9 @@ export type SelectProps = {
   ref?: Ref<HTMLButtonElement>
 }
 
+const NO_VALUE = ''
+const SIDE_OFFSET = 4
+
 export function Select({
   label,
   value,
@@ -58,11 +61,7 @@ export function Select({
       <span className={hideLabel ? 'lm-hidden-text' : 'lm-select-label'} id={labelId}>
         {label}
       </span>
-      <RadixSelect.Root
-        {...(value === null ? {} : { value })}
-        onValueChange={onValueChange}
-        disabled={unusable}
-      >
+      <RadixSelect.Root value={value ?? NO_VALUE} onValueChange={onValueChange} disabled={unusable}>
         <RadixSelect.Trigger
           ref={ref}
           id={id}
@@ -87,32 +86,33 @@ export function Select({
           </RadixSelect.Icon>
         </RadixSelect.Trigger>
         <RadixSelect.Portal>
-          <RadixSelect.Content className="lm-select-content" position="popper" align="start">
+          <RadixSelect.Content
+            className="lm-select-content"
+            position="popper"
+            align="start"
+            sideOffset={SIDE_OFFSET}
+          >
             <RadixSelect.Viewport className="lm-select-viewport">
-              {empty ? (
-                <div className="lm-select-empty">{emptyLabel}</div>
-              ) : (
-                items.map((item) => (
-                  <RadixSelect.Item
-                    key={item.value}
-                    value={item.value}
-                    disabled={item.disabled ?? false}
-                    className="lm-select-item"
-                  >
-                    <span className="lm-select-check">
-                      <RadixSelect.ItemIndicator>
-                        <CheckIcon />
-                      </RadixSelect.ItemIndicator>
-                    </span>
-                    <span className="lm-select-item-text">
-                      <RadixSelect.ItemText>{item.label}</RadixSelect.ItemText>
-                      {item.description ? (
-                        <span className="lm-select-item-description">{item.description}</span>
-                      ) : null}
-                    </span>
-                  </RadixSelect.Item>
-                ))
-              )}
+              {items.map((item) => (
+                <RadixSelect.Item
+                  key={item.value}
+                  value={item.value}
+                  disabled={item.disabled ?? false}
+                  className="lm-select-item"
+                >
+                  <span className="lm-select-check">
+                    <RadixSelect.ItemIndicator>
+                      <CheckIcon />
+                    </RadixSelect.ItemIndicator>
+                  </span>
+                  <span className="lm-select-item-text">
+                    <RadixSelect.ItemText>{item.label}</RadixSelect.ItemText>
+                    {item.description ? (
+                      <span className="lm-select-item-description">{item.description}</span>
+                    ) : null}
+                  </span>
+                </RadixSelect.Item>
+              ))}
             </RadixSelect.Viewport>
           </RadixSelect.Content>
         </RadixSelect.Portal>

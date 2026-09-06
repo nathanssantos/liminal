@@ -84,7 +84,9 @@ export function Slider({
     const next = Math.min(max, Math.max(min, value + (event.key === 'PageUp' ? page : -page)))
     markChanging()
     stopChanging()
-    if (next !== value) onValueChange(next)
+    if (next === value) return
+    onValueChange(next)
+    onValueCommit?.(next)
   }
 
   const valueVisible = showValue === 'always' || (showValue === 'while-changing' && changing)

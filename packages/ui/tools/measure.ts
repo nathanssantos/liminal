@@ -112,6 +112,28 @@ for (const name of ['Playing Short Values', 'Playing', 'Playing Long Values']) {
 }
 measured.readoutDigitGrowth = readoutSteps
 
+await open(page, idOf('Controls/Transport', 'Reduced Motion'))
+measured.motion = await page.evaluate(() => {
+  const shape = document.querySelector('.lm-transport-shape') as HTMLElement
+  const button = document.querySelector('.lm-button') as HTMLElement
+  return {
+    beatAnimation: getComputedStyle(shape).animationName,
+    transitionDuration: getComputedStyle(button).transitionDuration,
+  }
+})
+
+await page.emulateMedia({ reducedMotion: 'reduce' })
+await open(page, idOf('Controls/Transport', 'Reduced Motion'))
+measured.motionReduced = await page.evaluate(() => {
+  const shape = document.querySelector('.lm-transport-shape') as HTMLElement
+  const button = document.querySelector('.lm-button') as HTMLElement
+  return {
+    beatAnimation: getComputedStyle(shape).animationName,
+    transitionDuration: getComputedStyle(button).transitionDuration,
+  }
+})
+await page.emulateMedia({ reducedMotion: 'no-preference' })
+
 const smallestText: Record<number, number> = {}
 for (const width of WIDTHS) {
   await page.setViewportSize({ width, height: HEIGHT })

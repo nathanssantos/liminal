@@ -44,7 +44,11 @@ const meta = {
     emptyLabel: { control: 'text' },
     loading: { control: 'boolean' },
     invalid: { control: 'boolean' },
-    size: { control: 'inline-radio', options: ['sm', 'md', 'lg'] },
+    size: {
+      control: 'inline-radio',
+      options: ['sm', 'md', 'lg'],
+      table: { defaultValue: { summary: 'md' } },
+    },
     disabled: { control: 'boolean' },
     disabledReason: { control: 'text' },
     className: { control: false },

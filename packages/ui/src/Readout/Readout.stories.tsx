@@ -14,7 +14,11 @@ const meta = {
     beat: { control: 'number' },
     elapsedMs: { control: 'number' },
     playing: { control: 'boolean' },
-    size: { control: 'inline-radio', options: ['md', 'lg'] },
+    size: {
+      control: 'inline-radio',
+      options: ['md', 'lg'],
+      table: { defaultValue: { summary: 'md' } },
+    },
     labels: { control: 'object' },
     className: { control: false },
     id: { control: false },

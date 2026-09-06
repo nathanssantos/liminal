@@ -10,7 +10,11 @@ const meta = {
   component: Transport,
   args: { state: 'stopped', onPlay: fn(), onPause: fn(), onStop: fn() },
   argTypes: {
-    state: { control: 'inline-radio', options: ['stopped', 'starting', 'playing', 'paused'] },
+    state: {
+      control: 'inline-radio',
+      options: ['stopped', 'starting', 'playing', 'paused'],
+      table: { defaultValue: { summary: 'stopped' } },
+    },
     onPlay: { action: 'play' },
     onPause: { action: 'pause' },
     onStop: { action: 'stop' },
@@ -18,7 +22,11 @@ const meta = {
     canPlay: { control: 'boolean' },
     disabledReason: { control: 'text' },
     labels: { control: 'object' },
-    size: { control: 'inline-radio', options: ['md', 'lg'] },
+    size: {
+      control: 'inline-radio',
+      options: ['md', 'lg'],
+      table: { defaultValue: { summary: 'lg' } },
+    },
     className: { control: false },
     id: { control: false },
     ref: { control: false },
@@ -58,6 +66,8 @@ function Beating() {
 }
 
 export const PlayingWithBeat: Story = { render: () => <Beating /> }
+
+export const ReducedMotion: Story = { args: { state: 'playing', beatPulseKey: 1 } }
 
 export const StopIsDeliberate: Story = {
   play: async ({ canvasElement }) => {

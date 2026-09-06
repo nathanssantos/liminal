@@ -7,8 +7,16 @@ import { declaredPropNames } from './test/props.ts'
 
 type StoryModule = Parameters<typeof composeStories>[0]
 
+type ArgType = {
+  control?: unknown
+  options?: string[]
+  description?: string
+  table?: { defaultValue?: { summary?: string } }
+}
+
 type PortableStory = ((props?: Record<string, unknown>) => ReactElement) & {
-  argTypes: Record<string, unknown>
+  args: Record<string, unknown>
+  argTypes: Record<string, ArgType>
   play?: (context: { canvasElement: HTMLElement }) => Promise<void>
 }
 
@@ -20,7 +28,10 @@ const sources = import.meta.glob<string>('./*/*.tsx', {
   import: 'default',
 })
 
-const JSDOM_CANNOT_MEASURE = { 'color-contrast': { enabled: false } }
+const NOT_A_PAGE = {
+  'color-contrast': { enabled: false },
+  region: { enabled: false },
+}
 
 for (const [path, module] of Object.entries(modules)) {
   const component = path.replace(/^.*\/([^/]+)\.stories\.tsx$/, '$1')
@@ -28,25 +39,57 @@ for (const [path, module] of Object.entries(modules)) {
   const stories = Object.entries(composed) as [string, PortableStory][]
 
   describe(component, () => {
+    const first = stories[0]?.[1]
+    if (!first) throw new Error(`${component} has no story`)
+
     it('declares an argType for every prop its type declares', () => {
       const source = sources[`./${component}/${component}.tsx`]
       if (!source) throw new Error(`no source found for ${component}`)
       const declared = declaredPropNames(source, `${component}Props`)
-      const first = stories[0]?.[1]
-      if (!first) throw new Error(`${component} has no story`)
+      expect(declared.length).toBeGreaterThan(2)
       const controlled = Object.keys(first.argTypes)
       expect(declared.filter((name) => !controlled.includes(name))).toEqual([])
     })
 
-    it('has a named story for every state and variant', () => {
-      expect(stories.length).toBeGreaterThan(1)
+    it('gives every prop a control, or says in words why it has none', () => {
+      const withoutControl = Object.entries(first.argTypes).filter(
+        ([, argType]) => argType.control === false && argType.description === undefined,
+      )
+      expect(withoutControl.map(([name]) => name)).toEqual([])
+    })
+
+    const variants = Object.entries(first.argTypes).filter(([, argType]) =>
+      Array.isArray(argType.options),
+    )
+
+    it('has a named story for every value of every variant prop', () => {
+      expect(variants.length).toBeGreaterThan(0)
+      const covered = new Set(
+        variants.flatMap(([prop, argType]) => {
+          const byDefault = argType.table?.defaultValue?.summary
+          if (byDefault === undefined) throw new Error(`${prop} declares no default in its argType`)
+          return [
+            `${prop}:${byDefault}`,
+            ...stories
+              .map(([, story]) => story.args[prop])
+              .filter((value) => value !== undefined)
+              .map((value) => `${prop}:${String(value)}`),
+          ]
+        }),
+      )
+      const missing = variants.flatMap(([prop, argType]) =>
+        (argType.options ?? [])
+          .filter((option) => !covered.has(`${prop}:${option}`))
+          .map((option) => `${prop}=${option}`),
+      )
+      expect(missing).toEqual([])
     })
 
     for (const [name, Story] of stories) {
       it(`${name} renders, plays its interaction and passes axe`, async () => {
         const { container } = render(<Story />)
         await Story.play?.({ canvasElement: container })
-        const results = await axe.run(container, { rules: JSDOM_CANNOT_MEASURE })
+        const results = await axe.run(document.body, { rules: NOT_A_PAGE })
         expect(results.violations.map((violation) => violation.id)).toEqual([])
       })
     }

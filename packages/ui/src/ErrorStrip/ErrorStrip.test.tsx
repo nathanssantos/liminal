@@ -15,10 +15,12 @@ function Recoverable({ onDismiss }: { onDismiss: () => void }) {
         <ErrorStrip
           title="We could not reach the audio device."
           action={{ label: 'Try again', onAction: () => {} }}
-          focusOnDismiss={anchor}
-          onDismiss={() => {
-            setOpen(false)
-            onDismiss()
+          dismissal={{
+            focusOnDismiss: anchor,
+            onDismiss: () => {
+              setOpen(false)
+              onDismiss()
+            },
           }}
         />
       ) : null}
@@ -42,7 +44,7 @@ describe('ErrorStrip', () => {
       <ErrorStrip
         title="We could not reach the audio device."
         action={{ label: 'Try again', onAction }}
-        onDismiss={onDismiss}
+        dismissal={{ onDismiss, focusOnDismiss: { current: null } }}
       />,
     )
     await userEvent.tab()
@@ -55,11 +57,23 @@ describe('ErrorStrip', () => {
 
   it('leaves Escape to whatever else is open', async () => {
     const onDismiss = vi.fn()
-    render(<ErrorStrip title="We could not reach the audio device." onDismiss={onDismiss} />)
+    render(
+      <ErrorStrip
+        title="We could not reach the audio device."
+        dismissal={{ onDismiss, focusOnDismiss: { current: null } }}
+      />,
+    )
     await userEvent.tab()
     await userEvent.keyboard('{Escape}')
     expect(onDismiss).not.toHaveBeenCalled()
     expect(screen.getByRole('alert')).toBeInTheDocument()
+  })
+
+  it('moves focus before it unmounts, so the keyboard never lands on the body', async () => {
+    const onDismiss = vi.fn()
+    render(<Recoverable onDismiss={onDismiss} />)
+    await userEvent.click(screen.getByRole('button', { name: 'Dismiss' }))
+    expect(document.activeElement).not.toBe(document.body)
   })
 
   it('sends focus where the consumer asked after it closes', async () => {

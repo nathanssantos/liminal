@@ -1,4 +1,4 @@
-import type { RefObject } from 'react'
+import type { Ref, RefObject } from 'react'
 import { Button } from '../Button/Button.tsx'
 import { AlertIcon, CloseIcon } from '../icons.tsx'
 import './ErrorStrip.css'
@@ -10,15 +10,20 @@ export type ErrorStripAction = {
   onAction: () => void
 }
 
+export type ErrorStripDismissal = {
+  onDismiss: () => void
+  focusOnDismiss: RefObject<HTMLElement | null>
+}
+
 export type ErrorStripProps = {
   title: string
   detail?: string
   tone?: ErrorStripTone
   action?: ErrorStripAction
-  onDismiss?: () => void
-  focusOnDismiss?: RefObject<HTMLElement | null>
+  dismissal?: ErrorStripDismissal
   className?: string
   id?: string
+  ref?: Ref<HTMLDivElement>
 }
 
 const DISMISS_LABEL = 'Dismiss'
@@ -28,13 +33,14 @@ export function ErrorStrip({
   detail,
   tone = 'error',
   action,
-  onDismiss,
-  focusOnDismiss,
+  dismissal,
   className,
   id,
+  ref,
 }: ErrorStripProps) {
   return (
     <div
+      ref={ref}
       id={id}
       className={['lm-error-strip', className].filter(Boolean).join(' ')}
       data-tone={tone}
@@ -50,7 +56,7 @@ export function ErrorStrip({
       {action ? (
         <Button variant="quiet" size="sm" label={action.label} onClick={action.onAction} />
       ) : null}
-      {onDismiss ? (
+      {dismissal ? (
         <Button
           variant="quiet"
           size="sm"
@@ -58,8 +64,8 @@ export function ErrorStrip({
           label={DISMISS_LABEL}
           iconStart={<CloseIcon />}
           onClick={() => {
-            onDismiss()
-            focusOnDismiss?.current?.focus()
+            dismissal.focusOnDismiss.current?.focus()
+            dismissal.onDismiss()
           }}
         />
       ) : null}

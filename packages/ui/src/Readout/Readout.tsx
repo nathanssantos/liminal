@@ -71,7 +71,7 @@ function Field({
           className="lm-readout-value"
           data-field={field}
           {...(live ? { 'data-live': '' } : {})}
-          {...(missing ? { 'data-missing': '' } : {})}
+          {...(missing ? { 'data-missing': '', 'aria-hidden': true } : {})}
         >
           {missing ? MISSING : value}
         </span>

@@ -9,8 +9,16 @@ const meta = {
   args: { label: 'Start the set', onClick: fn() },
   argTypes: {
     label: { control: 'text', description: 'The accessible name, and the visible text' },
-    variant: { control: 'inline-radio', options: ['primary', 'quiet', 'danger'] },
-    size: { control: 'inline-radio', options: ['sm', 'md', 'lg'] },
+    variant: {
+      control: 'inline-radio',
+      options: ['primary', 'quiet', 'danger'],
+      table: { defaultValue: { summary: 'quiet' } },
+    },
+    size: {
+      control: 'inline-radio',
+      options: ['sm', 'md', 'lg'],
+      table: { defaultValue: { summary: 'md' } },
+    },
     iconStart: { control: false, description: 'A 16 px icon before the label' },
     iconEnd: { control: false, description: 'A 16 px icon after the label' },
     iconOnly: { control: 'boolean' },
@@ -18,7 +26,6 @@ const meta = {
     busyLabel: { control: 'text' },
     disabled: { control: 'boolean' },
     disabledReason: { control: 'text' },
-    type: { control: 'inline-radio', options: ['button', 'submit'] },
     asChild: { control: 'boolean' },
     children: { control: false, description: 'The element asChild renders as' },
     onClick: { action: 'click' },

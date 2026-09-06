@@ -15,12 +15,19 @@ const meta = {
   argTypes: {
     title: { control: 'text' },
     detail: { control: 'text' },
-    tone: { control: 'inline-radio', options: ['error', 'warn'] },
+    tone: {
+      control: 'inline-radio',
+      options: ['error', 'warn'],
+      table: { defaultValue: { summary: 'error' } },
+    },
     action: { control: 'object' },
-    onDismiss: { action: 'dismiss' },
-    focusOnDismiss: { control: false, description: 'Where focus goes after the strip closes' },
+    dismissal: {
+      control: false,
+      description: 'How the strip closes, and where focus goes when it does',
+    },
     className: { control: false },
     id: { control: false },
+    ref: { control: false, description: 'The strip element, for a consumer that must reach it' },
   },
 } satisfies Meta<typeof ErrorStrip>
 
@@ -35,7 +42,10 @@ export const WithAction: Story = {
   args: { action: { label: 'Try again', onAction: fn() } },
 }
 export const WithActionAndDismiss: Story = {
-  args: { action: { label: 'Try again', onAction: fn() }, onDismiss: fn() },
+  args: {
+    action: { label: 'Try again', onAction: fn() },
+    dismissal: { onDismiss: fn(), focusOnDismiss: { current: null } },
+  },
   tags: ['evidence'],
 }
 export const WarnTone: Story = {
@@ -46,13 +56,17 @@ export const WarnTone: Story = {
   },
 }
 export const LongTitleWrapping: Story = {
-  args: { title: LONG_TITLE, action: { label: 'Try again', onAction: fn() }, onDismiss: fn() },
+  args: {
+    title: LONG_TITLE,
+    action: { label: 'Try again', onAction: fn() },
+    dismissal: { onDismiss: fn(), focusOnDismiss: { current: null } },
+  },
 }
 export const DeviceLost: Story = {
   args: {
     title: 'We could not reach the audio device.',
     action: { label: 'Try again', onAction: fn() },
-    onDismiss: fn(),
+    dismissal: { onDismiss: fn(), focusOnDismiss: { current: null } },
   },
 }
 
@@ -66,10 +80,12 @@ function Dismissable({ onDismiss }: { onDismiss: () => void }) {
         <ErrorStrip
           title="We could not reach the audio device."
           action={{ label: 'Try again', onAction: () => {} }}
-          focusOnDismiss={anchor}
-          onDismiss={() => {
-            setOpen(false)
-            onDismiss()
+          dismissal={{
+            focusOnDismiss: anchor,
+            onDismiss: () => {
+              setOpen(false)
+              onDismiss()
+            },
           }}
         />
       ) : null}
@@ -78,12 +94,12 @@ function Dismissable({ onDismiss }: { onDismiss: () => void }) {
 }
 
 export const KeyboardDismiss: Story = {
-  args: { onDismiss: fn() },
-  render: (args) => <Dismissable onDismiss={args.onDismiss ?? (() => {})} />,
+  args: { dismissal: { onDismiss: fn(), focusOnDismiss: { current: null } } },
+  render: (args) => <Dismissable onDismiss={args.dismissal?.onDismiss ?? (() => {})} />,
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement)
     await userEvent.click(canvas.getByRole('button', { name: 'Dismiss' }))
-    await expect(args.onDismiss).toHaveBeenCalledTimes(1)
+    await expect(args.dismissal?.onDismiss).toHaveBeenCalledTimes(1)
     await expect(canvas.getByRole('button', { name: 'Output device' })).toHaveFocus()
   },
 }

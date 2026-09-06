@@ -58,11 +58,90 @@ describe('Select', () => {
 
   it('jumps to the ends with Home and End', async () => {
     const onValueChange = vi.fn()
-    render(<Devices onValueChange={onValueChange} />)
+    const { unmount } = render(<Devices onValueChange={onValueChange} />)
     await userEvent.tab()
     await userEvent.keyboard('{Enter}')
     await screen.findByRole('listbox')
     await userEvent.keyboard('{End}{Enter}')
+    expect(onValueChange).toHaveBeenLastCalledWith('interface')
+    unmount()
+
+    render(<Devices onValueChange={onValueChange} />)
+    await userEvent.tab()
+    await userEvent.keyboard('{Enter}')
+    await screen.findByRole('listbox')
+    await userEvent.keyboard('{End}{Home}{Enter}')
+    expect(onValueChange).toHaveBeenLastCalledWith('default')
+  })
+
+  it('keeps showing what the consumer accepted, never what it only clicked', async () => {
+    const { rerender } = render(
+      <Select label="Output device" items={DEVICES} value="interface" onValueChange={() => {}} />,
+    )
+    const trigger = screen.getByRole('combobox')
+    expect(trigger).toHaveTextContent('Scarlett 2i2')
+    rerender(<Select label="Output device" items={DEVICES} value={null} onValueChange={() => {}} />)
+    expect(trigger).toHaveTextContent('Choose…')
+  })
+
+  it('refuses to open, and says so on the trigger, while the list is loading', async () => {
+    render(
+      <Select
+        label="Output device"
+        items={DEVICES}
+        value={null}
+        loading
+        onValueChange={() => {}}
+      />,
+    )
+    const trigger = screen.getByRole('combobox')
+    expect(trigger).toHaveAttribute('aria-busy', 'true')
+    await userEvent.click(trigger)
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+  })
+
+  it('marks itself invalid for a screen reader, not only with a colour', () => {
+    render(
+      <Select
+        label="Output device"
+        items={DEVICES}
+        value="interface"
+        invalid
+        onValueChange={() => {}}
+      />,
+    )
+    expect(screen.getByRole('combobox')).toHaveAttribute('aria-invalid', 'true')
+  })
+
+  it('keeps its name when the label is hidden', () => {
+    render(
+      <Select
+        label="Output device"
+        items={DEVICES}
+        value={null}
+        hideLabel
+        onValueChange={() => {}}
+      />,
+    )
+    expect(screen.getByRole('combobox', { name: 'Output device' })).toBeInTheDocument()
+  })
+
+  it('skips a disabled option with the arrows', async () => {
+    const onValueChange = vi.fn()
+    render(
+      <Devices
+        items={[
+          { value: 'default', label: 'System default' },
+          { value: 'cue', label: 'Cue output', disabled: true },
+          { value: 'interface', label: 'Scarlett 2i2' },
+        ]}
+        onValueChange={onValueChange}
+      />,
+    )
+    await userEvent.tab()
+    await userEvent.keyboard('{Enter}')
+    await screen.findByRole('listbox')
+    await userEvent.keyboard('{ArrowDown}{Enter}')
     expect(onValueChange).toHaveBeenCalledWith('interface')
   })
 

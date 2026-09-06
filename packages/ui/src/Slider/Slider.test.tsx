@@ -2,9 +2,17 @@ import { render, screen } from '@testing-library/react'
 import { userEvent } from '@testing-library/user-event'
 import { useState } from 'react'
 import { describe, expect, it, vi } from 'vitest'
-import { Slider } from './Slider.tsx'
+import { Slider, type SliderValueVisibility } from './Slider.tsx'
 
-function Volume({ largeStep }: { largeStep?: number }) {
+function Volume({
+  largeStep,
+  onValueCommit,
+  showValue,
+}: {
+  largeStep?: number
+  onValueCommit?: (value: number) => void
+  showValue?: SliderValueVisibility
+}) {
   const [value, setValue] = useState(-12)
   return (
     <Slider
@@ -16,6 +24,8 @@ function Volume({ largeStep }: { largeStep?: number }) {
       step={1}
       format={(level) => `${level} dB`}
       {...(largeStep === undefined ? {} : { largeStep })}
+      {...(onValueCommit === undefined ? {} : { onValueCommit })}
+      {...(showValue === undefined ? {} : { showValue })}
     />
   )
 }
@@ -54,6 +64,22 @@ describe('Slider', () => {
     expect(thumb).toHaveAttribute('aria-valuenow', '-60')
     await userEvent.keyboard('{PageUp}')
     expect(thumb).toHaveAttribute('aria-valuenow', '0')
+  })
+
+  it('commits the large step, so a consumer that persists on release does not lose it', async () => {
+    const onValueCommit = vi.fn()
+    render(<Volume largeStep={25} onValueCommit={onValueCommit} />)
+    await userEvent.tab()
+    await userEvent.keyboard('{PageDown}')
+    expect(onValueCommit).toHaveBeenCalledWith(-37)
+  })
+
+  it('shows the value only while it is changing, when asked to', async () => {
+    render(<Volume showValue="while-changing" />)
+    expect(screen.queryByText('-12 dB')).not.toBeInTheDocument()
+    await userEvent.tab()
+    await userEvent.keyboard('{PageUp}')
+    expect(screen.getByText('-2 dB')).toBeInTheDocument()
   })
 
   it('reads the value as words, not as a bare number', () => {

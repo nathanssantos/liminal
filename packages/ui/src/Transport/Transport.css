@@ -76,7 +76,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .lm-transport-shape[data-pulse] {
+  .lm-transport-shape[data-shape="playing"][data-pulse] {
     animation: none;
   }
 }

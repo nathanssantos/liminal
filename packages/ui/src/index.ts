@@ -1,5 +1,3 @@
-import './base.css'
-
 export { Button, type ButtonProps, type ButtonSize, type ButtonVariant } from './Button/Button.tsx'
 export {
   ErrorStrip,

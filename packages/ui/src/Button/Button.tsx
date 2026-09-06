@@ -17,13 +17,12 @@ export type ButtonProps = {
   busyLabel?: string
   disabled?: boolean
   disabledReason?: string
-  type?: 'button' | 'submit'
   asChild?: boolean
   children?: ReactNode
   onClick?: (event: MouseEvent<HTMLElement>) => void
   className?: string
   id?: string
-  ref?: Ref<HTMLButtonElement>
+  ref?: Ref<HTMLElement>
 }
 
 export function Button({
@@ -37,7 +36,6 @@ export function Button({
   busyLabel = 'Working…',
   disabled = false,
   disabledReason,
-  type = 'button',
   asChild = false,
   children,
   onClick,
@@ -64,7 +62,7 @@ export function Button({
     ...(iconOnly ? { 'aria-label': label } : {}),
     ...(describedBy ? { 'aria-describedby': describedBy } : {}),
     onClick: (event: MouseEvent<HTMLElement>) => {
-      if (loading) {
+      if (loading || disabled) {
         event.preventDefault()
         return
       }
@@ -76,13 +74,13 @@ export function Button({
   const trailing = loading ? null : iconEnd
 
   const control = asChild ? (
-    <Slot.Root {...shared} {...(disabled ? { 'aria-disabled': true } : {})}>
+    <Slot.Root ref={ref} {...shared} {...(disabled ? { 'aria-disabled': true, tabIndex: -1 } : {})}>
       {leading}
       <Slot.Slottable>{children}</Slot.Slottable>
       {trailing}
     </Slot.Root>
   ) : (
-    <button {...shared} ref={ref} type={type} disabled={disabled}>
+    <button {...shared} ref={ref as Ref<HTMLButtonElement>} type="button" disabled={disabled}>
       {leading}
       {iconOnly ? null : <span className="lm-button-label">{loading ? busyLabel : label}</span>}
       {trailing}

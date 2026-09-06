@@ -39,25 +39,25 @@
       "fields": [
         {
           "field": "tempo",
-          "left": 471.125,
-          "width": 98.4375,
+          "left": 473.28125,
+          "width": 94.125,
           "height": 53.5
         },
         {
           "field": "key",
-          "left": 569.5625,
+          "left": 567.40625,
           "width": 141.90625,
           "height": 53.5
         },
         {
           "field": "bar",
-          "left": 711.46875,
+          "left": 709.3125,
           "width": 157.5625,
           "height": 53.5
         },
         {
           "field": "elapsed",
-          "left": 869.03125,
+          "left": 866.875,
           "width": 99.84375,
           "height": 53.5
         }
@@ -69,25 +69,25 @@
       "fields": [
         {
           "field": "tempo",
-          "left": 471.125,
-          "width": 98.4375,
+          "left": 473.28125,
+          "width": 94.125,
           "height": 53.5
         },
         {
           "field": "key",
-          "left": 569.5625,
+          "left": 567.40625,
           "width": 141.90625,
           "height": 53.5
         },
         {
           "field": "bar",
-          "left": 711.46875,
+          "left": 709.3125,
           "width": 157.5625,
           "height": 53.5
         },
         {
           "field": "elapsed",
-          "left": 869.03125,
+          "left": 866.875,
           "width": 99.84375,
           "height": 53.5
         }
@@ -99,31 +99,39 @@
       "fields": [
         {
           "field": "tempo",
-          "left": 471.125,
-          "width": 98.4375,
+          "left": 473.28125,
+          "width": 94.125,
           "height": 53.5
         },
         {
           "field": "key",
-          "left": 569.5625,
+          "left": 567.40625,
           "width": 141.90625,
           "height": 53.5
         },
         {
           "field": "bar",
-          "left": 711.46875,
+          "left": 709.3125,
           "width": 157.5625,
           "height": 53.5
         },
         {
           "field": "elapsed",
-          "left": 869.03125,
+          "left": 866.875,
           "width": 99.84375,
           "height": 53.5
         }
       ]
     }
   ],
+  "motion": {
+    "beatAnimation": "lm-beat",
+    "transitionDuration": "0.12s, 0.12s, 0.12s"
+  },
+  "motionReduced": {
+    "beatAnimation": "none",
+    "transitionDuration": "0.001s, 0.001s, 0.001s"
+  },
   "smallestTextPx": {
     "1024": 13,
     "1440": 13,

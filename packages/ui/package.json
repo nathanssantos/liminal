@@ -18,7 +18,7 @@
     "lint": "biome check .",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
-    "test:stories": "vitest run --project stories",
+    "test:stories": "vitest run src/stories.test.tsx",
     "storybook": "storybook dev -p 6007 --no-open",
     "build:storybook": "storybook build",
     "measure": "storybook build && node tools/shots.ts && node tools/measure.ts"

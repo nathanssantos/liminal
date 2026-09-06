@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { colourToken, WINDOW_BACKGROUND } from '../colours.mjs'
-import { contrastRatio, customProperties } from './test/contrast.ts'
+import { contrastRatio, customProperties, resolveAlias } from './test/contrast.ts'
 import CSS from './tokens.css?raw'
 
 const DARK = customProperties(CSS, ':root')
 const LIGHT = customProperties(CSS, '[data-theme="light"]')
+const LIGHT_BY_PREFERENCE = customProperties(CSS, ':root:where(:not([data-theme="dark"]))')
 
 const TEXT_MINIMUM = 4.5
 const EDGE_MINIMUM = 3
@@ -41,12 +42,15 @@ const EDGE_PAIRS = [
   ['--color-accent', '--color-surface'],
   ['--color-accent', '--color-surface-2'],
   ['--color-accent', '--color-surface-3'],
+  ['--color-focus', '--color-surface'],
+  ['--color-focus', '--color-surface-2'],
+  ['--color-focus', '--color-surface-3'],
 ] as const
 
 function colour(theme: Record<string, string>, name: string): string {
   const value = theme[name] ?? DARK[name]
   if (!value) throw new Error(`tokens.css declares no ${name}`)
-  return value
+  return resolveAlias(value, theme, DARK)
 }
 
 describe.each([
@@ -87,11 +91,21 @@ describe('tokens', () => {
     expect(darkColours.filter((name) => !lightColours.includes(name))).toEqual(aliased)
   })
 
+  it('gives the same light theme whether it was chosen or inherited from the system', () => {
+    expect(LIGHT_BY_PREFERENCE).toEqual(LIGHT)
+  })
+
   it('has no text size below the thirteen-pixel floor', () => {
     const sizes = Object.entries(DARK)
       .filter(([name]) => name.startsWith('--text-'))
       .map(([, value]) => Number.parseInt(value, 10))
     expect(Math.min(...sizes)).toBeGreaterThanOrEqual(13)
+  })
+
+  it('reads a theme block that is really there', () => {
+    expect(Object.keys(DARK).length).toBeGreaterThan(40)
+    expect(Object.keys(LIGHT).length).toBeGreaterThan(10)
+    expect(() => customProperties(CSS, '[data-theme="sepia"]')).toThrow('sepia')
   })
 
   it('puts space on a four-pixel base', () => {

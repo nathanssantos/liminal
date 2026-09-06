@@ -58,6 +58,10 @@
   gap: var(--space-1);
 }
 
+.lm-readout-field[data-field="tempo"] .lm-readout-line {
+  width: calc(var(--readout-tempo-ch) * 1ch + var(--readout-unit-ch) * 1ch + var(--space-1));
+}
+
 .lm-readout[data-size="md"] .lm-readout-line {
   height: var(--readout-line-md);
 }

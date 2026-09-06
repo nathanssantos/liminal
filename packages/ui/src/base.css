@@ -1,6 +1,7 @@
 .lm-focusable:focus-visible {
   outline: var(--focus-ring-width) solid var(--color-focus);
   outline-offset: var(--focus-ring-offset);
+  border-radius: inherit;
 }
 
 .lm-hidden-text {

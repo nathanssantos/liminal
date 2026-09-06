@@ -95,7 +95,6 @@
 }
 
 .lm-select-content {
-  margin-block: var(--space-1);
   box-sizing: border-box;
   min-width: var(--radix-select-trigger-width);
   max-height: min(var(--select-max-height), var(--radix-select-content-available-height));
@@ -112,8 +111,7 @@
   overflow-y: auto;
 }
 
-.lm-select-item,
-.lm-select-empty {
+.lm-select-item {
   display: flex;
   align-items: center;
   gap: var(--space-2);
@@ -138,10 +136,6 @@
 .lm-select-item[data-disabled] {
   color: var(--color-muted);
   cursor: not-allowed;
-}
-
-.lm-select-empty {
-  color: var(--color-muted);
 }
 
 .lm-select-check {

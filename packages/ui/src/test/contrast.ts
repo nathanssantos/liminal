@@ -21,6 +21,18 @@ export function contrastRatio(foreground: string, background: string): number {
   return (lighter + 0.05) / (darker + 0.05)
 }
 
+export function resolveAlias(
+  value: string,
+  properties: Record<string, string>,
+  fallback: Record<string, string>,
+): string {
+  const alias = /^var\((--[\w-]+)\)$/.exec(value)
+  if (!alias?.[1]) return value
+  const target = properties[alias[1]] ?? fallback[alias[1]]
+  if (!target) throw new Error(`${value} points at a property nothing declares`)
+  return resolveAlias(target, properties, fallback)
+}
+
 export function customProperties(css: string, selector: string): Record<string, string> {
   const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   const block = new RegExp(`${escaped}\\s*\\{([^}]*)\\}`).exec(css)

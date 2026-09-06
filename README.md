@@ -31,7 +31,7 @@ exploration). The proposal itself evolves — the bets and the candidate uses ar
 ## Status
 
 **v0.0.0 — the foundation.** There is nothing to hear yet. What exists is the ground: the
-monorepo, the seven packages with their boundaries enforced by a test, an Electron shell that
+monorepo, the eight packages with their boundaries enforced by a test, an Electron shell that
 opens, a Python analyzer worker, continuous integration, and the board and scripts the autonomous
 loop runs on. Sound arrives in M1.
 
