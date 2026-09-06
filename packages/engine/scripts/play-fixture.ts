@@ -3,6 +3,8 @@ import { sixteenBars } from '@liminal/score/fixtures'
 import { createEngine, scoreReleaseTailSeconds } from '../src/index.ts'
 import { scoreSeconds } from '../src/time.ts'
 
+const MARGIN_OVER_THE_TAIL_SECONDS = 1
+
 const context = new AudioContext({ sampleRate: 48000 })
 const engine = await createEngine({ context, score: sixteenBars })
 
@@ -21,7 +23,9 @@ process.stdout.write(
 )
 engine.play()
 await finished
-await new Promise((resolve) => setTimeout(resolve, scoreReleaseTailSeconds(sixteenBars) * 1000))
+await new Promise((resolve) =>
+  setTimeout(resolve, (scoreReleaseTailSeconds(sixteenBars) + MARGIN_OVER_THE_TAIL_SECONDS) * 1000),
+)
 process.stdout.write('\ndone\n')
 engine.dispose()
 await context.close()

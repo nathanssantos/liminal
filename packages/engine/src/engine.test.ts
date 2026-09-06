@@ -21,6 +21,21 @@ const withoutNotes = (score: Score): Score => {
 const noteCount = (score: Score): number =>
   score.clips.reduce((total, clip) => total + clip.notes.length, 0)
 
+const twoBars = (): Score => {
+  const score = structuredClone(sixteenBars)
+  const section = score.sections[0]
+  if (section !== undefined) {
+    section.bars = 2
+  }
+  score.clips = score.clips.map((clip) => ({
+    ...clip,
+    length: barToTick(2, score.meter),
+    notes: clip.notes.filter((note) => note.at < barToTick(2, score.meter)),
+  }))
+  score.automation = []
+  return score
+}
+
 const clone = (mutate: (score: Score) => void): Score => {
   const copy = structuredClone(sixteenBars)
   mutate(copy)
@@ -447,5 +462,84 @@ describe('the engine refuses a parameter it cannot honour', () => {
     const { engine } = await offlineEngine(score, 1)
     engine.dispose()
     expect(engine.disposedNodeCount()).toBeGreaterThan(0)
+  })
+})
+
+describe('the engine after the score ended', () => {
+  it('keeps the last bar in position() and rewinds only once the tail is over', async () => {
+    const score = twoBars()
+    let atTheEnd: number | undefined
+    const { engine, render } = await offlineEngine(score)
+    engine.on('ended', () => {
+      atTheEnd = engine.position().bar
+    })
+    engine.play()
+    await render()
+    expect(atTheEnd).toBe(1)
+    expect(engine.position()).toEqual({ bar: 0, beat: 0, tick: 0 })
+    engine.dispose()
+  })
+
+  it('plays the score again when play() comes from the ended listener', async () => {
+    const score = twoBars()
+    const { engine, render } = await offlineEngine(
+      score,
+      scoreSeconds(score) * 2 + scoreReleaseTailSeconds(score) + 0.5,
+    )
+    let ended = 0
+    engine.on('ended', () => {
+      ended += 1
+      if (ended === 1) {
+        engine.play()
+      }
+    })
+    engine.play()
+    await render()
+    expect(ended).toBe(2)
+    expect(engine.triggeredNoteCount()).toBe(noteCount(score) * 2)
+    engine.dispose()
+  })
+
+  it('stop() during the tail says stopped and rewinds', async () => {
+    const score = twoBars()
+    const { engine, render } = await offlineEngine(score)
+    let stopped = 0
+    engine.on('stopped', () => {
+      stopped += 1
+    })
+    engine.on('ended', () => {
+      engine.stop()
+    })
+    engine.play()
+    await render()
+    expect(stopped).toBe(1)
+    expect(engine.position()).toEqual({ bar: 0, beat: 0, tick: 0 })
+    expect(engine.triggeredNoteCount()).toBe(noteCount(score))
+    engine.dispose()
+  })
+
+  it('dispose() during the tail leaves no node behind', async () => {
+    const score = twoBars()
+    const { engine, render } = await offlineEngine(score)
+    let created = 0
+    engine.on('ended', () => {
+      created = engine.pendingNodeCount()
+      engine.dispose()
+    })
+    engine.play()
+    await render()
+    expect(created).toBeGreaterThan(0)
+    expect(engine.pendingNodeCount()).toBe(0)
+    expect(engine.disposedNodeCount()).toBe(created)
+  })
+
+  it('a second play() while it is already playing changes nothing', async () => {
+    const score = twoBars()
+    const { engine, render } = await offlineEngine(score)
+    engine.play()
+    engine.play()
+    await render()
+    expect(engine.triggeredNoteCount()).toBe(noteCount(score))
+    engine.dispose()
   })
 })

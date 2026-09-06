@@ -8,6 +8,8 @@ import { loadTone } from '../src/tone.ts'
 
 const SAMPLE_RATE = 48000
 
+const PAST_THE_TAIL_SECONDS = 0.25
+
 export type Rendered = {
   engine: Engine
   render: () => Promise<AudioBuffer>
@@ -15,7 +17,8 @@ export type Rendered = {
 
 export async function offlineEngine(score: Score, seconds?: number): Promise<Rendered> {
   const tone = await loadTone()
-  const length = seconds ?? scoreSeconds(score) + scoreReleaseTailSeconds(score)
+  const length =
+    seconds ?? scoreSeconds(score) + scoreReleaseTailSeconds(score) + PAST_THE_TAIL_SECONDS
   const raw = new OfflineAudioContext(2, Math.ceil(SAMPLE_RATE * length), SAMPLE_RATE)
   const context = new tone.OfflineContext(raw as unknown as OfflineAudioContext)
   const engine = await createEngine({ context, score })

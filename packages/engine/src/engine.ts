@@ -31,7 +31,6 @@ export type Engine = {
   pendingNodeCount: () => number
   disposedNodeCount: () => number
   triggeredNoteCount: () => number
-  releaseTailSeconds: () => number
   lookAhead: () => number
   downgradedCurves: () => readonly DowngradedCurve[]
   automationValueAt: (automationId: string, seconds: number) => number
@@ -178,9 +177,6 @@ async function buildEngine(options: EngineOptions, built: Built): Promise<Engine
       new tone.Part({
         context,
         callback: (time: number, event: (typeof events)[number]) => {
-          if (state !== 'playing') {
-            return
-          }
           triggered += 1
           chain.trigger(event.pitch, event.duration, time, event.velocity)
         },
@@ -243,6 +239,14 @@ async function buildEngine(options: EngineOptions, built: Built): Promise<Engine
     }
   }
 
+  const startTransport = () => {
+    if (offline) {
+      transport.start(0)
+    } else {
+      transport.start()
+    }
+  }
+
   let endId: number | undefined
   const armEnd = () => {
     endId = transport.scheduleOnce((time) => {
@@ -251,15 +255,18 @@ async function buildEngine(options: EngineOptions, built: Built): Promise<Engine
         return
       }
       state = 'ringing'
+      tailId = context.setTimeout(
+        () => {
+          tailId = undefined
+          if (state !== 'ringing') {
+            return
+          }
+          state = 'idle'
+          rewind()
+        },
+        Math.max(0, time + releaseTailSeconds - context.now()),
+      )
       emit('ended', { bar: Math.round(totalSeconds / perBar), time })
-      tailId = context.setTimeout(() => {
-        tailId = undefined
-        if (state !== 'ringing') {
-          return
-        }
-        state = 'idle'
-        rewind()
-      }, releaseTailSeconds)
     }, totalSeconds)
   }
   armEnd()
@@ -271,17 +278,24 @@ async function buildEngine(options: EngineOptions, built: Built): Promise<Engine
       }
       if (state === 'ringing') {
         cancelTail()
-        rewind()
+        state = 'playing'
+        context.setTimeout(() => {
+          if (disposed || state !== 'playing') {
+            return
+          }
+          rewind()
+          if (endId === undefined) {
+            armEnd()
+          }
+          transport.start()
+        }, 0)
+        return
       }
       state = 'playing'
       if (endId === undefined) {
         armEnd()
       }
-      if (offline) {
-        transport.start(0)
-      } else {
-        transport.start()
-      }
+      startTransport()
     },
     stop: () => {
       if (disposed || state === 'idle') {
@@ -335,7 +349,6 @@ async function buildEngine(options: EngineOptions, built: Built): Promise<Engine
     pendingNodeCount: () => ledger.pending(),
     disposedNodeCount: () => ledger.disposed(),
     triggeredNoteCount: () => triggered,
-    releaseTailSeconds: () => releaseTailSeconds,
     lookAhead: () => (offline ? 0 : context.lookAhead),
     downgradedCurves: () => downgraded,
     automationValueAt: (automationId, seconds) => {

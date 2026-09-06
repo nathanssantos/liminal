@@ -20,7 +20,7 @@ const ENVELOPES = {
   noise: { attack: 0.01, decay: 0.3, sustain: 0, release: 0.02 },
 } satisfies Record<SynthPreset, { attack: number; decay: number; sustain: number; release: number }>
 
-export const PRESET_TAIL_SECONDS = Object.fromEntries(
+const PRESET_TAIL_SECONDS = Object.fromEntries(
   Object.entries(ENVELOPES).map(([preset, envelope]) => [
     preset,
     envelope.sustain > 0 ? envelope.release : envelope.decay + envelope.release,
