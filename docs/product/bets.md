@@ -19,7 +19,7 @@
 | B02 | **Reference as numeric target** | the same, plus producers | "like this track" is the most natural brief there is | band match ±10% and the owner's ear agreeing on 9/10 | analysis wrong too often; people prefer words alone | accepted (req. 4, 6) |
 | B03 | **Automated production** of a track as an editable document | producers and the curious | an editable, exportable document beats a rendered file | tracks exported and re-opened; prompt edits used | nobody edits; they only export | accepted (req. 7) |
 | B04 | **Platform primitives** others build on (document, transforms, cards, brains, engines) | developers | the document as a file format attracts plugins and integrations | a second product built by someone else; forks that add an engine or a source | no external use after two releases | accepted (plan frame) |
-| B05 | **Rework: any music into electronic** — give it one or more tracks of any genre; it plays them back as electronic music, one at a time or as a set that flows | listeners who love songs, not genres; DJs who want a crate of edits | "*this* song, as techno" is a stronger brief than "something like this song" — recognisable melody and harmony inside a new arrangement, with transitions that make sense | a listener recognises the song in 8 of 10 reworks (a blind test); the set of reworks passes the M4 gate on coherence; people queue songs they know rather than styles | transcription too unreliable on real recordings; the reworks sound like the melody pasted over a loop; licensing blocks sharing | **proposed by the owner (2026-09-06) → explore first** (see below) |
+| B05 | **Rework: any music into electronic** — give it one or more tracks of any genre; it plays them back as electronic music, one at a time or as a set that flows | listeners who love songs, not genres; DJs who want a crate of edits | "*this* song, as techno" is a stronger brief than "something like this song" — recognisable melody and harmony inside a new arrangement, with transitions that make sense | a listener recognises the song in 8 of 10 reworks (a blind test); the set of reworks passes the M4 gate on coherence; people queue songs they know rather than styles | transcription too unreliable on real recordings; the reworks sound like the melody pasted over a loop | **proposed by the owner (2026-09-06) → explore first** (see below) |
 
 ## B05 in detail — what it takes
 
@@ -33,16 +33,15 @@ the same.
 | **Idiom arrangement** (`composition`) | rearrange the content as electronic music: the melody as lead, arp or vocal-like line; the harmony as chords and a bass that follows the roots; a rhythm section in the target subgenre; sections mapped to intro/build/drop/break; the tempo moved to the target with the melody re-timed | composition, after the generators exist | keeping the melody recognisable while changing its rhythm and register; when to simplify a chord for the idiom |
 | **Rework in the set** (`conductor`) | each rework is a segment like any other: key path, tempo budget, handover, soundcheck | already designed (two-clocks) | bridges between two reworked songs whose keys and tempos are far apart |
 | **Rework as production** | one song → one reworked track document → iterate ("more bass", "make the chorus the drop") → export | the production door (M3+) | — |
+| **Layer map** (UI, `controls.md`) | everything that is playing, as layers: instrument and preset, level, pattern, register, effects — each visible and each changeable, by a direct control or by a prompt aimed at that layer ("the lead becomes a pluck", "halve the hats") | M5, on top of the document's tracks | keeping a change coherent with the rest (a new register may collide with the bass) — the soundcheck and the theory rules guard it |
 
 **Sources, in order of difficulty:** a MIDI file or a score (exact content, no transcription) →
 an isolated melody line (a hum, a whistle, a single instrument) → a full recording (stems via
 Demucs first, then transcription per stem). The first spike starts at the easy end.
 
-**The honest constraint.** A rework of someone else's song is a derivative work. Listening at
-home is one thing; sharing, publishing or selling reworks needs the rights (mechanical and
-sometimes sync licences). The product must say so where a person exports or shares, and the
-first users of B05 are people reworking **their own** or public-domain material, or listening
-privately. This is a course decision when sharing arrives (process §15).
+**Rights.** The app makes reworks the way a DAW makes remixes; what a person does with them is
+their responsibility, not the app's. No gate, no restriction — at most a plain one-line notice
+where a rework is exported, if research R24 says one is customary.
 
 **First cheap steps (exploration):**
 1. Research R22 (melody transcription: what works on real recordings today), R23 (chord
@@ -52,7 +51,8 @@ privately. This is a course decision when sharing arrives (process §15).
 3. Spike: transcribe one isolated melody (a whistle) with an off-the-shelf model on the analyzer
    worker; measure note accuracy against a known score.
 4. Then propose the milestone (`M6 · Rework`?) with the gate: recognisable in 8 of 10, coherent
-   in a set, sounds good to the owner's ear.
+   in a set, sounds good to the owner's ear, and every layer of the rework visible and changeable
+   in the layer map.
 
 ## Candidate uses to explore
 

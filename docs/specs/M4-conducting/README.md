@@ -24,7 +24,7 @@ measured what M4 consumes.
 | M4-05 | Live and standing prompts, feedback vector (P5) | no |
 | M4-06 | Reference queue, dwell time and handover plans (P7–P10) | **yes** |
 | M4-07 | `claude` brain: persistent session, deadlines, cost log (P4) | no |
-| M4-08 | Planned controls: energy dial, next, hold, tempo target — the conductor side and the IPC | no |
+| M4-08 | Planned controls: energy dial, next, hold, tempo target, and layer edits (instrument, pattern, register, effects, a prompt per layer) — the conductor side and the IPC | no |
 | M4-09 | Immediate controls in the engine output stage: master filter, layer on/off | **yes** |
 | M4-10 | Pause / resume, status events, the set log complete | no |
 | M4-11 | 60-minute proof on Chromium with injected latency (P6) | **yes** |

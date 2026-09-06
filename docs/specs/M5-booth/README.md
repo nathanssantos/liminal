@@ -19,6 +19,7 @@ gets a design brief from the `ui-designer` first.
 | M5-02 | Reference card and the queue UI: drag, remove, dwell time, countdown, recent references |
 | M5-03 | Prompt box with history and undo; standing prompt; feedback pair; energy dial; next / hold; "why?" |
 | M5-04 | Layer strip with trims; loop this phrase; key lock |
+| M5-04b | **Layer map**: instrument and preset, pattern grid, register, effects, section role, a prompt per layer, regenerate and lock — with collision warnings and versions (`controls.md › The layer map`) |
 | M5-05 | Soundcheck card and status: brain, worker, analysis, rendering |
 | M5-06 | Cue: pre-listen the next segment on the cue device |
 | M5-07 | Record the set, keep the last N minutes, save the set |

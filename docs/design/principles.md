@@ -52,6 +52,7 @@ becomes a static indicator.
 | **Volume** | master output gain, mute, the device in use | a slider with the value in dB, a mute toggle, the device name; starts at the safe level; keyboard `↑`/`↓`/`M` |
 | **Filter sweep** | one knob, low-pass ← flat → high-pass | centre detent; returns to flat on double-tap; immediate |
 | **Layer strip** | kick · hats · perc · bass · chords · pad · lead on/off, and later a trim each | seven equal toggles with the layer name and a level meter; number keys |
+| **Layer map** | every layer that plays, expanded: instrument and preset, pattern grid, register, effects, section role, a prompt box scoped to it, regenerate and lock | one row per layer, collapsed to the strip by default and expanded on demand; the row a person is editing is the only one open; changes say when they land; a collision is shown before it lands |
 | **Energy dial** | the target energy for the next phrases | 0–1, shows the current measured energy under the target; lands at the next phrase and says so |
 | **Next / Hold** | move on now, or stay one more phrase | two buttons beside the readout, with the bars until they act |
 | **Readout** | tempo, key, bar:beat, section | monospace, `tabular-nums`, no layout shift as digits change |
