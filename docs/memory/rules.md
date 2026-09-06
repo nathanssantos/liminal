@@ -283,7 +283,8 @@
   pass recorded where the branch cannot reach — a check run, a pull request review, an issue
   comment. Until then, every guard on it is about honesty, not security: refuse an empty measured
   set, read the head from the pull request rather than the local checkout, and refuse a diff that
-  cannot be read. (measured 2026-09-06)
+  cannot be read. ⚠️ Only the head comes from the pull request — the state file and the other four
+  gates still read the local working tree, uncommitted changes included. (measured 2026-09-06)
 - 🔴 **A prepared worktree keyed by branch name alone is shared by every clone.** Two checkouts of
   one branch, or any two detached heads, landed in the same directory under `/tmp`, and preparing
   from one deleted the other's tree mid-review. The room carries a hash of the repository root, and

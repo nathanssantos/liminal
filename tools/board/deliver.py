@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from board.context import Context, emit, git, repo_root
+from board.github import GitHub
 from board.review import card_for_issue, issue_in_branch, merge_blockers
 from board.stale import stale_docs
 
@@ -18,6 +19,8 @@ COMMENT = re.compile(r"^\+\s*(//|/\*|#(?!\!)|\*\s)")
 
 PROSE_AND_LOCKS = (":!*.lock", ":!*lock.yaml", ":!*.md", ":!*.json")
 ALLOWED_COMMENT = re.compile(r"biome-ignore|eslint-disable|noqa|type:\s*ignore|TODO\(#\d+\)|MOCK:")
+COMMIT = re.compile(r"^[0-9a-f]{7,40}$")
+
 CONVENTIONAL = re.compile(
     r"^(feat|fix|docs|chore|ci|refactor|test|perf|build|style|revert)(\([a-z0-9-]+\))?!?: .+"
 )
@@ -91,16 +94,41 @@ def review_gate(root: Path, branch: str, head: str) -> Gate:
     return Gate("review", not reasons, reasons)
 
 
-def pull_request_head(context: Context, number: int) -> tuple[str, str]:
-    output = context.github.runner(
+def pull_request_head(github: GitHub, number: int) -> tuple[str, str]:
+    output = github.runner(
         [
-            "pr", "view", str(number), "--repo", context.github.repo,
+            "pr", "view", str(number), "--repo", github.repo,
             "--json", "headRefName,headRefOid",
         ],
         None,
     )
     seen = json.loads(output)
     return str(seen["headRefName"]), str(seen["headRefOid"])
+
+
+def merge_pull_request(
+    github: GitHub, root: Path, number: int, verdict: dict[str, Any]
+) -> dict[str, Any]:
+    branch, head = pull_request_head(github, number)
+    review = (
+        review_gate(root, branch, head)
+        if COMMIT.match(head) and not COMMIT.match(branch)
+        else Gate(
+            "review", False, f"pull request {number} answered branch {branch!r}, head {head!r}"
+        )
+    )
+    verdict["gates"].append(
+        {"name": review.name, "passed": review.passed, "detail": review.detail}
+    )
+    if not review.passed:
+        verdict["verdict"] = "FAIL"
+    if verdict["verdict"] != "PASS":
+        return verdict
+    github.runner(
+        ["pr", "merge", str(number), "--repo", github.repo, "--squash", "--delete-branch"],
+        None,
+    )
+    return {"merged": number}
 
 
 def gates(root: Path) -> dict[str, Any]:
@@ -159,22 +187,7 @@ def main(argv: list[str] | None = None) -> int:
         )
         return emit({"ready": arguments.ready})
     if arguments.merge:
-        verdict = gates(root)
-        branch, head = pull_request_head(context, arguments.merge)
-        review = review_gate(root, branch, head)
-        verdict["gates"].append(
-            {"name": review.name, "passed": review.passed, "detail": review.detail}
-        )
-        if not review.passed:
-            verdict["verdict"] = "FAIL"
-        if verdict["verdict"] != "PASS":
-            return emit(verdict)
-        context.github.runner(
-            ["pr", "merge", str(arguments.merge), "--repo", context.github.repo,
-             "--squash", "--delete-branch"],
-            None,
-        )
-        return emit({"merged": arguments.merge})
+        return emit(merge_pull_request(context.github, root, arguments.merge, gates(root)))
     parser.print_help()
     return 1
 

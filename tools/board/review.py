@@ -176,11 +176,12 @@ def clean_scratch(
     branch = branch_of(root)
     head = git(root, "rev-parse", "HEAD")
     room = prepared_path(base, branch, head, key=repo_key(root)).parent / f"{head}-scratch"
-    removed = sorted(str(entry) for entry in room.iterdir()) if room.exists() else []
-    for entry in removed:
-        runner(["git", "worktree", "remove", "--force", entry], root)
-    shutil.rmtree(room, ignore_errors=True)
-    runner(["git", "worktree", "prune"], root)
+    listed = sorted(room.iterdir()) if room.exists() else []
+    removed = [str(entry) for entry in listed if drop(root, entry, runner)]
+    if len(removed) == len(listed):
+        shutil.rmtree(room, ignore_errors=True)
+    if removed:
+        runner(["git", "worktree", "prune"], root)
     return {"removed": removed}
 
 
@@ -314,10 +315,12 @@ def main(argv: list[str] | None = None) -> int:
             return emit(clean_scratch(root, card))
         return emit(scratch(root, card))
     if arguments.findings:
-        given = json.loads(Path(arguments.findings).read_text(encoding="utf-8"))
         try:
+            given = json.loads(Path(arguments.findings).read_text(encoding="utf-8"))
+            if not isinstance(given, list):
+                raise ValueError(f"findings are a JSON array, not {type(given).__name__}")
             return emit(record_findings(root, card, given))
-        except ValueError as refused:
+        except (ValueError, OSError) as refused:
             return emit({"error": str(refused)})
     if arguments.round_done:
         head = git(root, "rev-parse", "HEAD")

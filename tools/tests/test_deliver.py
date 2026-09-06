@@ -1,9 +1,18 @@
 from __future__ import annotations
 
+import json
+from collections.abc import Sequence
 from pathlib import Path
 
 from board.check import dead_mocks, report
-from board.deliver import comments_gate, commit_messages_gate, rebase_only, review_gate
+from board.deliver import (
+    comments_gate,
+    commit_messages_gate,
+    merge_pull_request,
+    rebase_only,
+    review_gate,
+)
+from board.github import GitHub
 from board.review import round_done
 from board.stale import missing_commands, missing_paths
 from tests.helpers import commit, repo_with_commit, run
@@ -204,3 +213,54 @@ def test_the_review_gate_reads_the_head_it_is_given_not_the_local_one(tmp_path: 
 
     assert on_the_deep_head.passed is True
     assert on_another_head.passed is False
+
+
+class Answers:
+    def __init__(self, head: dict[str, str]) -> None:
+        self.head = head
+        self.calls: list[list[str]] = []
+
+    def __call__(self, arguments: Sequence[str], stdin: str | None) -> str:
+        self.calls.append(list(arguments))
+        return json.dumps(self.head)
+
+    def merged(self) -> bool:
+        return any(call[:2] == ["pr", "merge"] for call in self.calls)
+
+
+def a_card_named(root: Path, issue: int) -> None:
+    folder = root / "docs" / "specs" / "M1-sound"
+    folder.mkdir(parents=True, exist_ok=True)
+    (folder / "M1-06.md").write_text(
+        "---\nid: M1-06\ntitle: t\nmilestone: M1\narea: infra\npriority: P0\n"
+        f"depends_on: []\nlistening: false\nissue: {issue}\n---\n\n## Context\n",
+        encoding="utf-8",
+    )
+
+
+def test_merging_asks_the_pull_request_for_its_branch_and_head(tmp_path: Path) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+    a_card_named(root, 55)
+    answers = Answers({"headRefName": "feat/55-board-review", "headRefOid": "abc123"})
+    github = GitHub(owner="o", name="n", runner=answers)
+
+    given = merge_pull_request(github, root, 7, {"verdict": "PASS", "gates": []})
+
+    assert answers.calls[0][:3] == ["pr", "view", "7"]
+    assert "headRefName,headRefOid" in answers.calls[0]
+    assert given["verdict"] == "FAIL"
+    assert answers.merged() is False
+
+
+def test_merging_refuses_when_the_head_and_the_branch_arrive_the_wrong_way_round(
+    tmp_path: Path,
+) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+    a_card_named(root, 55)
+    answers = Answers({"headRefName": "abc123", "headRefOid": "feat/55-board-review"})
+    github = GitHub(owner="o", name="n", runner=answers)
+
+    given = merge_pull_request(github, root, 7, {"verdict": "PASS", "gates": []})
+
+    assert given["verdict"] == "FAIL"
+    assert answers.merged() is False
