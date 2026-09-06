@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import subprocess
 from dataclasses import dataclass
@@ -9,7 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from board.context import Context, emit, git, repo_root
-from board.review import card_on_this_branch, issue_on_this_branch, merge_blockers
+from board.review import card_for_issue, issue_in_branch, merge_blockers
 from board.stale import stale_docs
 
 GATES_LOG = Path("evidence") / "_gates"
@@ -79,14 +80,27 @@ def rebase_only(root: Path, base: str = "origin/main") -> dict[str, Any]:
     return {"verdict": "OK", "commits": after, "behind": behind}
 
 
-def review_gate(root: Path, card: str | None) -> Gate:
+def review_gate(root: Path, branch: str, head: str) -> Gate:
+    issue = issue_in_branch(branch)
+    if issue is None:
+        return Gate("review", True, f"branch {branch} names no issue, so there is no review")
+    card = card_for_issue(root, issue)
     if card is None:
-        issue = issue_on_this_branch(root)
-        if issue is not None:
-            return Gate("review", False, f"the branch names issue {issue}, which no spec claims")
-        return Gate("review", True, "the branch names no issue, so there is no review to check")
-    reasons = merge_blockers(root, card, git(root, "rev-parse", "HEAD"))
+        return Gate("review", False, f"branch {branch} names issue {issue}, which no spec claims")
+    reasons = merge_blockers(root, card, head)
     return Gate("review", not reasons, reasons)
+
+
+def pull_request_head(context: Context, number: int) -> tuple[str, str]:
+    output = context.github.runner(
+        [
+            "pr", "view", str(number), "--repo", context.github.repo,
+            "--json", "headRefName,headRefOid",
+        ],
+        None,
+    )
+    seen = json.loads(output)
+    return str(seen["headRefName"]), str(seen["headRefOid"])
 
 
 def gates(root: Path) -> dict[str, Any]:
@@ -146,7 +160,8 @@ def main(argv: list[str] | None = None) -> int:
         return emit({"ready": arguments.ready})
     if arguments.merge:
         verdict = gates(root)
-        review = review_gate(root, card_on_this_branch(root))
+        branch, head = pull_request_head(context, arguments.merge)
+        review = review_gate(root, branch, head)
         verdict["gates"].append(
             {"name": review.name, "passed": review.passed, "detail": review.detail}
         )

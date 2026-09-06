@@ -6,6 +6,7 @@ import re
 import shutil
 import subprocess
 from collections.abc import Callable, Sequence
+from hashlib import sha1
 from pathlib import Path
 from typing import Any
 
@@ -53,16 +54,22 @@ def save_state(root: Path, card: str, state: dict[str, Any]) -> None:
 BRANCH_ISSUE = re.compile(r"^feat/(\d+)-")
 
 
-def issue_on_this_branch(root: Path) -> int | None:
-    match = BRANCH_ISSUE.match(git(root, "rev-parse", "--abbrev-ref", "HEAD"))
+def issue_in_branch(branch: str) -> int | None:
+    match = BRANCH_ISSUE.match(branch)
     return None if match is None else int(match.group(1))
+
+
+def card_for_issue(root: Path, issue: int) -> str | None:
+    return next((card.id for card in load_cards(root / SPECS) if card.issue == issue), None)
+
+
+def issue_on_this_branch(root: Path) -> int | None:
+    return issue_in_branch(git(root, "rev-parse", "--abbrev-ref", "HEAD"))
 
 
 def card_on_this_branch(root: Path) -> str | None:
     issue = issue_on_this_branch(root)
-    if issue is None:
-        return None
-    return next((card.id for card in load_cards(root / SPECS) if card.issue == issue), None)
+    return None if issue is None else card_for_issue(root, issue)
 
 
 def branch_of(root: Path) -> str:
@@ -70,13 +77,20 @@ def branch_of(root: Path) -> str:
     return "detached" if branch in ("", "HEAD") else branch
 
 
-def prepared_path(base: Path, branch: str, head: str) -> Path:
-    return base / branch.replace("/", "-") / head
+def repo_key(root: Path) -> str:
+    return sha1(str(root.resolve()).encode("utf-8")).hexdigest()[:8]
 
 
-def drop(root: Path, path: Path, runner: Runner) -> None:
-    runner(["git", "worktree", "remove", "--force", str(path)], root)
+def prepared_path(base: Path, branch: str, head: str, *, key: str = "") -> Path:
+    room = branch.replace("/", "-")
+    return base / (f"{room}-{key}" if key else room) / head
+
+
+def drop(root: Path, path: Path, runner: Runner) -> bool:
+    if runner(["git", "worktree", "remove", "--force", str(path)], root) != 0:
+        return False
     shutil.rmtree(path, ignore_errors=True)
+    return True
 
 
 def drop_older_heads(root: Path, keep: Path, runner: Runner) -> list[str]:
@@ -85,16 +99,17 @@ def drop_older_heads(root: Path, keep: Path, runner: Runner) -> list[str]:
         return []
     keeping = (keep.name, f"{keep.name}-scratch")
     stale = sorted(entry for entry in room.iterdir() if entry.name not in keeping)
+    dropped: list[str] = []
     for entry in stale:
         if entry.name.endswith("-scratch"):
-            for copy in sorted(entry.iterdir()):
-                drop(root, copy, runner)
-            shutil.rmtree(entry, ignore_errors=True)
-        else:
-            drop(root, entry, runner)
-    if stale:
+            if all(drop(root, copy, runner) for copy in sorted(entry.iterdir())):
+                shutil.rmtree(entry, ignore_errors=True)
+                dropped.append(str(entry))
+        elif drop(root, entry, runner):
+            dropped.append(str(entry))
+    if dropped:
         runner(["git", "worktree", "prune"], root)
-    return [str(entry) for entry in stale]
+    return dropped
 
 
 def prepare(
@@ -106,7 +121,7 @@ def prepare(
 ) -> dict[str, Any]:
     branch = branch_of(root)
     head = git(root, "rev-parse", "HEAD")
-    path = prepared_path(base, branch, head)
+    path = prepared_path(base, branch, head, key=repo_key(root))
     dropped = drop_older_heads(root, path, runner)
     installed = False
     if not path.exists():
@@ -160,7 +175,7 @@ def clean_scratch(
 ) -> dict[str, Any]:
     branch = branch_of(root)
     head = git(root, "rev-parse", "HEAD")
-    room = prepared_path(base, branch, head).parent / f"{head}-scratch"
+    room = prepared_path(base, branch, head, key=repo_key(root)).parent / f"{head}-scratch"
     removed = sorted(str(entry) for entry in room.iterdir()) if room.exists() else []
     for entry in removed:
         runner(["git", "worktree", "remove", "--force", entry], root)
@@ -243,6 +258,9 @@ def review_blockers(root: Path, card: str, head: str, changed: list[str]) -> lis
     if deep == head:
         return reasons
     measured = state.get("measured", [])
+    if not measured:
+        reasons.append(f"the deep pass was not run on {head}, and it recorded nothing measured")
+        return reasons
     touched = sorted(path for path in changed if under_any(path, measured))
     if touched:
         reasons.append(f"the deep pass was not run on {head}, and it measured {', '.join(touched)}")
@@ -252,13 +270,24 @@ def review_blockers(root: Path, card: str, head: str, changed: list[str]) -> lis
 def merge_blockers(root: Path, card: str, head: str) -> list[str]:
     state = load_state(root, card)
     deep = state.get("deepPassHead")
-    changed = changed_since(root, deep, head) if deep else []
+    if not deep or deep == head:
+        return review_blockers(root, card, head, [])
+    changed = changed_since(root, deep, head)
+    if changed is None:
+        return [f"the diff between the deep pass at {deep} and {head} cannot be read here"]
     return review_blockers(root, card, head, changed)
 
 
-def changed_since(root: Path, deep: str, head: str) -> list[str]:
-    diff = git(root, "diff", "--name-only", f"{deep}...{head}")
-    return [line for line in diff.splitlines() if line]
+def changed_since(root: Path, deep: str, head: str) -> list[str] | None:
+    result = subprocess.run(
+        ["git", "diff", "--name-only", f"{deep}...{head}"],
+        cwd=root,
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        return None
+    return [line for line in result.stdout.splitlines() if line]
 
 
 def main(argv: list[str] | None = None) -> int:

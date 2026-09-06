@@ -277,6 +277,17 @@
   Measured on M1-02: 25.8 min and 51 tool calls for one deep reviewer round, 52 min for the test
   engineer, five rounds on one card. The fix: fast pass every round in read mode, deep pass once in
   measure mode, on one prepared worktree, incrementally. (measured 2026-09-06)
+- 🔴 **A gate the branch under review can write is a checklist, not a control.** `review.json`
+  lives in the repository, so the same loop that wants the merge writes it, commits it and reads it
+  back. It catches the loop skipping a step and nothing else. Making it a control needs the deep
+  pass recorded where the branch cannot reach — a check run, a pull request review, an issue
+  comment. Until then, every guard on it is about honesty, not security: refuse an empty measured
+  set, read the head from the pull request rather than the local checkout, and refuse a diff that
+  cannot be read. (measured 2026-09-06)
+- 🔴 **A prepared worktree keyed by branch name alone is shared by every clone.** Two checkouts of
+  one branch, or any two detached heads, landed in the same directory under `/tmp`, and preparing
+  from one deleted the other's tree mid-review. The room carries a hash of the repository root, and
+  a tree is only deleted when `git worktree remove` accepted it. (measured 2026-09-06)
 - 🔴 **A file cannot record the hash of the commit that carries it.** Writing the head into
   `review.json` and then amending the commit leaves the file naming a hash that exists on no branch,
   and the merge gate then claims a review nobody can check out. `--round-done` records the head as

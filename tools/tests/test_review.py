@@ -31,8 +31,12 @@ class Recorder:
         self.root = root
         self.calls: list[list[str]] = []
 
+    refuse_removal = False
+
     def __call__(self, command: Sequence[str], cwd: Path) -> int:
         self.calls.append(list(command))
+        if command[:3] == ["git", "worktree", "remove"] and self.refuse_removal:
+            return 1
         if command[:3] == ["git", "worktree", "add"]:
             target = Path(command[4])
             target.mkdir(parents=True, exist_ok=True)
@@ -377,3 +381,28 @@ def test_a_malformed_findings_file_comes_back_as_an_error_rather_than_a_tracebac
 
     assert code == 1
     assert "severity" in json.loads(capsys.readouterr().out)["error"]
+
+
+def test_a_deep_pass_that_measured_nothing_exempts_nothing(tmp_path: Path) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+    round_done(root, "M1-02", "deep", deep=True, measured=[])
+
+    assert review_blockers(root, "M1-02", "later", ["docs/journal.md"]) == [
+        "the deep pass was not run on later, and it recorded nothing measured"
+    ]
+
+
+def test_a_worktree_that_refuses_to_be_removed_is_left_alone(tmp_path: Path) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+    base = tmp_path / "review"
+    runner = Recorder(root)
+    first = Path(prepare(root, "M1-02", base=base, runner=runner)["reviewPath"])
+    (root / "b.txt").write_text("two", encoding="utf-8")
+    run(root, "add", "-A")
+    run(root, "commit", "-m", "chore: second")
+    runner.refuse_removal = True
+
+    second = prepare(root, "M1-02", base=base, runner=runner)
+
+    assert second["dropped"] == []
+    assert first.exists()

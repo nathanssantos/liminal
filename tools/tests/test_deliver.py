@@ -169,29 +169,38 @@ def test_check_reports_on_the_tree_it_is_pointed_at(tmp_path: Path) -> None:
     assert given["deadMocks"] == ["packages/score/x.ts:1"]
 
 
-def test_the_review_gate_lets_a_branch_without_a_card_through(tmp_path: Path) -> None:
+def test_the_review_gate_lets_a_branch_that_names_no_issue_through(tmp_path: Path) -> None:
     root = repo_with_commit(tmp_path, "a.txt", "one")
 
-    given = review_gate(root, None)
+    given = review_gate(root, "docs/craft-book", "head")
 
     assert given.passed is True
 
 
-def test_the_review_gate_stops_a_card_whose_deep_pass_never_ran(tmp_path: Path) -> None:
-    root = repo_with_commit(tmp_path, "a.txt", "one")
-    round_done(root, "M1-06", "head")
-
-    given = review_gate(root, "M1-06")
-
-    assert given.passed is False
-    assert given.detail == ["no deep pass recorded"]
-
-
 def test_the_review_gate_refuses_a_branch_naming_an_issue_no_spec_claims(tmp_path: Path) -> None:
     root = repo_with_commit(tmp_path, "a.txt", "one")
-    run(root, "checkout", "-b", "feat/999-a-card-that-does-not-exist")
 
-    given = review_gate(root, None)
+    given = review_gate(root, "feat/999-a-card-that-does-not-exist", "head")
 
     assert given.passed is False
-    assert given.detail == "the branch names issue 999, which no spec claims"
+    assert given.detail == (
+        "branch feat/999-a-card-that-does-not-exist names issue 999, which no spec claims"
+    )
+
+
+def test_the_review_gate_reads_the_head_it_is_given_not_the_local_one(tmp_path: Path) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+    folder = root / "docs" / "specs" / "M1-sound"
+    folder.mkdir(parents=True)
+    (folder / "M1-06.md").write_text(
+        "---\nid: M1-06\ntitle: t\nmilestone: M1\narea: infra\npriority: P0\n"
+        "depends_on: []\nlistening: false\nissue: 55\n---\n\n## Context\n",
+        encoding="utf-8",
+    )
+    round_done(root, "M1-06", "deep", deep=True, measured=["tools/board/review.py"])
+
+    on_the_deep_head = review_gate(root, "feat/55-board-review", "deep")
+    on_another_head = review_gate(root, "feat/55-board-review", "somewhere-else")
+
+    assert on_the_deep_head.passed is True
+    assert on_another_head.passed is False
