@@ -22,6 +22,7 @@ terminal. If the person does nothing, the app still shows what it is (an example
 | F5 | **Recover** | an error says what and how to fix; retry is one click; stop is always one click | the error, in the user's words |
 | F6 | **Keep** | record the set · "keep that" (the last N minutes) · save the set · export | recording state and size; where it went |
 | F7 | **Produce** (M3 headless, M5 UI) | paste a reference · write a brief · get a full track · say what to change · export | the track's sections, the soundcheck against the reference, what the last prompt changed (the diff, in words), the export location |
+| F8 | **See and change the layers** (M5) | open the layer map · find the layer by ear (solo, meter) · change its sound, pattern, register or effects — by a control or a prompt aimed at it · regenerate or lock it | every layer that plays, what it is, what changed and when it lands; a collision warning before a change that would clash |
 
 The full list of controls and displays, with where each lands, is
 [controls.md](controls.md). A flow is complete when every control it names is on screen.

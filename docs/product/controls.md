@@ -25,7 +25,7 @@ export contains. That is why immediate controls live **after** the point where a
 | **Output device** | which audio device plays (speakers, interface, headphones); shows the current one | F0 | system default; remembered | — | M1-04 |
 | **Master filter** | one knob: low-pass to the left, high-pass to the right, flat in the middle — the DJ sweep | F1½ | flat; not remembered | `[`/`]` | M4 |
 | **Layer on/off** | kick · hats · percussion · bass · chords · pad · lead — each toggled, DJ-style | F1½ | all on; per set | `1`–`7` | M4 |
-| **Layer level** | trim per layer, −∞..+6 dB | F1½ | 0 dB; per set | — | M5 |
+| **Layer level** | trim per layer, −∞..+6 dB (also in the layer map) | F1½ | 0 dB; per set | — | M5 |
 | **Cue** | plays the **next** segment (already rendered by the soundcheck) on the cue device, so you hear where the set is going before it goes | F4 | off; cue device chosen in settings | `C` | M5 |
 
 ## Transport — immediate
@@ -50,6 +50,32 @@ export contains. That is why immediate controls live **after** the point where a
 | **Tempo target** | nudge the tempo (±, inside the per-track budget) | F2 | M4 |
 | **Key lock** | stay in the current key until released | F2 | M5 |
 | **Why?** | shows the brain's justification for the last plan and what the soundcheck measured | F4 | M4 (log), M5 (on screen) |
+
+## The layer map — see everything that plays, change any of it
+
+The layer map is the document's tracks on screen, live. One row per layer (kick · hats · perc ·
+bass · chords · pad · lead · arp · fx, and whatever a rework adds), each showing what it is and
+letting it be changed. Immediate aspects act now in the output stage; document aspects land at
+the next phrase, like a prompt, and are written into the document (so the soundcheck, the export
+and the versions see them).
+
+| Aspect of a layer | Shows | Change | Kind | Lands |
+|---|---|---|---|---|
+| **On / off, level, meter** | playing or not; dB; the signal | toggle, trim | immediate | M4 (on/off), M5 (level) |
+| **Instrument and preset** | `bass-mono`, `poly-saw`, … with its main parameters (cutoff, envelope) | pick another preset; nudge a parameter | planned (document) | M5 |
+| **Pattern** | the rhythm as a step grid for the phrase; density; swing | denser / sparser; a step on or off; swing | planned | M5 |
+| **Register and range** | octave; the notes actually used | up / down an octave; narrow / widen | planned | M5 |
+| **Effects** | the chain: filter, EQ, delay, reverb | add / remove; a knob each | planned (document), filter sweep immediate | M5 |
+| **Role in the arrangement** | which sections the layer plays in | mute in a section; enter later; leave earlier | planned | M5 |
+| **Prompt to this layer** | — | free text scoped to the layer: "the lead becomes a pluck", "hats more shuffled", "bass follows the chords" | planned | M5 |
+| **Regenerate / lock** | the seed | another variation of this layer only; lock it while others change | planned | M5 |
+| **Solo** | hear this layer alone | toggle | immediate | M5 |
+
+Rules: a change never breaks the guards — the theory rules keep the key, the soundcheck keeps the
+balance, and a change that would collide (a lead moved into the bass register) says so before
+landing. Every document change is a version (Keep › Versions). In the set, layer changes apply to
+the current target's layers and persist across segments until changed again; in production,
+they edit the track.
 
 ## Reference and queue — planned
 

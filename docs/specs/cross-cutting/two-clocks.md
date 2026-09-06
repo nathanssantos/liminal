@@ -102,7 +102,7 @@ without measurement — and log `soundcheck-skipped` with the reason.
 | Input | When it lands | Acts on |
 |---|---|---|
 | **immediate controls** — volume, mute, device, master filter, layer on/off, cue | now, in the renderer's engine output stage | nothing in the document, the plan or the soundcheck; they never pass through the conductor (`docs/product/controls.md`) |
-| **planned controls** — energy dial, next, hold, loop this phrase, tempo target, key lock | the next phrase boundary | the `proposed` segments onward, exactly like a live prompt; each logs `control.received` and `control.applied` with bars |
+| **planned controls** — energy dial, next, hold, loop this phrase, tempo target, key lock, and **layer edits** (instrument, pattern, register, effects, section role, a prompt aimed at one layer, regenerate, lock) | the next phrase boundary | the `proposed` segments onward, exactly like a live prompt; each logs `control.received` and `control.applied` with bars |
 | standing prompt | at the next brain call | the target card and the arc |
 | live prompt | at the next phrase boundary | the `proposed` segments onward; if there are none, the brain is called now, with the prompt, for the next segment |
 | "more of this" / "less of this" | same | the accumulated preference vector, which enters the brain's context and the `distance` weights |

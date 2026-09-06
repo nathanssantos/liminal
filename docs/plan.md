@@ -154,10 +154,11 @@ platform plays them back as electronic music: the melody and the harmony recogni
 arrangement new, one track at a time or as a set with transitions, bridges and notes that make
 sense. It reuses everything above and adds two pieces: a **content card** (what the track says:
 melody, chords, structure) next to the style card (how it sounds), and **idiom arrangement** in
-`composition`. Recorded as bet B05; the first spikes come through the exploration iteration
-(process §18) and the milestone is proposed when they answer. It also names a constraint the
-product must respect: a rework of someone else's song is a derivative work — private listening
-and one's own material first; sharing is a course decision.
+`composition`. And the person is never a spectator: the **layer map** shows every instrument that
+is playing and lets each aspect be changed — the music can be altered completely, by hand or by a
+prompt aimed at a layer. Recorded as bet B05; the first spikes come through the exploration
+iteration (process §18) and the milestone is proposed when they answer. What a person does with a
+rework is their responsibility, as with any DAW.
 
 ## Out of scope, and why
 

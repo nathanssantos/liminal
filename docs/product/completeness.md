@@ -19,6 +19,7 @@
 | **Any screen** | keyboard path, visible focus, no information by colour alone, a first state that shows the product | — |
 | **Any output you would want to keep** (a set, a section, a track) | record, keep, save, export, open again | — |
 | **Any comparison the product makes** (target vs measured) | shown as numbers a person can read, with ok/warn | — |
+| **Anything the system composed** (a layer, a section, a transition) | its parts visible, each part changeable by hand or by a prompt aimed at it, and a way to regenerate or lock it | 2026-09-06: the owner asked for the layer map |
 | **Settings** | one place, grouped, nothing hidden elsewhere, defaults stated | — |
 
 ## How a row is used

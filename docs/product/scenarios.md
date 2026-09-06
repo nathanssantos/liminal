@@ -12,6 +12,8 @@
 2. Presses play without reading anything. Hears music at a level that is not too loud.
 3. Reaches for the volume. Finds it in one glance; keyboard works.
 4. It is a bit bright; wants it warmer. Finds the filter or a layer to turn off.
+4b. Wants the lead softer. Opens the layer map, finds the lead by soloing it, picks a pluck, and
+   sees "next phrase, in 5 bars".
 5. Wants to know what is playing. Reads key, tempo, section, and what comes next.
 6. Pastes a link of a track they like. Sees it analyzing, then sees the set start moving there.
 7. Closes the app; opens it tomorrow. Volume and device are as they left them.
@@ -33,6 +35,8 @@
 4. Nudges the tempo up two BPM over a couple of tracks.
 5. Locks the key for a while; releases it.
 6. Asks "why did it do that?" and reads an answer they believe.
+7. Rebuilds a track from the layer map: new bass pattern, hats shuffled, pad out of the drop —
+   and locks the lead they like.
 
 ## Producer (F7, F6)
 
