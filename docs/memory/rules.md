@@ -237,6 +237,22 @@
   (measured 2026-09-06)
 - ⚠️ **`AudioWorklet` in `node-web-audio-api` runs synchronously**, with no thread of its own. Do
   not measure worklet latency in Node and call it product latency. (measured: docs)
+- ⚠️ **A polyfill context is not enough: Tone checks the globals.** Tone's `OfflineContext`
+  constructor tests `instanceof` against the **global** `OfflineAudioContext`, so handing
+  `renderOffline` a `node-web-audio-api` context in a process that never imported
+  `node-web-audio-api/polyfill.js` passes both offline guards and then dies inside
+  `standardized-audio-context` with "Missing the native OfflineAudioContext constructor". The caller
+  chooses the implementation and installs its globals. (measured 2026-09-06)
+- 🔴 **Rendering an offline context means rendering the Tone wrapper, not the raw context.**
+  `startRendering()` on the raw one bypasses Tone's render loop, so nothing the transport scheduled
+  ever runs and the buffer comes back silent — with no error. `renderOffline` wraps first and calls
+  `context.render()`; the level assertion is what catches the mistake. (measured 2026-09-06)
+- ⚠️ **An offline render stops at the last tick; live playback rings on.** `renderOffline` renders
+  exactly `scoreSeconds`, while the engine holds the transport for `scoreReleaseTailSeconds` after
+  the last tick. A bounce therefore ends on a non-zero sample, and the two do not agree. It does not
+  disturb the soundcheck (the truncation is identical in both implementations, and spectral distance
+  over a segment does not move for one envelope tail) — but an export would be truncated. #65
+  decides before M3. (measured 2026-09-06)
 - ⚠️ **Determinism is per implementation.** Chromium × Node do not yield the same bytes. Compare
   duration and measurements with tolerance; bytes only between two renders of the same Chromium.
   (assumed until M1-05 measures)

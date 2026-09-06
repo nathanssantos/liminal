@@ -1,0 +1,147 @@
+{
+  "card": "M1-03",
+  "round": 1,
+  "head": "361c4ff951f6d8cbd69a39c8a3fb8202a4362a4d",
+  "reviewedHead": "361c4ff951f6d8cbd69a39c8a3fb8202a4362a4d",
+  "deepPassHead": "361c4ff951f6d8cbd69a39c8a3fb8202a4362a4d",
+  "measured": [
+    "packages/engine/src/errors.ts",
+    "packages/engine/src/index.ts",
+    "packages/engine/src/render.test.ts",
+    "packages/engine/src/render.ts",
+    "packages/engine/src/tone.ts"
+  ],
+  "findings": [
+    {
+      "agent": "engine-reviewer",
+      "round": 1,
+      "severity": "major",
+      "file": "packages/engine/src/render.test.ts",
+      "line": 37,
+      "summary": "ffprobe's refusal was caught as an absence, and four header fields were unasserted, so writing IEEE float instead of PCM left both wav tests green",
+      "status": "fixed"
+    },
+    {
+      "agent": "engine-reviewer",
+      "round": 1,
+      "severity": "major",
+      "file": "packages/engine/src/render.test.ts",
+      "line": 32,
+      "summary": "determinism was proven on a score with the automation stripped, the likeliest source of a render that does not reproduce",
+      "status": "fixed"
+    },
+    {
+      "agent": "engine-reviewer",
+      "round": 1,
+      "severity": "major",
+      "file": "docs/specs/M1-sound/M1-03.md",
+      "line": 40,
+      "summary": "the rewritten render-time criterion derived a weaker bound from the wrong constant and turned a missed soundcheck budget into a pass",
+      "status": "fixed"
+    },
+    {
+      "agent": "engine-reviewer",
+      "round": 1,
+      "severity": "minor",
+      "file": "packages/engine/src/render.test.ts",
+      "line": 86,
+      "summary": "the seed criterion is proven by the absence of code rather than by a test that could fail",
+      "status": "accepted",
+      "note": "kept as a regression guard for the first feature that reads the seed at playback"
+    },
+    {
+      "agent": "engine-reviewer",
+      "round": 1,
+      "severity": "minor",
+      "file": "packages/engine/src/render.ts",
+      "line": 52,
+      "summary": "two refusals shared context-in-use, which already means the context drives another engine",
+      "status": "fixed"
+    },
+    {
+      "agent": "engine-reviewer",
+      "round": 1,
+      "severity": "minor",
+      "file": "packages/engine/src/render.ts",
+      "line": 70,
+      "summary": "the render had no finally, so a rejected render left the ledger attached",
+      "status": "fixed"
+    },
+    {
+      "agent": "engine-reviewer",
+      "round": 1,
+      "severity": "minor",
+      "file": "packages/engine/src/render.ts",
+      "line": 60,
+      "summary": "neither offline guard had a test, including the one that would otherwise ship a transport-less render",
+      "status": "fixed"
+    },
+    {
+      "agent": "engine-reviewer",
+      "round": 1,
+      "severity": "minor",
+      "file": "docs/specs/M1-sound/M1-03.md",
+      "line": 45,
+      "summary": "nothing fails if the render gets slower; the criterion is a recorded measurement",
+      "status": "accepted",
+      "note": "the spec says so"
+    },
+    {
+      "agent": "docs-reviewer",
+      "round": 1,
+      "severity": "minor",
+      "file": "docs/memory/rules.md",
+      "line": 240,
+      "summary": "the lesson that rendering the raw context returns silence was not written down",
+      "status": "fixed"
+    },
+    {
+      "agent": "engine-reviewer",
+      "round": 3,
+      "severity": "major",
+      "file": "packages/engine/src/render.ts",
+      "line": 127,
+      "summary": "a legal document at +6 dB overshoots the limiter and encodeWav clamps 52 samples into the file with no error",
+      "status": "open",
+      "note": "issue #70; the peak assertion runs before encoding on this path"
+    },
+    {
+      "agent": "engine-reviewer",
+      "round": 3,
+      "severity": "minor",
+      "file": "docs/memory/measurements.md",
+      "line": 29,
+      "summary": "the suite numbers were written before the card's last two tests and did not reproduce",
+      "status": "fixed"
+    },
+    {
+      "agent": "engine-reviewer",
+      "round": 3,
+      "severity": "minor",
+      "file": "packages/engine/src/render.ts",
+      "line": 47,
+      "summary": "a polyfill context without the globals passes both guards and dies inside standardized-audio-context",
+      "status": "fixed",
+      "note": "recorded as a rule; the failure is immediate and named enough"
+    },
+    {
+      "agent": "engine-reviewer",
+      "round": 3,
+      "severity": "minor",
+      "file": "packages/engine/src/tone.ts",
+      "line": 35,
+      "summary": "a raw context that already rendered throws InvalidStateError rather than an EngineError",
+      "status": "open",
+      "note": "issue #69, same root as the wrapper reuse"
+    },
+    {
+      "agent": "engine-reviewer",
+      "round": 3,
+      "severity": "minor",
+      "file": "packages/engine/src/render.test.ts",
+      "line": 122,
+      "summary": "ffprobe read back only the duration, so the channel count was checked by nothing",
+      "status": "fixed"
+    }
+  ]
+}

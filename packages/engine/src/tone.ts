@@ -4,6 +4,11 @@ export type Tone = typeof ToneNamespace
 
 export type ToneContext = ToneNamespace.Context | ToneNamespace.OfflineContext
 
+export type ToneOfflineContext = ToneNamespace.OfflineContext
+
+export const rendersToneOffline = (context: ToneContext): context is ToneOfflineContext =>
+  'render' in context
+
 export type ToneNode = ToneNamespace.ToneAudioNode
 
 export type ToneParam = ToneNamespace.Param<'decibels'> | ToneNamespace.Param<'frequency'>
