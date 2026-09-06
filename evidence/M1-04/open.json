@@ -1,0 +1,83 @@
+[
+  {
+    "state": "open",
+    "width": 1024,
+    "height": 900,
+    "title": "liminal",
+    "documentWidth": 1024,
+    "documentHeight": 900,
+    "elements": {},
+    "missing": [
+      "header",
+      "document-name",
+      "document-tempo",
+      "document-key",
+      "stage",
+      "readout",
+      "beat-indicator",
+      "transport-play",
+      "transport-stop",
+      "status-line",
+      "output",
+      "output-volume",
+      "output-volume-value",
+      "output-mute",
+      "output-device",
+      "error-strip"
+    ]
+  },
+  {
+    "state": "open",
+    "width": 1440,
+    "height": 900,
+    "title": "liminal",
+    "documentWidth": 1440,
+    "documentHeight": 900,
+    "elements": {},
+    "missing": [
+      "header",
+      "document-name",
+      "document-tempo",
+      "document-key",
+      "stage",
+      "readout",
+      "beat-indicator",
+      "transport-play",
+      "transport-stop",
+      "status-line",
+      "output",
+      "output-volume",
+      "output-volume-value",
+      "output-mute",
+      "output-device",
+      "error-strip"
+    ]
+  },
+  {
+    "state": "open",
+    "width": 1920,
+    "height": 900,
+    "title": "liminal",
+    "documentWidth": 1920,
+    "documentHeight": 900,
+    "elements": {},
+    "missing": [
+      "header",
+      "document-name",
+      "document-tempo",
+      "document-key",
+      "stage",
+      "readout",
+      "beat-indicator",
+      "transport-play",
+      "transport-stop",
+      "status-line",
+      "output",
+      "output-volume",
+      "output-volume-value",
+      "output-mute",
+      "output-device",
+      "error-strip"
+    ]
+  }
+]
