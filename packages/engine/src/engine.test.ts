@@ -568,6 +568,29 @@ describe('the engine restarted after the tail', () => {
     engine.dispose()
   })
 
+  it('does not start again for a restart the stop() in the same batch cancelled', async () => {
+    const score = twoBars()
+    const { engine, context, render } = await offlineEngine(
+      score,
+      scoreSeconds(score) * 2 + scoreReleaseTailSeconds(score) + 0.5,
+    )
+    let ended = 0
+    engine.on('ended', () => {
+      ended += 1
+      if (ended === 1) {
+        context.setTimeout(() => {
+          engine.stop()
+        }, -0.001)
+        engine.play()
+      }
+    })
+    engine.play()
+    await render()
+    expect(ended).toBe(1)
+    expect(engine.triggeredNoteCount()).toBe(noteCount(score))
+    engine.dispose()
+  })
+
   it('does not rewind for a tail the play() in the same batch cancelled', async () => {
     const score = twoBars()
     const tail = scoreReleaseTailSeconds(score)
@@ -591,7 +614,7 @@ describe('the engine restarted after the tail', () => {
     engine.dispose()
   })
 
-  it('does not let a restart armed before a stop reach the session after it', async () => {
+  it('replays once when play, stop and play all arrive in the ended listener', async () => {
     const score = twoBars()
     const { engine, render } = await offlineEngine(
       score,
