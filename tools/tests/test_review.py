@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import shutil
 from collections.abc import Sequence
 from pathlib import Path
 
 from board.review import (
+    clean_scratch,
     load_state,
     prepare,
     record_findings,
@@ -21,10 +23,12 @@ class Recorder:
 
     def __call__(self, command: Sequence[str], cwd: Path) -> int:
         self.calls.append(list(command))
-        if command[0] == "git" and command[1] == "worktree":
+        if command[:3] == ["git", "worktree", "add"]:
             target = Path(command[4])
             target.mkdir(parents=True, exist_ok=True)
             (target / "package.json").write_text("{}\n", encoding="utf-8")
+        if command[:3] == ["git", "worktree", "remove"]:
+            shutil.rmtree(command[4], ignore_errors=True)
         if command[0] == "pnpm":
             (cwd / "node_modules").mkdir(exist_ok=True)
         return 0
@@ -162,3 +166,19 @@ def test_the_merge_gate_passes_when_the_diff_since_the_deep_pass_is_all_unmeasur
     assert review_blockers(root, "M1-02", "later", ["packages/engine/src/engine.ts"]) == [
         "the deep pass was not run on later, and it measured packages/engine/src/engine.ts"
     ]
+
+
+def test_cleaning_the_scratch_room_unregisters_every_worktree_it_made(tmp_path: Path) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+    base = tmp_path / "review"
+    runner = Recorder(root)
+    first = Path(scratch(root, "M1-02", base=base, runner=runner)["scratchPath"])
+    second = Path(scratch(root, "M1-02", base=base, runner=runner)["scratchPath"])
+
+    result = clean_scratch(root, "M1-02", base=base, runner=runner)
+
+    assert result["removed"] == sorted([str(first), str(second)])
+    removals = [call[4] for call in runner.calls if call[:3] == ["git", "worktree", "remove"]]
+    assert removals == sorted([str(first), str(second)])
+    assert ["git", "worktree", "prune"] in runner.calls
+    assert not first.exists()

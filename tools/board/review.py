@@ -100,12 +100,21 @@ def scratch(
     return {"scratchPath": str(path), "of": str(prepared)}
 
 
-def clean_scratch(root: Path, card: str, *, base: Path = REVIEW_ROOT) -> dict[str, Any]:
+def clean_scratch(
+    root: Path,
+    card: str,
+    *,
+    base: Path = REVIEW_ROOT,
+    runner: Runner = shell,
+) -> dict[str, Any]:
     branch = git(root, "rev-parse", "--abbrev-ref", "HEAD")
     head = git(root, "rev-parse", "HEAD")
     room = prepared_path(base, branch, head).parent / f"{head}-scratch"
-    removed = [str(entry) for entry in room.iterdir()] if room.exists() else []
+    removed = sorted(str(entry) for entry in room.iterdir()) if room.exists() else []
+    for entry in removed:
+        runner(["git", "worktree", "remove", "--force", entry], root)
     shutil.rmtree(room, ignore_errors=True)
+    runner(["git", "worktree", "prune"], root)
     return {"removed": removed}
 
 
