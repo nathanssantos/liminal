@@ -6,24 +6,73 @@
     "title": "liminal",
     "documentWidth": 1024,
     "documentHeight": 900,
-    "elements": {},
-    "missing": [
-      "header",
-      "document-name",
-      "document-tempo",
-      "document-key",
-      "stage",
-      "readout",
-      "beat-indicator",
-      "transport-play",
-      "transport-stop",
-      "status-line",
-      "output",
-      "output-volume",
-      "output-volume-value",
-      "output-mute",
-      "output-device",
-      "error-strip"
+    "measured": [
+      {
+        "selector": ".shell-deck",
+        "rect": {
+          "left": 0,
+          "top": 0,
+          "width": 1024,
+          "height": 89
+        },
+        "styles": {
+          "background-color": "rgb(24, 28, 32)",
+          "color": "rgb(233, 237, 240)",
+          "font-family": "system-ui, -apple-system, \"Segoe UI\", Cantarell, \"Noto Sans\", sans-serif",
+          "font-size": "15px",
+          "min-height": "88px",
+          "padding-left": "24px",
+          "padding-right": "24px",
+          "border-bottom-width": "1px",
+          "border-bottom-color": "rgb(40, 46, 51)",
+          "max-width": "none",
+          "transition-duration": "0s"
+        }
+      },
+      {
+        "selector": ".shell-output",
+        "rect": {
+          "left": 0,
+          "top": 811,
+          "width": 1024,
+          "height": 89
+        },
+        "styles": {
+          "background-color": "rgb(24, 28, 32)",
+          "color": "rgb(233, 237, 240)",
+          "font-family": "system-ui, -apple-system, \"Segoe UI\", Cantarell, \"Noto Sans\", sans-serif",
+          "font-size": "15px",
+          "min-height": "88px",
+          "padding-left": "24px",
+          "padding-right": "24px",
+          "border-bottom-width": "0px",
+          "border-bottom-color": "rgb(233, 237, 240)",
+          "max-width": "none",
+          "transition-duration": "0s"
+        }
+      },
+      {
+        "selector": ".shell-stage",
+        "rect": {
+          "left": 0,
+          "top": 89,
+          "width": 1024,
+          "height": 722
+        },
+        "styles": {
+          "background-color": "rgba(0, 0, 0, 0)",
+          "color": "rgb(233, 237, 240)",
+          "font-family": "system-ui, -apple-system, \"Segoe UI\", Cantarell, \"Noto Sans\", sans-serif",
+          "font-size": "15px",
+          "min-height": "auto",
+          "padding-left": "24px",
+          "padding-right": "24px",
+          "border-bottom-width": "0px",
+          "border-bottom-color": "rgb(233, 237, 240)",
+          "max-width": "none",
+          "transition-duration": "0s"
+        }
+      }
     ]
   },
   {
@@ -33,24 +82,73 @@
     "title": "liminal",
     "documentWidth": 1440,
     "documentHeight": 900,
-    "elements": {},
-    "missing": [
-      "header",
-      "document-name",
-      "document-tempo",
-      "document-key",
-      "stage",
-      "readout",
-      "beat-indicator",
-      "transport-play",
-      "transport-stop",
-      "status-line",
-      "output",
-      "output-volume",
-      "output-volume-value",
-      "output-mute",
-      "output-device",
-      "error-strip"
+    "measured": [
+      {
+        "selector": ".shell-deck",
+        "rect": {
+          "left": 0,
+          "top": 0,
+          "width": 1440,
+          "height": 89
+        },
+        "styles": {
+          "background-color": "rgb(24, 28, 32)",
+          "color": "rgb(233, 237, 240)",
+          "font-family": "system-ui, -apple-system, \"Segoe UI\", Cantarell, \"Noto Sans\", sans-serif",
+          "font-size": "15px",
+          "min-height": "88px",
+          "padding-left": "32px",
+          "padding-right": "32px",
+          "border-bottom-width": "1px",
+          "border-bottom-color": "rgb(40, 46, 51)",
+          "max-width": "none",
+          "transition-duration": "0s"
+        }
+      },
+      {
+        "selector": ".shell-output",
+        "rect": {
+          "left": 0,
+          "top": 811,
+          "width": 1440,
+          "height": 89
+        },
+        "styles": {
+          "background-color": "rgb(24, 28, 32)",
+          "color": "rgb(233, 237, 240)",
+          "font-family": "system-ui, -apple-system, \"Segoe UI\", Cantarell, \"Noto Sans\", sans-serif",
+          "font-size": "15px",
+          "min-height": "88px",
+          "padding-left": "32px",
+          "padding-right": "32px",
+          "border-bottom-width": "0px",
+          "border-bottom-color": "rgb(233, 237, 240)",
+          "max-width": "none",
+          "transition-duration": "0s"
+        }
+      },
+      {
+        "selector": ".shell-stage",
+        "rect": {
+          "left": 0,
+          "top": 89,
+          "width": 1440,
+          "height": 722
+        },
+        "styles": {
+          "background-color": "rgba(0, 0, 0, 0)",
+          "color": "rgb(233, 237, 240)",
+          "font-family": "system-ui, -apple-system, \"Segoe UI\", Cantarell, \"Noto Sans\", sans-serif",
+          "font-size": "15px",
+          "min-height": "auto",
+          "padding-left": "32px",
+          "padding-right": "32px",
+          "border-bottom-width": "0px",
+          "border-bottom-color": "rgb(233, 237, 240)",
+          "max-width": "none",
+          "transition-duration": "0s"
+        }
+      }
     ]
   },
   {
@@ -60,24 +158,73 @@
     "title": "liminal",
     "documentWidth": 1920,
     "documentHeight": 900,
-    "elements": {},
-    "missing": [
-      "header",
-      "document-name",
-      "document-tempo",
-      "document-key",
-      "stage",
-      "readout",
-      "beat-indicator",
-      "transport-play",
-      "transport-stop",
-      "status-line",
-      "output",
-      "output-volume",
-      "output-volume-value",
-      "output-mute",
-      "output-device",
-      "error-strip"
+    "measured": [
+      {
+        "selector": ".shell-deck",
+        "rect": {
+          "left": 0,
+          "top": 0,
+          "width": 1920,
+          "height": 89
+        },
+        "styles": {
+          "background-color": "rgb(24, 28, 32)",
+          "color": "rgb(233, 237, 240)",
+          "font-family": "system-ui, -apple-system, \"Segoe UI\", Cantarell, \"Noto Sans\", sans-serif",
+          "font-size": "15px",
+          "min-height": "88px",
+          "padding-left": "32px",
+          "padding-right": "32px",
+          "border-bottom-width": "1px",
+          "border-bottom-color": "rgb(40, 46, 51)",
+          "max-width": "none",
+          "transition-duration": "0s"
+        }
+      },
+      {
+        "selector": ".shell-output",
+        "rect": {
+          "left": 0,
+          "top": 811,
+          "width": 1920,
+          "height": 89
+        },
+        "styles": {
+          "background-color": "rgb(24, 28, 32)",
+          "color": "rgb(233, 237, 240)",
+          "font-family": "system-ui, -apple-system, \"Segoe UI\", Cantarell, \"Noto Sans\", sans-serif",
+          "font-size": "15px",
+          "min-height": "88px",
+          "padding-left": "32px",
+          "padding-right": "32px",
+          "border-bottom-width": "0px",
+          "border-bottom-color": "rgb(233, 237, 240)",
+          "max-width": "none",
+          "transition-duration": "0s"
+        }
+      },
+      {
+        "selector": ".shell-stage",
+        "rect": {
+          "left": 0,
+          "top": 89,
+          "width": 1920,
+          "height": 722
+        },
+        "styles": {
+          "background-color": "rgba(0, 0, 0, 0)",
+          "color": "rgb(233, 237, 240)",
+          "font-family": "system-ui, -apple-system, \"Segoe UI\", Cantarell, \"Noto Sans\", sans-serif",
+          "font-size": "15px",
+          "min-height": "auto",
+          "padding-left": "32px",
+          "padding-right": "32px",
+          "border-bottom-width": "0px",
+          "border-bottom-color": "rgb(233, 237, 240)",
+          "max-width": "none",
+          "transition-duration": "0s"
+        }
+      }
     ]
   }
 ]
