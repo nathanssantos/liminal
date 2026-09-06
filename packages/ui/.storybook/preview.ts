@@ -1,5 +1,6 @@
 import type { Preview } from '@storybook/react-vite'
 import '../src/tokens.css'
+import './preview.css'
 
 const VIEWPORTS = {
   narrow: { name: '1024', styles: { width: '1024px', height: '900px' }, type: 'desktop' as const },

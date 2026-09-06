@@ -31,7 +31,7 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Primary: Story = { args: { variant: 'primary' } }
+export const Primary: Story = { args: { variant: 'primary' }, tags: ['evidence'] }
 export const PrimaryHover: Story = {
   args: { variant: 'primary' },
   play: async ({ canvasElement }) => {

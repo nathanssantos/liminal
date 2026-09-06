@@ -29,7 +29,10 @@ export const Empty: Story = {
   args: { tempo: null, musicalKey: null, bar: null, beat: null, elapsedMs: null },
 }
 export const Stopped: Story = {}
-export const Playing: Story = { args: { playing: true } }
+export const Playing: Story = { args: { playing: true }, tags: ['evidence'] }
+export const PlayingShortValues: Story = {
+  args: { playing: true, tempo: 99, bar: 9, beat: 4, elapsedMs: 599000 },
+}
 export const PlayingLongValues: Story = {
   args: { playing: true, tempo: 128, bar: 1024, beat: 3, elapsedMs: 3849000 },
 }

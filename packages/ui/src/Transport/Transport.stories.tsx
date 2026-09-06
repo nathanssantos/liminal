@@ -30,7 +30,7 @@ type Story = StoryObj<typeof meta>
 
 export const Stopped: Story = {}
 export const Starting: Story = { args: { state: 'starting' } }
-export const Playing: Story = { args: { state: 'playing' } }
+export const Playing: Story = { args: { state: 'playing' }, tags: ['evidence'] }
 export const Paused: Story = { args: { state: 'paused' } }
 export const SizeMedium: Story = { args: { state: 'playing', size: 'md' } }
 export const CannotPlay: Story = {

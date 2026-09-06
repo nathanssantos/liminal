@@ -1,3 +1,5 @@
+@import "./base.css";
+
 :root {
   --color-surface: #0e1114;
   --color-surface-2: #181c20;
@@ -106,6 +108,8 @@
   --readout-height-md: 56px;
   --readout-height-lg: 64px;
   --readout-rule-height: 24px;
+  --readout-line-md: 30px;
+  --readout-line-lg: 36px;
   --readout-tempo-ch: 3;
   --readout-key-ch: 6;
   --readout-bar-ch: 7;

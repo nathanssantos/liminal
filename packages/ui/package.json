@@ -8,7 +8,11 @@
       "types": "./src/index.ts",
       "default": "./src/index.ts"
     },
-    "./tokens.css": "./src/tokens.css"
+    "./tokens.css": "./src/tokens.css",
+    "./colours": {
+      "types": "./colours.d.mts",
+      "default": "./colours.mjs"
+    }
   },
   "scripts": {
     "lint": "biome check .",
@@ -16,7 +20,8 @@
     "test": "vitest run",
     "test:stories": "vitest run --project stories",
     "storybook": "storybook dev -p 6007 --no-open",
-    "build:storybook": "storybook build"
+    "build:storybook": "storybook build",
+    "measure": "storybook build && node tools/shots.ts && node tools/measure.ts"
   },
   "peerDependencies": {
     "react": "^19.0.0",
@@ -38,6 +43,7 @@
     "@vitejs/plugin-react": "5.2.0",
     "axe-core": "4.13.0",
     "jsdom": "30.0.1",
+    "playwright": "1.63.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "storybook": "10.6.0",

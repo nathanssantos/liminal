@@ -1,5 +1,5 @@
 import { join } from 'node:path'
-import { WINDOW_BACKGROUND } from '@liminal/ui'
+import { WINDOW_BACKGROUND } from '@liminal/ui/colours'
 
 export const WINDOW_TITLE = 'liminal'
 

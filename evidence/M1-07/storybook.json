@@ -1,0 +1,132 @@
+{
+  "buttonHeights": {
+    "sm": 28,
+    "md": 36,
+    "lg": 44
+  },
+  "sliderThumbHit": {
+    "width": "24px",
+    "height": "24px"
+  },
+  "transport": [
+    {
+      "name": "Pause",
+      "width": 111.953125,
+      "height": 44
+    },
+    {
+      "name": "Stop",
+      "width": 44,
+      "height": 44
+    }
+  ],
+  "focusRing": {
+    "outlineWidth": "2px",
+    "outlineStyle": "solid",
+    "outlineColor": "rgb(242, 166, 90)",
+    "outlineOffset": "2px",
+    "transitionDuration": "0.12s, 0.12s, 0.12s"
+  },
+  "selectPanel": {
+    "height": 320,
+    "maxHeight": "320px",
+    "withinViewport": true
+  },
+  "readoutDigitGrowth": [
+    {
+      "reads": "Tempo99BPMKeyF# minBar9:4Elapsed9:59",
+      "groupHeight": 56,
+      "fields": [
+        {
+          "field": "tempo",
+          "left": 471.125,
+          "width": 98.4375,
+          "height": 53.5
+        },
+        {
+          "field": "key",
+          "left": 569.5625,
+          "width": 141.90625,
+          "height": 53.5
+        },
+        {
+          "field": "bar",
+          "left": 711.46875,
+          "width": 157.5625,
+          "height": 53.5
+        },
+        {
+          "field": "elapsed",
+          "left": 869.03125,
+          "width": 99.84375,
+          "height": 53.5
+        }
+      ]
+    },
+    {
+      "reads": "Tempo128BPMKeyF# minBar17:3Elapsed2:34",
+      "groupHeight": 56,
+      "fields": [
+        {
+          "field": "tempo",
+          "left": 471.125,
+          "width": 98.4375,
+          "height": 53.5
+        },
+        {
+          "field": "key",
+          "left": 569.5625,
+          "width": 141.90625,
+          "height": 53.5
+        },
+        {
+          "field": "bar",
+          "left": 711.46875,
+          "width": 157.5625,
+          "height": 53.5
+        },
+        {
+          "field": "elapsed",
+          "left": 869.03125,
+          "width": 99.84375,
+          "height": 53.5
+        }
+      ]
+    },
+    {
+      "reads": "Tempo128BPMKeyF# minBar1024:3Elapsed1:04:09",
+      "groupHeight": 56,
+      "fields": [
+        {
+          "field": "tempo",
+          "left": 471.125,
+          "width": 98.4375,
+          "height": 53.5
+        },
+        {
+          "field": "key",
+          "left": 569.5625,
+          "width": 141.90625,
+          "height": 53.5
+        },
+        {
+          "field": "bar",
+          "left": 711.46875,
+          "width": 157.5625,
+          "height": 53.5
+        },
+        {
+          "field": "elapsed",
+          "left": 869.03125,
+          "width": 99.84375,
+          "height": 53.5
+        }
+      ]
+    }
+  ],
+  "smallestTextPx": {
+    "1024": 13,
+    "1440": 13,
+    "1920": 13
+  }
+}

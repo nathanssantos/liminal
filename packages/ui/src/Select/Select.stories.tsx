@@ -57,7 +57,7 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {}
-export const WithValue: Story = { args: { value: 'interface' } }
+export const WithValue: Story = { args: { value: 'interface' }, tags: ['evidence'] }
 export const Open: Story = {
   render: (args) => <ControlledSelect {...args} />,
   play: async ({ canvasElement }) => {

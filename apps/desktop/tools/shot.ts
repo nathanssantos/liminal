@@ -6,6 +6,10 @@ import { _electron as electron } from '@playwright/test'
 const WIDTHS = [1024, 1440, 1920]
 const HEIGHT = 900
 
+type Rect = { left: number; top: number; width: number; height: number }
+
+type Measured = { selector: string; rect: Rect; styles: Record<string, string> }
+
 type Measurements = {
   state: string
   width: number
@@ -13,17 +17,43 @@ type Measurements = {
   title: string
   documentWidth: number
   documentHeight: number
+  measured: Measured[]
 }
 
-function parseArguments(argv: readonly string[]): { state: string; id: string } {
+const REPORTED_STYLES = [
+  'background-color',
+  'color',
+  'font-family',
+  'font-size',
+  'min-height',
+  'padding-left',
+  'padding-right',
+  'border-bottom-width',
+  'border-bottom-color',
+  'max-width',
+  'transition-duration',
+]
+
+function parseArguments(argv: readonly string[]): {
+  state: string
+  id: string
+  selectors: string[]
+} {
   const state = argv[0]
   if (!state || state.startsWith('--')) {
-    throw new Error('usage: shot <state> [--id <card id>]')
+    throw new Error('usage: shot <state> [--id <card id>] [--measure <selector>]…')
   }
   const flag = argv.indexOf('--id')
   const id = flag === -1 ? currentBranchSlug() : argv[flag + 1]
   if (!id) throw new Error('--id needs a card id')
-  return { state, id }
+  const selectors: string[] = []
+  argv.forEach((argument, index) => {
+    if (argument !== '--measure') return
+    const selector = argv[index + 1]
+    if (!selector) throw new Error('--measure needs a selector')
+    selectors.push(selector)
+  })
+  return { state, id, selectors }
 }
 
 function currentBranchSlug(): string {
@@ -34,7 +64,7 @@ function currentBranchSlug(): string {
   return card?.[1] ?? branch.replace(/[^a-zA-Z0-9-]/g, '-')
 }
 
-const { state, id } = parseArguments(process.argv.slice(2))
+const { state, id, selectors } = parseArguments(process.argv.slice(2))
 const directory = resolve(process.cwd(), '..', '..', 'evidence', id)
 mkdirSync(directory, { recursive: true })
 
@@ -45,10 +75,26 @@ await window.waitForLoadState('domcontentloaded')
 const measurements: Measurements[] = []
 for (const width of WIDTHS) {
   await window.setViewportSize({ width, height: HEIGHT })
-  const page = await window.evaluate(() => ({
-    documentWidth: document.documentElement.clientWidth,
-    documentHeight: document.documentElement.clientHeight,
-  }))
+  const page = await window.evaluate(
+    ({ wanted, reported }) => ({
+      documentWidth: document.documentElement.clientWidth,
+      documentHeight: document.documentElement.clientHeight,
+      measured: wanted.flatMap((selector) =>
+        [...document.querySelectorAll(selector)].map((element) => {
+          const box = element.getBoundingClientRect()
+          const computed = getComputedStyle(element)
+          const styles: Record<string, string> = {}
+          for (const property of reported) styles[property] = computed.getPropertyValue(property)
+          return {
+            selector,
+            rect: { left: box.left, top: box.top, width: box.width, height: box.height },
+            styles,
+          }
+        }),
+      ),
+    }),
+    { wanted: selectors, reported: REPORTED_STYLES },
+  )
   measurements.push({
     state,
     width,

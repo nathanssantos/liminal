@@ -15,20 +15,30 @@
 }
 
 .lm-readout-field {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
   padding-inline: var(--space-5);
-  border-inline-start: var(--border-width) solid var(--color-line);
 }
 
 .lm-readout-field:first-child {
   padding-inline-start: 0;
-  border-inline-start: none;
 }
 
 .lm-readout-field:last-child {
   padding-inline-end: 0;
+}
+
+.lm-readout-field + .lm-readout-field::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  top: 50%;
+  width: var(--border-width);
+  height: var(--readout-rule-height);
+  margin-top: calc(-1 * var(--readout-rule-height) / 2);
+  background-color: var(--color-line);
 }
 
 .lm-readout-label {
@@ -46,6 +56,14 @@
   display: flex;
   align-items: baseline;
   gap: var(--space-1);
+}
+
+.lm-readout[data-size="md"] .lm-readout-line {
+  height: var(--readout-line-md);
+}
+
+.lm-readout[data-size="lg"] .lm-readout-line {
+  height: var(--readout-line-lg);
 }
 
 .lm-readout-value {

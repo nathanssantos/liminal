@@ -36,6 +36,7 @@ export const WithAction: Story = {
 }
 export const WithActionAndDismiss: Story = {
   args: { action: { label: 'Try again', onAction: fn() }, onDismiss: fn() },
+  tags: ['evidence'],
 }
 export const WarnTone: Story = {
   args: {

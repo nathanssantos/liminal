@@ -1,7 +1,6 @@
 import './base.css'
 
 export { Button, type ButtonProps, type ButtonSize, type ButtonVariant } from './Button/Button.tsx'
-export { colourToken, WINDOW_BACKGROUND } from './colours.ts'
 export {
   ErrorStrip,
   type ErrorStripAction,

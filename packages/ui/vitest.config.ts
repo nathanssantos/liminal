@@ -4,6 +4,7 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   plugins: [react()],
   test: {
+    server: { deps: { external: [/colours\.mjs$/] } },
     environment: 'jsdom',
     css: true,
     globals: false,

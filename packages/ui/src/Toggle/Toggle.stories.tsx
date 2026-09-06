@@ -25,7 +25,7 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Off: Story = {}
-export const On: Story = { args: { pressed: true } }
+export const On: Story = { args: { pressed: true }, tags: ['evidence'] }
 export const OnWarn: Story = { args: { pressed: true, tone: 'warn' } }
 export const OnNeutral: Story = { args: { pressed: true, tone: 'neutral', label: 'Solo' } }
 export const OffDisabled: Story = { args: { disabled: true } }

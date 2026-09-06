@@ -22,6 +22,7 @@ function ControlledSlider({ value, onValueChange, ...rest }: SliderProps) {
 const meta = {
   title: 'Controls/Slider',
   component: Slider,
+  parameters: { layout: 'padded' },
   args: { label: 'Level', value: 40, min: 0, max: 100, onValueChange: fn() },
   argTypes: {
     label: { control: 'text' },
@@ -51,6 +52,7 @@ type Story = StoryObj<typeof meta>
 export const Default: Story = {}
 export const Volume: Story = {
   args: { label: 'Volume', value: -12, min: -60, max: 0, format: decibels, ticks: [-12] },
+  tags: ['evidence'],
 }
 export const VolumeMuted: Story = {
   args: {

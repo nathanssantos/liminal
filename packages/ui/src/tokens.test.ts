@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { colourToken, WINDOW_BACKGROUND } from './colours.ts'
+import { colourToken, WINDOW_BACKGROUND } from '../colours.mjs'
 import { contrastRatio, customProperties } from './test/contrast.ts'
 import CSS from './tokens.css?raw'
 
