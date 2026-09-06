@@ -13,6 +13,7 @@ __pycache__/
 .pytest_cache/
 
 .DS_Store
+.obsidian/
 .claude/local-state.json
 CLAUDE.local.md
 playwright-report/

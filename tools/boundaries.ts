@@ -26,6 +26,7 @@ const ALLOWED: Record<string, readonly string[]> = {
     '@liminal/protocol',
   ],
   '@liminal/protocol': ['@liminal/score', '@liminal/analysis'],
+  '@liminal/ui': [],
   desktop: [
     '@liminal/score',
     '@liminal/composition',
@@ -34,6 +35,7 @@ const ALLOWED: Record<string, readonly string[]> = {
     '@liminal/brain',
     '@liminal/conductor',
     '@liminal/protocol',
+    '@liminal/ui',
   ],
 }
 
