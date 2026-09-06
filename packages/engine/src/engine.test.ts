@@ -785,6 +785,34 @@ describe('the branches the fixture never reaches', () => {
     engine.dispose()
   })
 
+  it('keeps the filter cutoff and its q on different params', async () => {
+    const score = clone((draft) => {
+      const first = draft.automation[0]
+      if (first === undefined || !('trackId' in first.target)) {
+        return
+      }
+      const trackId = first.target.trackId
+      draft.automation = [
+        {
+          ...first,
+          id: `${first.id}-cutoff`,
+          target: { trackId, param: 'filter.cutoff' },
+          points: [{ at: 0, value: 2000, curve: 'step' }],
+        },
+        {
+          ...first,
+          id: `${first.id}-q`,
+          target: { trackId, param: 'filter.q' },
+          points: [{ at: 0, value: 0.8, curve: 'step' }],
+        },
+      ]
+    })
+    const engine = await playedToBarEight(score)
+    expect(engine.automationValueAt(`${automationId}-cutoff`, startSeconds)).toBeCloseTo(2000, 0)
+    expect(engine.automationValueAt(`${automationId}-q`, startSeconds)).toBeCloseTo(0.8, 3)
+    engine.dispose()
+  })
+
   it('sends a hard-panned track to one side of the render, not both', async () => {
     const score = clone((draft) => {
       draft.tracks = draft.tracks.slice(0, 1)
