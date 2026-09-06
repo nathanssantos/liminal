@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { userEvent } from '@testing-library/user-event'
 import { useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { Button } from '../Button/Button.tsx'
 import { ErrorStrip } from './ErrorStrip.tsx'
@@ -69,11 +70,29 @@ describe('ErrorStrip', () => {
     expect(screen.getByRole('alert')).toBeInTheDocument()
   })
 
-  it('moves focus before it unmounts, so the keyboard never lands on the body', async () => {
-    const onDismiss = vi.fn()
-    render(<Recoverable onDismiss={onDismiss} />)
+  it('never leaves the keyboard on the body, even when the consumer closes it at once', async () => {
+    function Abrupt() {
+      const anchor = useRef<HTMLButtonElement>(null)
+      const [open, setOpen] = useState(true)
+      return (
+        <div>
+          <Button ref={anchor} label="Output device" />
+          {open ? (
+            <ErrorStrip
+              title="We could not reach the audio device."
+              dismissal={{
+                focusOnDismiss: anchor,
+                onDismiss: () => flushSync(() => setOpen(false)),
+              }}
+            />
+          ) : null}
+        </div>
+      )
+    }
+    render(<Abrupt />)
     await userEvent.click(screen.getByRole('button', { name: 'Dismiss' }))
     expect(document.activeElement).not.toBe(document.body)
+    expect(screen.getByRole('button', { name: 'Output device' })).toHaveFocus()
   })
 
   it('sends focus where the consumer asked after it closes', async () => {

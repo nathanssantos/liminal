@@ -73,6 +73,7 @@ for (const [title, name, selector] of FOCUSABLE_PER_COMPONENT) {
   await open(page, idOf(title, name))
   focusRings[title.split('/').at(-1) ?? title] = await page.evaluate((wanted) => {
     const control = document.querySelector(wanted) as HTMLElement
+    const radiusAtRest = getComputedStyle(control).borderRadius
     control.focus()
     const computed = getComputedStyle(control)
     const box = control.getBoundingClientRect()
@@ -81,6 +82,8 @@ for (const [title, name, selector] of FOCUSABLE_PER_COMPONENT) {
       outlineStyle: computed.outlineStyle,
       outlineColor: computed.outlineColor,
       outlineOffset: computed.outlineOffset,
+      radiusAtRest,
+      radiusWhenFocused: computed.borderRadius,
       boxWidth: box.width,
       boxHeight: box.height,
     }

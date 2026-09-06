@@ -33,7 +33,9 @@ const NOT_A_PAGE = {
   region: { enabled: false },
 }
 
-const ONLY_A_REAL_BROWSER_CAN_JUDGE = ['target-size', 'aria-hidden-focus']
+const ONLY_A_REAL_BROWSER_CAN_JUDGE = ['target-size']
+
+const RADIX_HIDES_THE_PAGE_BEHIND_AN_OPEN_PANEL = ['aria-hidden-focus']
 
 for (const [path, module] of Object.entries(modules)) {
   const component = path.replace(/^.*\/([^/]+)\.stories\.tsx$/, '$1')
@@ -102,7 +104,11 @@ for (const [path, module] of Object.entries(modules)) {
         expect(
           results.incomplete
             .map((check) => check.id)
-            .filter((id) => !ONLY_A_REAL_BROWSER_CAN_JUDGE.includes(id)),
+            .filter(
+              (id) =>
+                !ONLY_A_REAL_BROWSER_CAN_JUDGE.includes(id) &&
+                !RADIX_HIDES_THE_PAGE_BEHIND_AN_OPEN_PANEL.includes(id),
+            ),
         ).toEqual([])
       })
     }

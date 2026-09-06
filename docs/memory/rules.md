@@ -326,6 +326,22 @@
   into `document.body`, so scanning the render container checks everything except the part most
   likely to be wrong. Scan `document.body`, and turn off `region` — a component rendered on its own
   is never inside a landmark. (measured 2026-09-06)
+- 🔴 **`border-radius: inherit` on a focus ring takes the PARENT's radius, not the element's own.**
+  The rule shipped from a design brief that spelled it out literally, and every rounded control —
+  the pill toggle, the circular slider thumb, the 8 px button and select — snapped to square
+  corners the instant it took keyboard focus: measured `999px → 0px` and `8px → 0px` in Chromium.
+  Nothing in jsdom, lint or types sees it, and the story screenshots at rest look right because no
+  control is focused in them. An `outline` already follows the element's own radius, so the
+  declaration was never needed. **A brief's literal CSS is still measured before it is believed.**
+  (measured 2026-09-06 on the built Storybook)
+- ⚠️ **Radix `Select` hides the page behind its open panel, and `axe` calls that a violation.**
+  `Select.Content` runs `hideOthers`, so the subtree holding the trigger gets `aria-hidden` while
+  the panel is open, and the trigger is a real `<button>` inside it — `aria-hidden-focus`, serious,
+  in a real browser. `modal={false}` does not change it. Measured: the focus trap holds, Tab and
+  Shift+Tab never reach the hidden trigger, and `Escape` returns focus to it, so nobody is stranded.
+  It is upstream behaviour, not ours; the story gate names it as such rather than pretending it is
+  absent. Every future Radix component with a portal will report the same. (measured 2026-09-06,
+  axe-core 4.13 in Chromium)
 - ⚠️ **A gate that walks the tree must assert it walked something.** The loose-value scan globbed
   from `process.cwd()`, so from any other directory it returned an empty list and the gate passed
   green over zero files. It resolves from its own module now and asserts a file count first.

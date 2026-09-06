@@ -5,7 +5,8 @@ import { Button } from '../Button/Button.tsx'
 import { ErrorStrip } from './ErrorStrip.tsx'
 
 const LONG_TITLE =
-  'We could not reach the audio device you chose, and the set stopped where it was.'
+  'We could not reach the audio device you chose, the set stopped where it was, and nothing has ' +
+  'been lost — the queue, the plan and everything already rendered are still here waiting for you.'
 
 const meta = {
   title: 'Controls/ErrorStrip',

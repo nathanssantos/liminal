@@ -1,5 +1,5 @@
-3:51:01 PM [vite] warning: `esbuild` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `oxc` instead.
-3:51:01 PM [vite] warning: `optimizeDeps.esbuildOptions` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `optimizeDeps.rolldownOptions` instead.
+4:18:58 PM [vite] warning: `esbuild` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `oxc` instead.
+4:18:58 PM [vite] warning: `optimizeDeps.esbuildOptions` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `optimizeDeps.rolldownOptions` instead.
 Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ jsx: 'automatic', jsxImportSource: undefined }`
 
  RUN  v4.1.11 /Users/nathan/Documents/dev/liminal
@@ -68,177 +68,177 @@ Both esbuild and oxc options were set. oxc options will be used and esbuild opti
  ✓ |@liminal/ui| src/tokens.test.ts > tokens, light theme > draws --color-focus on --color-surface-2 at 3:1 or better 0ms
  ✓ |@liminal/ui| src/tokens.test.ts > tokens, light theme > draws --color-focus on --color-surface-3 at 3:1 or better 0ms
  ✓ |@liminal/ui| src/tokens.test.ts > tokens, light theme > defines every colour role the components use 0ms
- ✓ |@liminal/ui| src/tokens.test.ts > tokens > keeps the light theme in step with the dark one, role for role 1ms
+ ✓ |@liminal/ui| src/tokens.test.ts > tokens > keeps the light theme in step with the dark one, role for role 0ms
  ✓ |@liminal/ui| src/tokens.test.ts > tokens > gives the same light theme whether it was chosen or inherited from the system 0ms
  ✓ |@liminal/ui| src/tokens.test.ts > tokens > has no text size below the thirteen-pixel floor 0ms
- ✓ |@liminal/ui| src/tokens.test.ts > tokens > reads a theme block that is really there 1ms
- ✓ |@liminal/ui| src/tokens.test.ts > tokens > puts space on a four-pixel base 1ms
+ ✓ |@liminal/ui| src/tokens.test.ts > tokens > reads a theme block that is really there 0ms
+ ✓ |@liminal/ui| src/tokens.test.ts > tokens > puts space on a four-pixel base 0ms
  ✓ |@liminal/ui| src/tokens.test.ts > reading a colour role from the tokens > gives the window the dark surface the renderer paints, so the first frame does not flash 0ms
  ✓ |@liminal/ui| src/tokens.test.ts > reading a colour role from the tokens > throws instead of returning nothing when the role does not exist 0ms
- ✓ |@liminal/ui| src/Readout/Readout.test.tsx > Readout > renders an em dash for every value it does not have 22ms
- ✓ |@liminal/ui| src/Readout/Readout.test.tsx > Readout > joins bar and beat into one position and rounds the tempo 2ms
- ✓ |@liminal/ui| src/Readout/Readout.test.tsx > Readout > shows elapsed as m:ss under an hour and h:mm:ss above it 0ms
- ✓ |@liminal/ui| src/Readout/Readout.test.tsx > Readout > is not a control: it takes no focus and announces nothing on its own 5ms
- ✓ |@liminal/ui| src/Readout/Readout.test.tsx > Readout > marks only the tempo as live while playing 4ms
- ✓ |@liminal/ui| src/Button/Button.test.tsx > Button > activates with Enter and with Space when focused by keyboard 75ms
- ✓ |@liminal/ui| src/Button/Button.test.tsx > Button > keeps focus while loading and refuses to activate 19ms
- ✓ |@liminal/ui| src/ErrorStrip/ErrorStrip.test.tsx > ErrorStrip > announces itself without stealing focus 44ms
- ✓ |@liminal/ui| src/ErrorStrip/ErrorStrip.test.tsx > ErrorStrip > reaches the action and then the dismiss with Tab, and runs the action 45ms
- ✓ |@liminal/ui| src/Toggle/Toggle.test.tsx > Toggle > flips its pressed state with Space and with Enter 76ms
+ ✓ |@liminal/ui| src/Readout/Readout.test.tsx > Readout > renders an em dash for every value it does not have 27ms
+ ✓ |@liminal/ui| src/Readout/Readout.test.tsx > Readout > joins bar and beat into one position and rounds the tempo 4ms
+ ✓ |@liminal/ui| src/Readout/Readout.test.tsx > Readout > shows elapsed as m:ss under an hour and h:mm:ss above it 1ms
+ ✓ |@liminal/ui| src/Readout/Readout.test.tsx > Readout > is not a control: it takes no focus and announces nothing on its own 4ms
+ ✓ |@liminal/ui| src/Readout/Readout.test.tsx > Readout > marks only the tempo as live while playing 3ms
+ ✓ |@liminal/ui| src/Toggle/Toggle.test.tsx > Toggle > flips its pressed state with Space and with Enter 72ms
  ✓ |@liminal/ui| src/Toggle/Toggle.test.tsx > Toggle > speaks its state as words as well as aria-pressed 5ms
- ✓ |@liminal/ui| src/Toggle/Toggle.test.tsx > Toggle > refuses to toggle when disabled and explains why 22ms
- ✓ |@liminal/ui| src/Transport/Transport.test.tsx > Transport > offers Play when stopped and Pause when playing 61ms
- ✓ |@liminal/ui| src/Button/Button.test.tsx > Button > is skipped by Tab when disabled and explains why to a screen reader 18ms
+ ✓ |@liminal/ui| src/Toggle/Toggle.test.tsx > Toggle > refuses to toggle when disabled and explains why 23ms
+ ✓ |@liminal/ui| src/Transport/Transport.test.tsx > Transport > offers Play when stopped and Pause when playing 74ms
+ ✓ |@liminal/ui| src/Button/Button.test.tsx > Button > activates with Enter and with Space when focused by keyboard 73ms
+ ✓ |@liminal/ui| src/Button/Button.test.tsx > Button > keeps focus while loading and refuses to activate 21ms
+ ✓ |@liminal/ui| src/ErrorStrip/ErrorStrip.test.tsx > ErrorStrip > announces itself without stealing focus 46ms
+ ✓ |@liminal/ui| src/ErrorStrip/ErrorStrip.test.tsx > ErrorStrip > reaches the action and then the dismiss with Tab, and runs the action 43ms
+ ✓ |@liminal/ui| src/Button/Button.test.tsx > Button > is skipped by Tab when disabled and explains why to a screen reader 17ms
  ✓ |@liminal/ui| src/Button/Button.test.tsx > Button > names an icon-only button by its label 4ms
- ✓ |@liminal/ui| src/Button/Button.test.tsx > Button > refuses to act, and leaves the tab order, when a disabled asChild wraps a link 17ms
+ ✓ |@liminal/ui| src/Button/Button.test.tsx > Button > refuses to act, and leaves the tab order, when a disabled asChild wraps a link 19ms
  ✓ |@liminal/ui| src/Button/Button.test.tsx > Button > gives the consumer element the ref it was handed 4ms
  ✓ |@liminal/ui| src/Button/Button.test.tsx > Button > renders the consumer element when asChild, keeping the button look 3ms
- ✓ |@liminal/ui| src/ErrorStrip/ErrorStrip.test.tsx > ErrorStrip > leaves Escape to whatever else is open 16ms
- ✓ |@liminal/ui| src/ErrorStrip/ErrorStrip.test.tsx > ErrorStrip > moves focus before it unmounts, so the keyboard never lands on the body 19ms
- ✓ |@liminal/ui| src/ErrorStrip/ErrorStrip.test.tsx > ErrorStrip > sends focus where the consumer asked after it closes 18ms
+ ✓ |@liminal/ui| src/ErrorStrip/ErrorStrip.test.tsx > ErrorStrip > leaves Escape to whatever else is open 15ms
+ ✓ |@liminal/ui| src/ErrorStrip/ErrorStrip.test.tsx > ErrorStrip > never leaves the keyboard on the body, even when the consumer closes it at once 19ms
+ ✓ |@liminal/ui| src/ErrorStrip/ErrorStrip.test.tsx > ErrorStrip > sends focus where the consumer asked after it closes 16ms
  ✓ |@liminal/ui| src/ErrorStrip/ErrorStrip.test.tsx > ErrorStrip > has no dismiss button when the consumer gives no way to dismiss it 1ms
- ✓ |@liminal/ui| src/Transport/Transport.test.tsx > Transport > reaches play then stop with Tab, and activates both from the keyboard 41ms
- ✓ |@liminal/ui| src/Transport/Transport.test.tsx > Transport > says its state in words, not only in colour 5ms
+ ✓ |@liminal/ui| src/Transport/Transport.test.tsx > Transport > reaches play then stop with Tab, and activates both from the keyboard 43ms
+ ✓ |@liminal/ui| src/Transport/Transport.test.tsx > Transport > says its state in words, not only in colour 8ms
  ✓ |@liminal/ui| src/Transport/Transport.test.tsx > Transport > refuses to stop what is not playing, and says why 8ms
- ✓ |@liminal/ui| src/Transport/Transport.test.tsx > Transport > refuses to play when it cannot, and says why 13ms
+ ✓ |@liminal/ui| src/Transport/Transport.test.tsx > Transport > refuses to play when it cannot, and says why 15ms
  ✓ |@liminal/ui| src/Transport/Transport.test.tsx > Transport > swallows activation while starting 12ms
  ✓ |@liminal/ui| src/Transport/Transport.test.tsx > Transport > announces its state once, and never on a beat 3ms
- ✓ |@liminal/ui| src/Slider/Slider.test.tsx > Slider > moves by one step with the arrows and to the ends with Home and End 102ms
- ✓ |@liminal/ui| src/Slider/Slider.test.tsx > Slider > moves by the large step with PageUp and PageDown 25ms
- ✓ |@liminal/ui| src/Slider/Slider.test.tsx > Slider > stops at the ends instead of running past them 20ms
+ ✓ |@liminal/ui| src/Slider/Slider.test.tsx > Slider > moves by one step with the arrows and to the ends with Home and End 109ms
+ ✓ |@liminal/ui| src/Slider/Slider.test.tsx > Slider > moves by the large step with PageUp and PageDown 28ms
+ ✓ |@liminal/ui| src/Slider/Slider.test.tsx > Slider > stops at the ends instead of running past them 22ms
  ✓ |@liminal/ui| src/Slider/Slider.test.tsx > Slider > commits the large step, so a consumer that persists on release does not lose it 15ms
- ✓ |@liminal/ui| src/Slider/Slider.test.tsx > Slider > shows the value only while it is changing, when asked to 13ms
+ ✓ |@liminal/ui| src/Slider/Slider.test.tsx > Slider > shows the value only while it is changing, when asked to 15ms
  ✓ |@liminal/ui| src/Slider/Slider.test.tsx > Slider > reads the value as words, not as a bare number 4ms
- ✓ |@liminal/ui| src/Slider/Slider.test.tsx > Slider > is named by its visible label 5ms
+ ✓ |@liminal/ui| src/Slider/Slider.test.tsx > Slider > is named by its visible label 6ms
  ✓ |@liminal/ui| src/Slider/Slider.test.tsx > Slider > refuses the keyboard when disabled and explains why 12ms
- ✓ |@liminal/ui| src/Select/Select.test.tsx > Select > opens with the arrow keys and commits the arrowed-to option with Enter 154ms
- ✓ |@liminal/ui| src/Select/Select.test.tsx > Select > selects by typed prefix 57ms
- ✓ |@liminal/ui| src/Select/Select.test.tsx > Select > jumps to the ends with Home and End 83ms
- ✓ |@liminal/ui| src/Select/Select.test.tsx > Select > keeps showing what the consumer accepted, never what it only clicked 8ms
+ ✓ |@liminal/ui| src/Select/Select.test.tsx > Select > opens with the arrow keys and commits the arrowed-to option with Enter 155ms
+ ✓ |@liminal/ui| src/Select/Select.test.tsx > Select > selects by typed prefix 56ms
+ ✓ |@liminal/ui| src/Select/Select.test.tsx > Select > jumps to the ends with Home and End 82ms
+ ✓ |@liminal/ui| src/Select/Select.test.tsx > Select > shows only what the consumer accepted, never what the person merely picked 41ms
  ✓ |@liminal/ui| src/Select/Select.test.tsx > Select > refuses to open, and says so on the trigger, while the list is loading 15ms
- ✓ |@liminal/ui| src/Select/Select.test.tsx > Select > marks itself invalid for a screen reader, not only with a colour 7ms
- ✓ |@liminal/ui| src/Select/Select.test.tsx > Select > keeps its name when the label is hidden 9ms
  ✓ |@liminal/ui| src/stories.test.tsx > Button > ships at least one story and the source its props are declared in 1ms
  ✓ |@liminal/ui| src/stories.test.tsx > Button > declares an argType for every prop its type declares 7ms
  ✓ |@liminal/ui| src/stories.test.tsx > Button > gives every prop a control, or says in words why it has none 0ms
  ✓ |@liminal/ui| src/stories.test.tsx > Button > has a named story for every value of every variant prop 0ms
  ✓ |@liminal/ui| src/stories.test.tsx > Button > Primary renders, plays its interaction and passes axe 46ms
- ✓ |@liminal/ui| src/stories.test.tsx > Button > PrimaryHover renders, plays its interaction and passes axe 20ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Button > PrimaryHover renders, plays its interaction and passes axe 18ms
  ✓ |@liminal/ui| src/stories.test.tsx > Button > PrimaryPressed renders, plays its interaction and passes axe 16ms
  ✓ |@liminal/ui| src/stories.test.tsx > Button > PrimaryDisabled renders, plays its interaction and passes axe 7ms
- ✓ |@liminal/ui| src/Select/Select.test.tsx > Select > skips a disabled option with the arrows 39ms
- ✓ |@liminal/ui| src/Select/Select.test.tsx > Select > closes with Escape and gives focus back to the trigger 35ms
- ✓ |@liminal/ui| src/Select/Select.test.tsx > Select > says so in words when there is nothing to choose from, and stays reachable 25ms
- ✓ |@liminal/ui| src/Select/Select.test.tsx > Select > explains why it cannot be used when disabled 8ms
- ✓ |@liminal/ui| src/stories.test.tsx > Button > PrimaryLoading renders, plays its interaction and passes axe 11ms
+ ✓ |@liminal/ui| src/Select/Select.test.tsx > Select > marks itself invalid for a screen reader, not only with a colour 7ms
+ ✓ |@liminal/ui| src/Select/Select.test.tsx > Select > keeps its name when the label is hidden 8ms
+ ✓ |@liminal/ui| src/Select/Select.test.tsx > Select > skips a disabled option with the arrows 38ms
+ ✓ |@liminal/ui| src/Select/Select.test.tsx > Select > closes with Escape and gives focus back to the trigger 36ms
+ ✓ |@liminal/ui| src/Select/Select.test.tsx > Select > says so in words when there is nothing to choose from, and stays reachable 26ms
+ ✓ |@liminal/ui| src/Select/Select.test.tsx > Select > explains why it cannot be used when disabled 7ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Button > PrimaryLoading renders, plays its interaction and passes axe 12ms
  ✓ |@liminal/ui| src/stories.test.tsx > Button > Quiet renders, plays its interaction and passes axe 8ms
  ✓ |@liminal/ui| src/stories.test.tsx > Button > QuietDisabled renders, plays its interaction and passes axe 9ms
  ✓ |@liminal/ui| src/stories.test.tsx > Button > Danger renders, plays its interaction and passes axe 7ms
- ✓ |@liminal/ui| src/stories.test.tsx > Button > DangerDisabled renders, plays its interaction and passes axe 6ms
- ✓ |@liminal/ui| src/stories.test.tsx > Button > WithIconStart renders, plays its interaction and passes axe 5ms
- ✓ |@liminal/ui| src/stories.test.tsx > Button > WithIconEnd renders, plays its interaction and passes axe 6ms
- ✓ |@liminal/ui| src/stories.test.tsx > Button > IconOnly renders, plays its interaction and passes axe 6ms
- ✓ |@liminal/ui| src/stories.test.tsx > Button > SizeSmall renders, plays its interaction and passes axe 5ms
- ✓ |@liminal/ui| src/stories.test.tsx > Button > SizeMedium renders, plays its interaction and passes axe 4ms
- ✓ |@liminal/ui| src/stories.test.tsx > Button > SizeLarge renders, plays its interaction and passes axe 4ms
- ✓ |@liminal/ui| src/stories.test.tsx > Button > AsChildLink renders, plays its interaction and passes axe 6ms
- ✓ |@liminal/ui| src/stories.test.tsx > Button > DisabledWithReason renders, plays its interaction and passes axe 9ms
- ✓ |@liminal/ui| src/stories.test.tsx > Button > KeyboardActivation renders, plays its interaction and passes axe 20ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Button > DangerDisabled renders, plays its interaction and passes axe 5ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Button > WithIconStart renders, plays its interaction and passes axe 7ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Button > WithIconEnd renders, plays its interaction and passes axe 7ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Button > IconOnly renders, plays its interaction and passes axe 5ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Button > SizeSmall renders, plays its interaction and passes axe 6ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Button > SizeMedium renders, plays its interaction and passes axe 6ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Button > SizeLarge renders, plays its interaction and passes axe 5ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Button > AsChildLink renders, plays its interaction and passes axe 7ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Button > DisabledWithReason renders, plays its interaction and passes axe 7ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Button > KeyboardActivation renders, plays its interaction and passes axe 21ms
  ✓ |@liminal/ui| src/stories.test.tsx > Button > LoadingSwallowsActivation renders, plays its interaction and passes axe 17ms
  ✓ |@liminal/ui| src/stories.test.tsx > ErrorStrip > ships at least one story and the source its props are declared in 0ms
  ✓ |@liminal/ui| src/stories.test.tsx > ErrorStrip > declares an argType for every prop its type declares 1ms
  ✓ |@liminal/ui| src/stories.test.tsx > ErrorStrip > gives every prop a control, or says in words why it has none 0ms
  ✓ |@liminal/ui| src/stories.test.tsx > ErrorStrip > has a named story for every value of every variant prop 0ms
- ✓ |@liminal/ui| src/stories.test.tsx > ErrorStrip > TitleOnly renders, plays its interaction and passes axe 8ms
+ ✓ |@liminal/ui| src/stories.test.tsx > ErrorStrip > TitleOnly renders, plays its interaction and passes axe 9ms
  ✓ |@liminal/ui| src/stories.test.tsx > ErrorStrip > WithDetail renders, plays its interaction and passes axe 8ms
- ✓ |@liminal/ui| src/stories.test.tsx > ErrorStrip > WithAction renders, plays its interaction and passes axe 8ms
+ ✓ |@liminal/ui| src/stories.test.tsx > ErrorStrip > WithAction renders, plays its interaction and passes axe 9ms
  ✓ |@liminal/ui| src/stories.test.tsx > ErrorStrip > WithActionAndDismiss renders, plays its interaction and passes axe 10ms
- ✓ |@liminal/ui| src/stories.test.tsx > ErrorStrip > WarnTone renders, plays its interaction and passes axe 7ms
- ✓ |@liminal/ui| src/stories.test.tsx > ErrorStrip > LongTitleWrapping renders, plays its interaction and passes axe 9ms
- ✓ |@liminal/ui| src/stories.test.tsx > ErrorStrip > DeviceLost renders, plays its interaction and passes axe 9ms
+ ✓ |@liminal/ui| src/stories.test.tsx > ErrorStrip > WarnTone renders, plays its interaction and passes axe 8ms
+ ✓ |@liminal/ui| src/stories.test.tsx > ErrorStrip > LongTitleWrapping renders, plays its interaction and passes axe 10ms
+ ✓ |@liminal/ui| src/stories.test.tsx > ErrorStrip > DeviceLost renders, plays its interaction and passes axe 8ms
  ✓ |@liminal/ui| src/stories.test.tsx > ErrorStrip > KeyboardDismiss renders, plays its interaction and passes axe 19ms
  ✓ |@liminal/ui| src/stories.test.tsx > Readout > ships at least one story and the source its props are declared in 0ms
  ✓ |@liminal/ui| src/stories.test.tsx > Readout > declares an argType for every prop its type declares 2ms
  ✓ |@liminal/ui| src/stories.test.tsx > Readout > gives every prop a control, or says in words why it has none 0ms
  ✓ |@liminal/ui| src/stories.test.tsx > Readout > has a named story for every value of every variant prop 0ms
  ✓ |@liminal/ui| src/stories.test.tsx > Readout > Empty renders, plays its interaction and passes axe 15ms
- ✓ |@liminal/ui| src/stories.test.tsx > Readout > Stopped renders, plays its interaction and passes axe 11ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Readout > Stopped renders, plays its interaction and passes axe 10ms
  ✓ |@liminal/ui| src/stories.test.tsx > Readout > Playing renders, plays its interaction and passes axe 10ms
- ✓ |@liminal/ui| src/stories.test.tsx > Readout > PlayingShortValues renders, plays its interaction and passes axe 10ms
- ✓ |@liminal/ui| src/stories.test.tsx > Readout > PlayingLongValues renders, plays its interaction and passes axe 9ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Readout > PlayingShortValues renders, plays its interaction and passes axe 9ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Readout > PlayingLongValues renders, plays its interaction and passes axe 8ms
  ✓ |@liminal/ui| src/stories.test.tsx > Readout > NoKey renders, plays its interaction and passes axe 9ms
- ✓ |@liminal/ui| src/stories.test.tsx > Readout > SizeLarge renders, plays its interaction and passes axe 8ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Readout > SizeLarge renders, plays its interaction and passes axe 10ms
  ✓ |@liminal/ui| src/stories.test.tsx > Readout > CustomLabels renders, plays its interaction and passes axe 9ms
  ✓ |@liminal/ui| src/stories.test.tsx > Readout > DigitGrowth renders, plays its interaction and passes axe 11ms
  ✓ |@liminal/ui| src/stories.test.tsx > Select > ships at least one story and the source its props are declared in 0ms
  ✓ |@liminal/ui| src/stories.test.tsx > Select > declares an argType for every prop its type declares 1ms
  ✓ |@liminal/ui| src/stories.test.tsx > Select > gives every prop a control, or says in words why it has none 0ms
  ✓ |@liminal/ui| src/stories.test.tsx > Select > has a named story for every value of every variant prop 0ms
- ✓ |@liminal/ui| src/stories.test.tsx > Select > Default renders, plays its interaction and passes axe 20ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Select > Default renders, plays its interaction and passes axe 19ms
  ✓ |@liminal/ui| src/stories.test.tsx > Select > WithValue renders, plays its interaction and passes axe 14ms
- ✓ |@liminal/ui| src/stories.test.tsx > Select > Open renders, plays its interaction and passes axe 53ms
- ✓ |@liminal/ui| src/stories.test.tsx > Select > WithDescriptions renders, plays its interaction and passes axe 13ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Select > Open renders, plays its interaction and passes axe 52ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Select > WithDescriptions renders, plays its interaction and passes axe 14ms
  ✓ |@liminal/ui| src/stories.test.tsx > Select > Loading renders, plays its interaction and passes axe 14ms
- ✓ |@liminal/ui| src/stories.test.tsx > Select > Empty renders, plays its interaction and passes axe 31ms
- ✓ |@liminal/ui| src/stories.test.tsx > Select > Invalid renders, plays its interaction and passes axe 13ms
- ✓ |@liminal/ui| src/stories.test.tsx > Select > Disabled renders, plays its interaction and passes axe 12ms
- ✓ |@liminal/ui| src/stories.test.tsx > Select > DisabledWithReason renders, plays its interaction and passes axe 13ms
- ✓ |@liminal/ui| src/stories.test.tsx > Select > HiddenLabel renders, plays its interaction and passes axe 13ms
- ✓ |@liminal/ui| src/stories.test.tsx > Select > SizeSmall renders, plays its interaction and passes axe 12ms
- ✓ |@liminal/ui| src/stories.test.tsx > Select > SizeLarge renders, plays its interaction and passes axe 12ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Select > Empty renders, plays its interaction and passes axe 32ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Select > Invalid renders, plays its interaction and passes axe 14ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Select > Disabled renders, plays its interaction and passes axe 14ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Select > DisabledWithReason renders, plays its interaction and passes axe 16ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Select > HiddenLabel renders, plays its interaction and passes axe 14ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Select > SizeSmall renders, plays its interaction and passes axe 14ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Select > SizeLarge renders, plays its interaction and passes axe 15ms
  ✓ |@liminal/ui| src/stories.test.tsx > Select > ManyItems renders, plays its interaction and passes axe 19ms
  ✓ |@liminal/ui| src/stories.test.tsx > Select > WithDisabledItem renders, plays its interaction and passes axe 11ms
- ✓ |@liminal/ui| src/stories.test.tsx > Select > KeyboardTypeAhead renders, plays its interaction and passes axe 50ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Select > KeyboardTypeAhead renders, plays its interaction and passes axe 48ms
  ✓ |@liminal/ui| src/stories.test.tsx > Slider > ships at least one story and the source its props are declared in 0ms
- ✓ |@liminal/ui| src/stories.test.tsx > Slider > declares an argType for every prop its type declares 1ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Slider > declares an argType for every prop its type declares 2ms
  ✓ |@liminal/ui| src/stories.test.tsx > Slider > gives every prop a control, or says in words why it has none 0ms
  ✓ |@liminal/ui| src/stories.test.tsx > Slider > has a named story for every value of every variant prop 0ms
- ✓ |@liminal/ui| src/stories.test.tsx > Slider > Default renders, plays its interaction and passes axe 12ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Slider > Default renders, plays its interaction and passes axe 10ms
  ✓ |@liminal/ui| src/stories.test.tsx > Slider > Volume renders, plays its interaction and passes axe 10ms
  ✓ |@liminal/ui| src/stories.test.tsx > Slider > VolumeMuted renders, plays its interaction and passes axe 8ms
  ✓ |@liminal/ui| src/stories.test.tsx > Slider > WithTicks renders, plays its interaction and passes axe 10ms
  ✓ |@liminal/ui| src/stories.test.tsx > Slider > Vertical renders, plays its interaction and passes axe 9ms
- ✓ |@liminal/ui| src/stories.test.tsx > Slider > ShowValueWhileChanging renders, plays its interaction and passes axe 9ms
- ✓ |@liminal/ui| src/stories.test.tsx > Slider > ShowValueNever renders, plays its interaction and passes axe 9ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Slider > ShowValueWhileChanging renders, plays its interaction and passes axe 8ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Slider > ShowValueNever renders, plays its interaction and passes axe 8ms
  ✓ |@liminal/ui| src/stories.test.tsx > Slider > SizeSmall renders, plays its interaction and passes axe 9ms
  ✓ |@liminal/ui| src/stories.test.tsx > Slider > Disabled renders, plays its interaction and passes axe 9ms
  ✓ |@liminal/ui| src/stories.test.tsx > Slider > DisabledWithReason renders, plays its interaction and passes axe 10ms
  ✓ |@liminal/ui| src/stories.test.tsx > Slider > LargeStep renders, plays its interaction and passes axe 9ms
- ✓ |@liminal/ui| src/stories.test.tsx > Slider > KeyboardSteps renders, plays its interaction and passes axe 23ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Slider > KeyboardSteps renders, plays its interaction and passes axe 24ms
  ✓ |@liminal/ui| src/stories.test.tsx > Toggle > ships at least one story and the source its props are declared in 0ms
  ✓ |@liminal/ui| src/stories.test.tsx > Toggle > declares an argType for every prop its type declares 1ms
  ✓ |@liminal/ui| src/stories.test.tsx > Toggle > gives every prop a control, or says in words why it has none 0ms
  ✓ |@liminal/ui| src/stories.test.tsx > Toggle > has a named story for every value of every variant prop 0ms
  ✓ |@liminal/ui| src/stories.test.tsx > Toggle > Off renders, plays its interaction and passes axe 6ms
- ✓ |@liminal/ui| src/stories.test.tsx > Toggle > On renders, plays its interaction and passes axe 6ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Toggle > On renders, plays its interaction and passes axe 5ms
  ✓ |@liminal/ui| src/stories.test.tsx > Toggle > OnWarn renders, plays its interaction and passes axe 6ms
  ✓ |@liminal/ui| src/stories.test.tsx > Toggle > OnNeutral renders, plays its interaction and passes axe 6ms
- ✓ |@liminal/ui| src/stories.test.tsx > Toggle > OffDisabled renders, plays its interaction and passes axe 5ms
- ✓ |@liminal/ui| src/stories.test.tsx > Toggle > OnDisabled renders, plays its interaction and passes axe 6ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Toggle > OffDisabled renders, plays its interaction and passes axe 6ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Toggle > OnDisabled renders, plays its interaction and passes axe 5ms
  ✓ |@liminal/ui| src/stories.test.tsx > Toggle > DisabledWithReason renders, plays its interaction and passes axe 6ms
- ✓ |@liminal/ui| src/stories.test.tsx > Toggle > SizeSmall renders, plays its interaction and passes axe 4ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Toggle > SizeSmall renders, plays its interaction and passes axe 6ms
  ✓ |@liminal/ui| src/stories.test.tsx > Toggle > SizeMedium renders, plays its interaction and passes axe 6ms
- ✓ |@liminal/ui| src/stories.test.tsx > Toggle > SizeLarge renders, plays its interaction and passes axe 6ms
- ✓ |@liminal/ui| src/stories.test.tsx > Toggle > CustomStateLabel renders, plays its interaction and passes axe 6ms
- ✓ |@liminal/ui| src/stories.test.tsx > Toggle > KeyboardToggle renders, plays its interaction and passes axe 18ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Toggle > SizeLarge renders, plays its interaction and passes axe 5ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Toggle > CustomStateLabel renders, plays its interaction and passes axe 5ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Toggle > KeyboardToggle renders, plays its interaction and passes axe 19ms
  ✓ |@liminal/ui| src/stories.test.tsx > Transport > ships at least one story and the source its props are declared in 0ms
  ✓ |@liminal/ui| src/stories.test.tsx > Transport > declares an argType for every prop its type declares 1ms
  ✓ |@liminal/ui| src/stories.test.tsx > Transport > gives every prop a control, or says in words why it has none 0ms
  ✓ |@liminal/ui| src/stories.test.tsx > Transport > has a named story for every value of every variant prop 0ms
  ✓ |@liminal/ui| src/stories.test.tsx > Transport > Stopped renders, plays its interaction and passes axe 10ms
  ✓ |@liminal/ui| src/stories.test.tsx > Transport > Starting renders, plays its interaction and passes axe 9ms
- ✓ |@liminal/ui| src/stories.test.tsx > Transport > Playing renders, plays its interaction and passes axe 9ms
- ✓ |@liminal/ui| src/stories.test.tsx > Transport > Paused renders, plays its interaction and passes axe 8ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Transport > Playing renders, plays its interaction and passes axe 8ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Transport > Paused renders, plays its interaction and passes axe 7ms
  ✓ |@liminal/ui| src/stories.test.tsx > Transport > SizeMedium renders, plays its interaction and passes axe 9ms
- ✓ |@liminal/ui| src/stories.test.tsx > Transport > CannotPlay renders, plays its interaction and passes axe 10ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Transport > CannotPlay renders, plays its interaction and passes axe 11ms
  ✓ |@liminal/ui| src/stories.test.tsx > Transport > CustomLabels renders, plays its interaction and passes axe 9ms
- ✓ |@liminal/ui| src/stories.test.tsx > Transport > PlayingWithBeat renders, plays its interaction and passes axe 9ms
+ ✓ |@liminal/ui| src/stories.test.tsx > Transport > PlayingWithBeat renders, plays its interaction and passes axe 7ms
  ✓ |@liminal/ui| src/stories.test.tsx > Transport > ReducedMotion renders, plays its interaction and passes axe 9ms
  ✓ |@liminal/ui| src/stories.test.tsx > Transport > StopIsDeliberate renders, plays its interaction and passes axe 12ms
  ✓ |@liminal/ui| src/stories.test.tsx > Transport > KeyboardTransport renders, plays its interaction and passes axe 27ms
 
  Test Files  9 passed (9)
       Tests  232 passed (232)
-   Start at  15:51:01
-   Duration  2.52s (transform 507ms, setup 3.01s, import 1.81s, tests 2.25s, environment 4.63s)
+   Start at  16:18:58
+   Duration  2.67s (transform 700ms, setup 4.11s, import 1.98s, tests 2.31s, environment 4.53s)
 

@@ -74,7 +74,7 @@ describe('Select', () => {
     expect(onValueChange).toHaveBeenLastCalledWith('default')
   })
 
-  it('keeps showing what the consumer accepted, never what it only clicked', async () => {
+  it('shows only what the consumer accepted, never what the person merely picked', async () => {
     const { rerender } = render(
       <Select label="Output device" items={DEVICES} value="interface" onValueChange={() => {}} />,
     )
@@ -82,6 +82,12 @@ describe('Select', () => {
     expect(trigger).toHaveTextContent('Scarlett 2i2')
     rerender(<Select label="Output device" items={DEVICES} value={null} onValueChange={() => {}} />)
     expect(trigger).toHaveTextContent('Choose…')
+    await userEvent.tab()
+    await userEvent.keyboard('{Enter}')
+    await screen.findByRole('listbox')
+    await userEvent.keyboard('{ArrowDown}{Enter}')
+    expect(trigger).toHaveTextContent('Choose…')
+    expect(trigger).not.toHaveTextContent('Built-in speakers')
   })
 
   it('refuses to open, and says so on the trigger, while the list is loading', async () => {
