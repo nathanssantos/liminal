@@ -49,7 +49,8 @@ open milestone · every `depends_on` `Done` · highest priority · lowest id. **
 | anything workable (all in `Blocked`/`listening`) | **discovery iteration** first if one is due (§17; skill `/discover`) — step G; otherwise **research iteration** (§13; skill `/research`) — step R. Never idle |
 
 🔴 **Discovery is due** after every UI card ships, every 5 card iterations, and at every
-milestone close before planning (§17). When due, it comes before the next card.
+milestone close before planning (§17). **Exploration is due** every 20 card iterations and at
+every milestone close, after discovery (§18). When due, they come before the next card.
 
 🔴 **Before choosing:** `board.decisionsNeeded` not empty → **stop** (step D). The loop does not run
 while a course decision waits.
@@ -137,8 +138,9 @@ Waking with nothing to do ends in one line: "no new input; iteration N in progre
 
 ## F · Release, close and open a milestone (§7, §14) — `/release`
 
-1. Run a discovery iteration first (step G). Then the milestone gate proof (the milestone's row in
-   `plan.md`); paste the evidence in the `milestone` issue.
+1. Run a discovery iteration first (step G), then an exploration iteration (step X). Then the
+   milestone gate proof (the milestone's row in `plan.md`); paste the evidence in the `milestone`
+   issue.
 2. Passed → `/release`: version tag, `CHANGELOG.md`, GitHub Release notes, `open-source-steward`
    pass; close the issue and the milestone; open the next milestone and create its `milestone`
    issue with the gate. Failed → new card in the milestone (spec on the spot, `Backlog`) and §1.
@@ -164,6 +166,12 @@ Walk every scenario in `docs/product/scenarios.md` with Playwright, as that pers
 completeness gap inside the open milestone becomes a card now (improvement budget: a fifth of the
 milestone); a later one becomes an `idea`; a direction change becomes a `decision` and stops. A
 class of gap not in `docs/product/completeness.md` is added there in the same PR.
+
+## X · Exploration iteration (§18) — `/explore`
+
+Read `docs/product/bets.md` and the signals; pick at most two questions; explore cheaply (brief,
+spike on `spike/<slug>` never merged as product, design canvas); propose as a `decision` issue →
+`Decision needed` → stop, or drop with a written reason in `bets.md`. One line in the journal.
 
 ## R · Research iteration (§13) — `/research`
 
