@@ -43,16 +43,16 @@ const twoBars = (): Score => {
 
 const renderTwoBars = () => renderOffline({ score: twoBars(), createContext })
 
-const ffprobeDuration = (wav: Uint8Array): number | undefined => {
+const ffprobeRead = (wav: Uint8Array, entries: string): string[] | undefined => {
   const path = join(mkdtempSync(join(tmpdir(), 'liminal-wav-')), 'render.wav')
   writeFileSync(path, wav)
   try {
     const out = execFileSync(
       'ffprobe',
-      ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', path],
+      ['-v', 'error', '-show_entries', entries, '-of', 'csv=p=0', path],
       { encoding: 'utf8' },
     )
-    return Number.parseFloat(out.trim())
+    return out.trim().split(',')
   } catch (refused) {
     if ((refused as NodeJS.ErrnoException).code === 'ENOENT') {
       return undefined
@@ -179,12 +179,14 @@ describe('encodeWav writes a file a decoder can read', () => {
 
     expect(frames / rendered.sampleRate).toBeCloseTo(rendered.durationSec, 6)
 
-    const probed = ffprobeDuration(wav)
-    if (probed === undefined) {
-      process.stdout.write('ffprobe not installed: the wav duration is checked from the header\n')
+    const probed = ffprobeRead(wav, 'stream=codec_name,sample_rate,channels,bits_per_sample')
+    const timed = ffprobeRead(wav, 'format=duration')
+    if (probed === undefined || timed === undefined) {
+      process.stdout.write('ffprobe not installed: the wav is checked from the header alone\n')
       return
     }
-    expect(probed).toBeCloseTo(rendered.durationSec, 2)
+    expect(probed).toEqual(['pcm_s16le', String(rendered.sampleRate), '2', '16'])
+    expect(Number.parseFloat(timed[0] ?? '')).toBeCloseTo(rendered.durationSec, 2)
   })
 })
 

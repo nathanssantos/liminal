@@ -237,6 +237,12 @@
   (measured 2026-09-06)
 - ⚠️ **`AudioWorklet` in `node-web-audio-api` runs synchronously**, with no thread of its own. Do
   not measure worklet latency in Node and call it product latency. (measured: docs)
+- ⚠️ **A polyfill context is not enough: Tone checks the globals.** Tone's `OfflineContext`
+  constructor tests `instanceof` against the **global** `OfflineAudioContext`, so handing
+  `renderOffline` a `node-web-audio-api` context in a process that never imported
+  `node-web-audio-api/polyfill.js` passes both offline guards and then dies inside
+  `standardized-audio-context` with "Missing the native OfflineAudioContext constructor". The caller
+  chooses the implementation and installs its globals. (measured 2026-09-06)
 - 🔴 **Rendering an offline context means rendering the Tone wrapper, not the raw context.**
   `startRendering()` on the raw one bypasses Tone's render loop, so nothing the transport scheduled
   ever runs and the buffer comes back silent — with no error. `renderOffline` wraps first and calls
