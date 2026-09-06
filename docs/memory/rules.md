@@ -286,6 +286,31 @@
 - ⚠️ **`electron-vite` 5 caps Vite at 7** (peer `^5 || ^6 || ^7`), so the newest Vite does not fit.
   The pinned pair is electron-vite 5.0.0 + Vite 7.3.6 + Electron 44.2.0 + `@vitejs/plugin-react`
   5.2.0. `@vitejs/plugin-react` 6 needs Vite 8 and is therefore out. (measured 2026-09-05, `npm view`)
+- ⚠️ **Storybook 10.6 pairs with Vite 7 as it is** — `@storybook/react-vite` accepts
+  `^5 || ^6 || ^7 || ^8`, so no version had to be held back. (measured 2026-09-06, `npm view`)
+- 🔴 **`@storybook/addon-vitest` needs a real browser** (`@vitest/browser` plus a Playwright
+  install), which the ubuntu `pnpm check` job does not have. The interaction tests run instead as
+  **portable stories** — `composeStories` from `@storybook/react-vite`, rendered in jsdom, each
+  story's `play` driven by hand — so `pnpm check` runs every `play` with no browser download.
+- 🔴 **Vitest stubs every CSS import, `?raw` included, unless `test.css: true`.** A module that
+  parses its own stylesheet reads an empty string and fails silently in tests while working in the
+  real build. (measured 2026-09-06 on `@liminal/ui`)
+- 🔴 **electron-vite keeps a workspace package external in the main bundle**, whatever
+  `ssr.noExternal` or `rollupOptions.external` say. So anything the main process imports from a
+  workspace package must be a file **Node can run as it is** — plain `.mjs`, no TypeScript, no
+  bundler-only syntax. `@liminal/ui/colours` is that file; the barrel, which is TSX and CSS, would
+  crash the app at launch with no error on screen. (measured 2026-09-06)
+- 🔴 **A shared stylesheet reaches the component only if something imports it.** `base.css` was
+  imported from `index.ts`, and the stories import the component files directly — so in Storybook
+  the visually hidden text rendered as visible text on the page. It is imported from `tokens.css`
+  now, which every consumer must load anyway. (measured 2026-09-06, seen in the story screenshot)
+- ⚠️ **A story's URL `args` did not reach the rendered component** in Storybook 10.6 portable
+  builds: the readout showed the same numbers at every step, so a "nothing moves" measurement
+  passed while measuring the same frame three times. Measure named stories instead. (measured
+  2026-09-06)
+- ⚠️ **jsdom cannot judge colour contrast**, so `axe` reports it as incomplete rather than as a
+  violation. Contrast is a unit test over `tokens.css` with the WCAG formula, plus the reviewer's
+  measurement on the real screen.
 
 ## review
 

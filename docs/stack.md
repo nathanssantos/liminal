@@ -19,9 +19,9 @@
 |---|---|---|---|
 | Shell | **Electron 44** + **electron-vite 5** (which caps Vite at 7) + **electron-builder** | Tauri | Tauri plays audio in the system WebView (Safari on macOS) and has no Node in main — we would lose Chromium's Web Audio **and** Tone.js in the engine |
 | UI | **React 19** + **Zustand** | Next.js | no server, no routes, no SSR; `marketmind` already has this pair |
-| Styling | **Tailwind 4** with tokens as CSS vars (`@theme`) | loose CSS Modules | tokens from day one, without inventing a design system before there are two consumers |
+| Styling | **tokens as CSS custom properties** in `@liminal/ui/tokens.css`, one stylesheet per component beside it; Tailwind 4 stays in the app for its reset and for one-off app layout | Tailwind utilities inside the design system; CSS Modules | a component styled with utilities cannot be read as a contract, and the card's gate is that no colour, length, duration or font exists outside `tokens.css` |
 | Primitives | **Radix Primitives** (`radix-ui`), wrapped once in `@liminal/ui` with our tokens, from M1-07 | shadcn; Radix Themes | shadcn brings its own look and copies; Themes styles for us — we want behaviour and accessibility, and our own look (`docs/design/components.md`) |
-| Design system | **`@liminal/ui`**: tokens, Radix wrappers, the audio controls (knob, fader, meter, step grid, waveform), Storybook with `addon-a11y`, RTL + axe tests | components inside the app | every screen reuses the same controls; the app composes, never restyles |
+| Design system | **`@liminal/ui`**: tokens, Radix wrappers, the audio controls (knob, fader, meter, step grid, waveform), Storybook 10 with `addon-a11y`, RTL + axe tests, and the stories' `play` functions run headless as portable stories in `pnpm check` | components inside the app; `@storybook/addon-vitest` | every screen reuses the same controls; the app composes, never restyles. The addon needs a browser install the CI job does not have |
 
 ## Music
 

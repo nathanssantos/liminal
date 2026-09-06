@@ -72,7 +72,10 @@ versioned file.
 |---|---|
 | `pnpm check` | Biome, tsc, Vitest, ruff, mypy, pytest — full output, never truncated |
 | `pnpm --filter desktop dev` | opens the app (with `--remote-debugging-port` so Playwright can attach) |
-| `pnpm --filter desktop shot <state>` | launches the app, drives it to the state, saves screenshot and measurements to `evidence/` |
+| `pnpm --filter desktop shot <state> [--id <card>] [--measure <selector>]…` | launches the app, drives it to the state, saves screenshot and measurements to `evidence/`; each `--measure` records that selector's rect and computed styles |
+| `pnpm --filter ui storybook` | opens Storybook: every component, every state, every prop as a control |
+| `pnpm --filter ui test` | the component tests, the stories' `play` functions and `axe`, all headless |
+| `pnpm --filter ui measure` | builds Storybook, screenshots every component in both themes and writes the measurements into `evidence/` |
 | `pnpm --filter engine play:fixture` | plays the sixteen-bar fixture through the speakers, for the listening gate |
 | `LIMINAL_AUDIO_DEVICE=1 pnpm --filter engine test` | adds the live-clock engine tests, which need a real audio output device |
 | `uv run --directory tools python -m analyzer` | the analyzer worker |
