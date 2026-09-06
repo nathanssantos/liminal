@@ -175,19 +175,32 @@
   releases and the stop, which it is not — the mechanism is the rewind, and it is deterministic per
   configuration.) (measured 2026-09-06)
 - 🔴 **Offline does see it, and that is where the guard belongs.** The same rewind adds 6 ghost
-  attacks and a seventeenth `bar` event to an offline render of the fixture — deterministic, and
-  cheap to assert. The engine counts the notes it triggers, and the test compares that count with
-  the document; a live test alone would leave CI blind, because CI has no device. Pair it with an
-  offline peak reading past the tail: with the stop at the last tick the fixture is still audible
-  three seconds after its own end. (measured 2026-09-06)
+  attacks to an offline render of the fixture — deterministic, and cheap to assert. The engine
+  counts the notes it triggers, and the test compares that count with the document; a live test
+  alone would leave CI blind, because CI has no device. The bar events do not move: the bar
+  callback already refuses to fire past the score's length. (⚠️ Correction: a seventeenth `bar`
+  event was written here and does not reproduce.) (measured 2026-09-06)
+- 🔴 **A guard that makes the symptom impossible also makes the conserto untestable.** The parts
+  once refused to trigger outside the playing state. In working code it changed no number; what it
+  did was let the stop go back inside the tick with the suite still green. The assertion has to sit
+  on the invariant itself — the notes triggered against the notes written — with nothing between it
+  and the defect. (measured 2026-09-06)
+- 🔴 **A callback that runs inside a tick must not schedule from `context.now()`.** `now()` is
+  `currentTime + lookAhead`, and the tick's `time` argument sits a lookahead behind it, so a timeout
+  armed with a plain delay lands early — by 0.15–0.2 s with the default lookahead. The engine's
+  release tail counts from the event's own audio time. Offline never sees this: there the lookahead
+  is zero. (measured 2026-09-06)
 - ⭐ **The release tail is a musical number, so it comes from the presets.** How long the engine
   keeps the transport after `ended` is the longest tail among the score's voices — the envelope's
   release when it sustains, decay plus release when it does not. A constant would silently truncate
-  the first preset added with a longer release. (measured 2026-09-06)
+  the first preset added with a longer release. It covers the voices only: the day a delay or a
+  reverb lands, the effect's own tail joins the sum. (measured 2026-09-06)
 - 🔴 **Whatever runs after the end has to survive `play()` landing in the middle of it.** During
   the tail the engine is neither playing nor idle: a `play()` there once re-armed the end in the
   transport's past and left the engine mute forever, with no error and no event. The engine keeps
-  three states, and `play()` during the tail rewinds before it starts. (measured 2026-09-06)
+  three states, and `play()` during the tail rewinds before it starts. ⚠️ That rewind is a stop, so
+  it carries the same rule: called from an `ended` listener it runs inside the tick, and the
+  transport walks a whole second pass in silence. It defers too. (measured 2026-09-06)
 - 🔴 **Opening the audio device at module scope can hang the whole suite, past any timeout.**
   `new AudioContext()` in `node-web-audio-api` is a synchronous native call; when the device is
   wedged it blocks uninterruptibly, so the file hangs on import and `timeout 90` does not kill it.
