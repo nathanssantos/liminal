@@ -18,3 +18,4 @@
 | 2026-09-05 | M0-08, M0-09 | agents and skills loading, AGENTS commands, main protected, commit-msg hook | admin enforcement blocks the sync push |
 | 2026-09-05 | M0-10 | contributing, conduct, security, four issue templates, changelog, release workflow, README | — |
 | 2026-09-05 | (M0 close) | milestone gate proven, v0.0.0 released, M1 opened | — |
+| 2026-09-06 | (repair) | commit identity: CI commits as github-actions[bot] (#29, #31); main rewritten to remove the invented identity from 14 commits, tag v0.0.0 moved, feat/11 rebased; rule recorded | main rewrite needs the loop paused and the protection relaxed for seconds |
