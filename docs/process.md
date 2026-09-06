@@ -296,7 +296,7 @@ The machine's agents (`~/.claude/agents/`) still apply to UI and general quality
 | `docs/specs`, `docs/plan.md` | `spec-reviewer` | — |
 | any code change | `docs-reviewer` (are the docs still true?) | — |
 | `apps/desktop/src/renderer` (also) | `usability-reviewer`; **`ui-designer` before implementation** (design brief in `docs/design/`) | — |
-| `packages/ui` | `desktop-reviewer`, `usability-reviewer`; `ui-designer` before a new component | `design-system-guardian`, `accessibility-auditor`, `ui-quality-reviewer` |
+| the `@liminal/ui` package | `desktop-reviewer`, `usability-reviewer`; `ui-designer` before a new component | `design-system-guardian`, `accessibility-auditor`, `ui-quality-reviewer` |
 | lockfile, `pyproject` | — | `dependency-guardian` |
 
 Advisors by iteration type (read-only, their output is input): planning → `product-strategist`,

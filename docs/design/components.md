@@ -1,6 +1,6 @@
 # Components — the design system (`@liminal/ui`)
 
-> One package, `packages/ui`, holds every reusable piece of interface: the tokens, thin wrappers
+> One package, `@liminal/ui` (under `packages/`), holds every reusable piece of interface: the tokens, thin wrappers
 > over Radix Primitives for behaviour and accessibility, and the audio controls no library ships.
 > The app composes them; product-specific composites (the queue entry, the layer map row, the
 > soundcheck card) live in `apps/desktop` and are built only from what is here. This file is the
