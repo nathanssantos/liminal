@@ -4,6 +4,7 @@ import {
   decibels,
   hintFor,
   MUTE_STATE_LABEL,
+  NO_PAUSE_REASON,
   OUTPUT_GAIN_MAX_DB,
   OUTPUT_GAIN_MIN_DB,
   playGuard,
@@ -16,7 +17,8 @@ export function App() {
   const shell = useShell()
   const play = useRef<HTMLButtonElement>(null)
   const device = useRef<HTMLButtonElement>(null)
-  const guard = playGuard(shell)
+  const playing = shell.transport === 'playing'
+  const guard = playing ? NO_PAUSE_REASON : playGuard(shell)
   const numbers = readoutOf(shell)
 
   return (

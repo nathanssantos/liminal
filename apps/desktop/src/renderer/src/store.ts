@@ -140,6 +140,8 @@ const STILL_LOADING = 'The set is still loading.'
 const NOTHING_LOADED = 'Nothing is loaded yet.'
 const NO_DEVICE_HINT = 'No output device. Connect speakers or headphones.'
 
+export const NO_PAUSE_REASON = 'This set can only be stopped, not paused.'
+
 const STILL_LOADING_REASON = 'The set is still loading.'
 const LOAD_GAVE_UP_REASON = 'The set did not load.'
 const NO_DEVICE_REASON = 'Connect speakers or headphones first.'

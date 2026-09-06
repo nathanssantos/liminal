@@ -4,6 +4,8 @@ export default defineConfig({
   test: {
     server: { deps: { external: [/colours\.mjs$/] } },
     css: true,
-    include: ['src/**/*.test.ts'],
+    environment: 'jsdom',
+    include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
+    setupFiles: ['src/renderer/src/test-setup.ts'],
   },
 })
