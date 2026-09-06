@@ -1,0 +1,14 @@
+{
+  "what": "choosing another output moves the sound without stopping the set",
+  "how": "Playwright with Electron on the built app, switching while playing",
+  "outputsFound": 6,
+  "permissionPrompt": "none — enumerateDevices returned real labels on first paint",
+  "chosen": "LG ULTRAWIDE (HDMI)",
+  "triggerBefore": "System default",
+  "triggerAfter": "LG ULTRAWIDE (HDMI)",
+  "transportThroughout": "Playing",
+  "positionAdvanced": "1:3 → 2:3 → 3:1",
+  "stripRaised": null,
+  "why this proves the sink changed": "the renderer only keeps the new deviceId after engine.setSinkId resolves; a refusal reverts the trigger to the previous device and raises the sink-unavailable strip, and neither happened",
+  "at": "2026-09-06"
+}
