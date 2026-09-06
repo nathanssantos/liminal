@@ -130,7 +130,7 @@ type Mix = { master: { gainDb: number; limiter: boolean } }
 | E6 | every note fits its clip: `0 ≤ at`, `at + duration ≤ clip.length` |
 | E7 | clips on the same track do not overlap |
 | E8 | `automation.points` with strictly ascending `at` |
-| E9 | `bpm` 40..220; `pitch` 0..127; `velocity` 0..1; `gainDb` -60..6; `pan` -1..1; `energy` 0..1; `seed` 0..2³²-1; `beatsPerBar` 2..12. `NaN` is outside every range |
+| E9 | `bpm` 40..220; `pitch` 0..127; `velocity` 0..1; `gainDb` -60..6; `pan` -1..1; `energy` 0..1; `seed` 0..2³²-1; `beatsPerBar` 2..12. Every automation value and every instrument or effect parameter is finite; `NaN` and `Infinity` are outside every range |
 
 **Warnings** (valid, but probably wrong):
 
@@ -169,10 +169,15 @@ The schema is **strict**: an unknown key is an error, at every depth. A document
 version fails loudly instead of losing the field in silence, and an automation target that names
 both a `trackId` and the `master` matches neither branch instead of being reinterpreted.
 
-`NaN` and `Infinity` are rejected everywhere. The schema refuses them because JSON cannot carry
-them; `validate` refuses them because a range comparison against `NaN` is false on both sides, so
-a transform that divides by zero would otherwise produce a document that validates and then poisons
-an audio parameter.
+`NaN` and `Infinity` are rejected everywhere a number reaches audio: the ranges of E9, and also
+the values that have no range — automation points, instrument parameters and effect parameters. The
+schema refuses them because JSON cannot carry them; `validate` refuses them because a range
+comparison against `NaN` is false on both sides, so a transform that divides by zero would otherwise
+produce a document that validates and then poisons a Web Audio parameter.
+
+`validate` never throws: an invalid document comes back as findings. When the meter has no whole
+bars, the score has no defined length, so the two checks that need one — E5 and W3 — are skipped
+and E1 reports the meter instead.
 
 One asymmetry the round trip cannot close: `-0` comes back as `0`, because that is all JSON
 carries. Nothing musical depends on the sign of zero, and a test states it.

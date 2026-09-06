@@ -52,12 +52,25 @@ describe('tick arithmetic', () => {
     expect(() => barToTick(1, { beatsPerBar: 4, beatUnit: -4 })).toThrow(RangeError)
   })
 
+  it('throws for a bar that does not hold a whole number of beats', () => {
+    expect(() => barToTick(1, { beatsPerBar: 4.5, beatUnit: 4 })).toThrow(RangeError)
+    expect(() => barToTick(1, { beatsPerBar: 0, beatUnit: 4 })).toThrow(RangeError)
+    expect(() => tickToPosition(0, { beatsPerBar: Number.NaN, beatUnit: 4 })).toThrow(RangeError)
+  })
+
   it('throws for a tick before the start of the document', () => {
     expect(() => tickToPosition(-1, { beatsPerBar: 4, beatUnit: 4 })).toThrow(RangeError)
   })
 
   it('throws for a tick that is not whole', () => {
     expect(() => tickToPosition(0.5, { beatsPerBar: 4, beatUnit: 4 })).toThrow(RangeError)
+  })
+
+  it('keeps a tick past the middle of a bar inside that bar', () => {
+    const meter = { beatsPerBar: 4, beatUnit: 4 }
+    expect(tickToPosition(barToTick(2, meter) + 3000, meter).bar).toBe(2)
+    expect(tickToPosition(barToTick(2, meter) + 3839, meter).bar).toBe(2)
+    expect(tickToPosition(barToTick(3, meter), meter).bar).toBe(3)
   })
 
   it('measures the score by the sum of its sections', () => {

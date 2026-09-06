@@ -19,7 +19,8 @@ export class ScoreParseError extends Error {
   }
 }
 
-const pathOf = (path: readonly PropertyKey[]) => (path.length === 0 ? '(root)' : path.join('.'))
+const pathOf = (path: readonly PropertyKey[]) =>
+  path.length === 0 ? '(root)' : path.map(String).join('.')
 
 function withSortedKeys(value: unknown): unknown {
   if (Array.isArray(value)) {

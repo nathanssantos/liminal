@@ -63,6 +63,10 @@
   was range-checked but never checked for wholeness: `4.0005` passed `validate` and made
   `scoreLengthTicks` return `61447.68`, so the invariant meant to guard tick integrality was
   itself computed in floating point. (measured 2026-09-06)
+- 🔴 **`validate` must never throw — it reports.** Adding a guard to `ticksPerBar` made E5 blow up
+  on a fractional meter instead of reporting E1, so a document that is merely invalid crashed the
+  caller. The checks that need a bar length now run only when the meter has whole bars.
+  (measured 2026-09-06)
 - ⭐ **A test per invariant code is not a test per branch.** Nine `E` tests passed while twelve of
   the invariants' branches survived being replaced by `if (false)`. The gate that found it was
   mutation testing, not coverage: a table-driven case per sub-check, then a mutant per site.

@@ -86,19 +86,51 @@ describe('the schema carries the shape score.md declares', () => {
   })
 })
 
-describe('the schema refuses what it cannot represent', () => {
-  it('refuses an unknown key instead of dropping it in silence', () => {
-    const raw = JSON.parse(stringify(sixteenBars)) as Record<string, unknown>
-    raw.tempoMap = []
-    expect(scoreSchema.safeParse(raw).success).toBe(false)
-  })
+type Raw = Record<string, unknown>
 
-  it('refuses an unknown key nested inside a track', () => {
-    const raw = JSON.parse(stringify(sixteenBars)) as { tracks: Record<string, unknown>[] }
-    const track = raw.tracks[0]
-    if (track !== undefined) {
-      track.sidechain = true
-    }
+const rawFixture = () => JSON.parse(stringify(sixteenBars)) as Raw
+
+const reach = (raw: Raw, path: readonly (string | number)[]): Raw => {
+  let current: unknown = raw
+  for (const step of path) {
+    current = (current as Record<string | number, unknown>)[step]
+  }
+  if (current === null || typeof current !== 'object') {
+    throw new Error(`the fixture has no object at ${path.join('.')}`)
+  }
+  return current as Raw
+}
+
+describe('the schema refuses what it cannot represent', () => {
+  const nested: (readonly (string | number)[])[] = [
+    [],
+    ['tempo'],
+    ['meter'],
+    ['key'],
+    ['mix'],
+    ['mix', 'master'],
+    ['sections', 0],
+    ['tracks', 0],
+    ['tracks', 0, 'instrument'],
+    ['tracks', 3, 'fx', 0],
+    ['clips', 0],
+    ['clips', 0, 'notes', 0],
+    ['automation', 0],
+    ['automation', 0, 'target'],
+    ['automation', 0, 'points', 0],
+  ]
+
+  for (const path of nested) {
+    it(`refuses an unknown key at ${path.length === 0 ? 'the root' : path.join('.')}`, () => {
+      const raw = rawFixture()
+      reach(raw, path).liminalUnknownKey = true
+      expect(scoreSchema.safeParse(raw).success).toBe(false)
+    })
+  }
+
+  it('refuses an unknown key inside lineage', () => {
+    const raw = rawFixture()
+    raw.lineage = { label: 'a take', liminalUnknownKey: true }
     expect(scoreSchema.safeParse(raw).success).toBe(false)
   })
 

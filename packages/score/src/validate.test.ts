@@ -237,6 +237,36 @@ describe('E7 rejects clips that overlap on the same track', () => {
     expect(codesOf(score)).not.toContain('E7')
   })
 
+  it('leaves three clips alone when they are written out of order but do not overlap', () => {
+    const score = broken((draft) => {
+      const clip = firstClip(draft)
+      const span = clip.length / 4
+      clip.length = span
+      clip.notes = clip.notes.filter((note) => note.at + note.duration <= span)
+      const later = { ...clip, id: 'ZZZZZZZZZZZZZZZZZZZZZZZZZZ', start: span * 3, notes: [] }
+      const middle = { ...clip, id: 'YYYYYYYYYYYYYYYYYYYYYYYYYY', start: span, notes: [] }
+      draft.clips = [clip, later, middle, ...draft.clips.slice(1)]
+    })
+    expect(codesOf(score)).not.toContain('E7')
+  })
+
+  it('E7 rejects two clips that overlap by a single tick', () => {
+    const score = broken((draft) => {
+      const clip = firstClip(draft)
+      const half = clip.length / 2
+      clip.length = half
+      clip.notes = clip.notes.filter((note) => note.at + note.duration <= half)
+      draft.clips.push({
+        ...clip,
+        id: 'ZZZZZZZZZZZZZZZZZZZZZZZZZZ',
+        start: half - 1,
+        length: half,
+        notes: [],
+      })
+    })
+    expect(codesOf(score)).toContain('E7')
+  })
+
   it('finds the overlap whichever order the two clips are written in', () => {
     const score = broken((draft) => {
       const clip = firstClip(draft)
@@ -302,6 +332,27 @@ describe('E9 rejects a number outside its range', () => {
     [
       'note velocity',
       (score) => Object.assign(firstClip(score).notes[0] ?? {}, { velocity: Number.NaN }),
+    ],
+    ['master gain', (score) => Object.assign(score.mix.master, { gainDb: Number.NaN })],
+    [
+      'automation point value',
+      (score) => Object.assign(score.automation[0]?.points[0] ?? {}, { value: Number.NaN }),
+    ],
+    [
+      'effect parameter',
+      (score) => {
+        const effect = trackNamed(score, 'chords').fx[0]
+        if (effect !== undefined) {
+          effect.params.cutoff = Number.NaN
+        }
+      },
+    ],
+    [
+      'instrument parameter',
+      (score) => {
+        const track = trackNamed(score, 'kick')
+        track.instrument = { kind: 'synth', preset: 'kick', params: { decay: Number.NaN } }
+      },
     ],
   ]
 
@@ -402,6 +453,46 @@ describe('validate warnings', () => {
         }),
       ),
     ).not.toContain('W3')
+  })
+
+  it('W3 stays quiet for a section whose only note started in the section before it', () => {
+    const score = broken((draft) => {
+      draft.sections = twoSections(draft)
+      for (const clip of draft.clips) {
+        clip.notes = []
+      }
+      const first = firstClip(draft)
+      first.notes = [
+        { at: 0, duration: first.length, pitch: 36, velocity: 0.9 },
+        { at: 100, duration: 960, pitch: 36, velocity: 0.9 },
+      ]
+    })
+    expect(warningsOf(score)).not.toContain('W3')
+  })
+
+  it('W3 warns about a section whose only note ends exactly where it starts', () => {
+    const score = broken((draft) => {
+      draft.sections = twoSections(draft)
+      for (const clip of draft.clips) {
+        clip.notes = []
+      }
+      const first = firstClip(draft)
+      first.notes = [{ at: 0, duration: 8 * 3840, pitch: 36, velocity: 0.9 }]
+    })
+    expect(warningsOf(score)).toContain('W3')
+  })
+
+  it('W3 warns about a section whose only note starts exactly where it ends', () => {
+    const score = broken((draft) => {
+      draft.sections = twoSections(draft)
+      for (const clip of draft.clips) {
+        clip.notes = []
+      }
+      const first = firstClip(draft)
+      first.notes = [{ at: 8 * 3840, duration: 960, pitch: 36, velocity: 0.9 }]
+    })
+    const sections = validate(score).warnings.filter((warning) => warning.code === 'W3')
+    expect(sections.map((warning) => warning.path[1])).toEqual([0])
   })
 
   it('W4 warns about automation the track exposes no effect for', () => {

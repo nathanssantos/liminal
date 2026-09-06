@@ -8,8 +8,11 @@ export type TimeSignature = { beatsPerBar: number; beatUnit: number }
 export type Position = { bar: Bar; beat: number; tick: Tick }
 
 export function ticksPerBeat(meter: TimeSignature): number {
+  if (!Number.isInteger(meter.beatUnit) || meter.beatUnit < 1) {
+    throw new RangeError(`a beat unit has to be a whole number ≥ 1, received ${meter.beatUnit}`)
+  }
   const ticks = TICKS_PER_WHOLE_NOTE / meter.beatUnit
-  if (!Number.isInteger(ticks) || ticks < 1) {
+  if (!Number.isInteger(ticks)) {
     throw new RangeError(
       `a beat unit of ${meter.beatUnit} does not divide ${TICKS_PER_WHOLE_NOTE} ticks`,
     )
@@ -18,6 +21,11 @@ export function ticksPerBeat(meter: TimeSignature): number {
 }
 
 export function ticksPerBar(meter: TimeSignature): number {
+  if (!Number.isInteger(meter.beatsPerBar) || meter.beatsPerBar < 1) {
+    throw new RangeError(
+      `a bar has to hold a whole number of beats ≥ 1, received ${meter.beatsPerBar}`,
+    )
+  }
   return ticksPerBeat(meter) * meter.beatsPerBar
 }
 

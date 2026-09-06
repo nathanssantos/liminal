@@ -1,6 +1,9 @@
 import { PARAM_REQUIRES_FX, PITCHED_ROLE_RANGES, RANGES } from './constants.ts'
 import type { Clip, Score } from './schema.ts'
+import { PPQ } from './schema.ts'
 import { scoreLengthTicks, ticksPerBar } from './time.ts'
+
+const TICKS_PER_WHOLE_NOTE = PPQ * 4
 
 export type FindingCode =
   | 'E1'
@@ -33,13 +36,19 @@ type Range = { min: number; max: number }
 const isWholeAtLeast = (value: number, minimum: number) =>
   Number.isInteger(value) && value >= minimum
 
-function* consecutivePairs<T>(items: readonly T[]): Generator<[T, T]> {
+function at<T>(items: readonly T[], index: number): T {
+  const item = items[index]
+  if (item === undefined) {
+    throw new RangeError(`index ${index} is outside an array of ${items.length}`)
+  }
+  return item
+}
+
+function* consecutivePairs<T>(
+  items: readonly T[],
+): Generator<{ previous: T; current: T; index: number }> {
   for (let index = 1; index < items.length; index += 1) {
-    const previous = items[index - 1]
-    const current = items[index]
-    if (previous !== undefined && current !== undefined) {
-      yield [previous, current]
-    }
+    yield { previous: at(items, index - 1), current: at(items, index), index }
   }
 }
 
@@ -228,7 +237,7 @@ function checkClipsDoNotOverlap(score: Score, errors: Finding[]): void {
   })
   for (const [trackId, placed] of byTrack) {
     const ordered = placed.toSorted((left, right) => left.clip.start - right.clip.start)
-    for (const [previous, current] of consecutivePairs(ordered)) {
+    for (const { previous, current } of consecutivePairs(ordered)) {
       if (current.clip.start < previous.clip.start + previous.clip.length) {
         errors.push({
           code: 'E7',
@@ -242,9 +251,7 @@ function checkClipsDoNotOverlap(score: Score, errors: Finding[]): void {
 
 function checkAscendingAutomation(score: Score, errors: Finding[]): void {
   score.automation.forEach((automation, index) => {
-    let pointIndex = 0
-    for (const [previous, current] of consecutivePairs(automation.points)) {
-      pointIndex += 1
+    for (const { previous, current, index: pointIndex } of consecutivePairs(automation.points)) {
       if (current.at <= previous.at) {
         errors.push({
           code: 'E8',
@@ -314,6 +321,39 @@ function checkRanges(score: Score, errors: Finding[]): void {
       })
     }
   })
+  score.tracks.forEach((track, index) => {
+    for (const [name, value] of Object.entries(track.instrument.params ?? {})) {
+      if (!Number.isFinite(value)) {
+        errors.push({
+          code: 'E9',
+          message: `track ${track.id} sets instrument parameter ${name} to ${value}, which is not a finite number`,
+          path: ['tracks', index, 'instrument', 'params', name],
+        })
+      }
+    }
+    track.fx.forEach((effect, fxIndex) => {
+      for (const [name, value] of Object.entries(effect.params)) {
+        if (!Number.isFinite(value)) {
+          errors.push({
+            code: 'E9',
+            message: `track ${track.id} sets ${effect.kind} parameter ${name} to ${value}, which is not a finite number`,
+            path: ['tracks', index, 'fx', fxIndex, 'params', name],
+          })
+        }
+      }
+    })
+  })
+  score.automation.forEach((automation, index) => {
+    automation.points.forEach((point, pointIndex) => {
+      if (!Number.isFinite(point.value)) {
+        errors.push({
+          code: 'E9',
+          message: `automation ${automation.id} sets point ${pointIndex} to ${point.value}, which is not a finite number`,
+          path: ['automation', index, 'points', pointIndex, 'value'],
+        })
+      }
+    })
+  })
   score.clips.forEach((clip, index) => {
     clip.notes.forEach((note, noteIndex) => {
       if (outside(note.pitch, RANGES.pitch)) {
@@ -376,6 +416,7 @@ function warnSilentSection(score: Score, warnings: Finding[]): void {
         to: clip.start + note.at + note.duration,
       })),
     )
+    .filter((span) => Number.isFinite(span.from) && Number.isFinite(span.to))
     .toSorted((left, right) => left.from - right.from)
   const latestEnd: number[] = []
   let running = Number.NEGATIVE_INFINITY
@@ -387,7 +428,7 @@ function warnSilentSection(score: Score, warnings: Finding[]): void {
     const start = section.startBar * perBar
     const end = start + section.bars * perBar
     const startingBefore = countStartingBefore(spans, end)
-    const sounds = startingBefore > 0 && (latestEnd[startingBefore - 1] ?? 0) > start
+    const sounds = startingBefore > 0 && at(latestEnd, startingBefore - 1) > start
     if (!sounds) {
       warnings.push({
         code: 'W3',
@@ -403,7 +444,7 @@ function countStartingBefore(spans: readonly { from: number }[], limit: number):
   let high = spans.length
   while (low < high) {
     const middle = (low + high) >> 1
-    if ((spans[middle]?.from ?? Number.POSITIVE_INFINITY) < limit) {
+    if (at(spans, middle).from < limit) {
       low = middle + 1
     } else {
       high = middle
@@ -434,6 +475,14 @@ function warnUnexposedAutomation(score: Score, warnings: Finding[]): void {
   })
 }
 
+function hasMeasurableBars(score: Score): boolean {
+  return (
+    isWholeAtLeast(score.meter.beatsPerBar, 1) &&
+    isWholeAtLeast(score.meter.beatUnit, 1) &&
+    Number.isInteger(TICKS_PER_WHOLE_NOTE / score.meter.beatUnit)
+  )
+}
+
 export function validate(score: Score): ValidationResult {
   const errors: Finding[] = []
   const warnings: Finding[] = []
@@ -441,14 +490,16 @@ export function validate(score: Score): ValidationResult {
   checkContiguousSections(score, errors)
   checkUniqueIds(score, errors)
   checkTrackReferences(score, errors)
-  checkClipsInsideScore(score, errors)
   checkNotesInsideClip(score, errors)
   checkClipsDoNotOverlap(score, errors)
   checkAscendingAutomation(score, errors)
   checkRanges(score, errors)
   warnPitchOutsideRoleRange(score, warnings)
   warnTrackWithoutClip(score, warnings)
-  warnSilentSection(score, warnings)
   warnUnexposedAutomation(score, warnings)
+  if (hasMeasurableBars(score)) {
+    checkClipsInsideScore(score, errors)
+    warnSilentSection(score, warnings)
+  }
   return { errors, warnings }
 }
