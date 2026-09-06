@@ -296,6 +296,7 @@ The machine's agents (`~/.claude/agents/`) still apply to UI and general quality
 | `docs/specs`, `docs/plan.md` | `spec-reviewer` | — |
 | any code change | `docs-reviewer` (are the docs still true?) | — |
 | `apps/desktop/src/renderer` (also) | `usability-reviewer`; **`ui-designer` before implementation** (design brief in `docs/design/`) | — |
+| `packages/ui` | `desktop-reviewer`, `usability-reviewer`; `ui-designer` before a new component | `design-system-guardian`, `accessibility-auditor`, `ui-quality-reviewer` |
 | lockfile, `pyproject` | — | `dependency-guardian` |
 
 Advisors by iteration type (read-only, their output is input): planning → `product-strategist`,
@@ -626,7 +627,7 @@ Every PR leaves the repo's documentation **true**. The rule is not "update the d
 | `docs/process.md`, `.claude/skills/**`, `.claude/agents/**` | the way of working changed |
 | `docs/product/**` | audience, positioning, flows, measures changed |
 | `docs/craft/**` | a craft entry became code (status → `enforced`, cite the test), a brief backed or contradicted one, a new technique was learned |
-| `docs/design/**` | a screen, a component, a token, an interaction changed |
+| `docs/design/**` | a screen, a component, a token, an interaction changed; `components.md` when a component is added, gains a variant or changes its API |
 | `docs/memory/**` | something was learned, decided or measured |
 | `AGENTS.md › Commands`, `CLAUDE.md` | a script or a target changed |
 | `CHANGELOG.md` | anything a user would notice |
@@ -636,6 +637,13 @@ that no longer exist; commands in `AGENTS.md` absent from `package.json`/`pyproj
 architecture table versus the real `package.json` dependencies; broken relative links; specs whose
 `issue:` does not match GitHub. The `docs-reviewer` agent reads what a machine cannot: whether the
 prose still describes the code. Both run on every code PR and at every release.
+
+**Code follows the docs, too.** When a rule, a spec or a design decision changes **after** a card
+shipped, what shipped is not left beside the new rule: at the next gate 0 the loop lists the
+`Done` cards the change touches (the sync reports spec edits; a process or design PR names the
+areas) and opens a **follow-up card** in the open milestone for each — small, cited to the change,
+inside the improvement budget. The first case: the design system landed after M0-02 built the
+shell with its own tokens; M1-07 brings the shell into the system.
 
 **The platform frame.** liminal is a platform for generating and steering music — the endless set
 is its first product. Documentation must say so wherever it describes the whole: the score,

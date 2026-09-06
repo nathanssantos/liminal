@@ -44,6 +44,13 @@ one beat at the current tempo (anything synchronized to music). Easing `ease-out
 `ease-in-out` for moving. `prefers-reduced-motion` turns everything off except the bar tick, which
 becomes a static indicator.
 
+## Components
+
+Everything reusable lives in `packages/ui` (`@liminal/ui`): **Radix Primitives for behaviour and
+accessibility, our tokens for looks, the audio controls ours** — with a story per state and a test
+per behaviour rule. The catalogue and the rules are in [components.md](components.md). A screen
+composes; it never restyles a component locally.
+
 ## Controls we will keep needing (design once, reuse)
 
 | Control | Job | Rules |

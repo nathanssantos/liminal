@@ -26,8 +26,11 @@ timeline brief without R26 is not ready).
 4. **Components and states**: for each control, every state (rest, hover, focus, active, disabled,
    loading, error, empty) and the exact copy in the user's words. A queue entry with an adjustable
    dwell time is one gesture to change, and shows the value while changing.
-5. **Tokens**: reuse before adding; if a token is missing, propose it by role (`--color-surface-2`,
-   `--space-3`), never by value. Values come from `principles.md`.
+5. **Tokens and components**: reuse before adding — first `@liminal/ui`'s catalogue
+   (`docs/design/components.md`), then a new variant, and only then a new component (which gets
+   its own row in the catalogue, its states, and its story list in the brief). A missing token is
+   proposed by role (`--color-surface-2`, `--space-3`), never by value; values come from
+   `principles.md`. Radix Primitives for behaviour; the audio controls ours.
 6. **Motion**: only where it carries meaning — a bar tick, a handover progress, a state change.
    Durations and easings from the principles; `prefers-reduced-motion` respected.
 7. **Keyboard and accessibility**: every flow by keyboard; focus order; names; live regions for what
