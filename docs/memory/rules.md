@@ -191,13 +191,14 @@
   earlier, by at most one update interval, and clamps to zero for any tail shorter than that — a
   hat-only score would lose its tail entirely. (⚠️ Correction: this rule first claimed the plain
   delay lands 0.15–0.2 s early; it does not.) (measured 2026-09-06)
-- 🔴 **A deferred rewind is a resource: hold its id and cancel it on every transition.** `play()`
-  during the release tail defers its rewind. A callback that only checks the state finds `playing`
-  again after a `stop()` and a fresh `play()`, and throws the new session back to bar zero. The
-  engine keeps one pending timeout, and `play()`, `stop()` and `dispose()` all cancel it before
-  doing anything else. A session counter on top of that was written and removed: with every
-  transition cancelling, no test could reach the stale path, and an unreachable guard is a branch
-  nobody has ever seen. (measured 2026-09-06)
+- 🔴 **Cancelling a Tone timeout does not stop it once the batch is dispatching.** `_timeoutLoop`
+  walks a **snapshot** of everything due, so a `clearTimeout` called from inside that batch removes
+  the entry from the timeline and not from the array being walked. The engine holds the id of its
+  one pending timeout and cancels it on `play()`, `stop()` and `dispose()` — **and** every deferred
+  action checks the state it was armed for. Without the second half a `play()` landing in the same
+  batch as the release tail cancelled a rewind that ran anyway: transport running, engine reporting
+  itself stopped, notes audible, no event, and only `dispose()` able to silence it. (⚠️ Correction:
+  this rule first said cancelling on every transition was enough.) (measured 2026-09-06)
 - 🔴 **`transport.start(0)` is right only for the first start.** Offline the context clock begins at
   zero, so the two agree once; on any later start the transport integrates from zero to the current
   render time and jumps straight to the end, playing nothing and emitting nothing. `start()` with no
@@ -210,9 +211,10 @@
 - 🔴 **Whatever runs after the end has to survive `play()` landing in the middle of it.** During
   the tail the engine is neither playing nor idle: a `play()` there once re-armed the end in the
   transport's past and left the engine mute forever, with no error and no event. The engine keeps
-  three states, and `play()` during the tail rewinds before it starts. ⚠️ That rewind is a stop, so
-  it carries the same rule: called from an `ended` listener it runs inside the tick, and the
-  transport walks a whole second pass in silence. It defers too. (measured 2026-09-06)
+  three states, and `play()` during the tail rewinds before it starts. ⚠️ It is the rewind **followed
+  by a start** that has to leave the tick: rewinding alone from an `ended` listener is fine, which is
+  why `stop()` and `dispose()` do it synchronously and a test calls `stop()` from there and counts
+  the notes. (measured 2026-09-06)
 - 🔴 **Opening the audio device at module scope can hang the whole suite, past any timeout.**
   `new AudioContext()` in `node-web-audio-api` is a synchronous native call; when the device is
   wedged it blocks uninterruptibly, so the file hangs on import and `timeout 90` does not kill it.
