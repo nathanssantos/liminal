@@ -1,11 +1,14 @@
 import type { Score } from '@liminal/score'
 import { barToTick, scoreLengthTicks } from '@liminal/score'
 import { sixteenBars } from '@liminal/score/fixtures'
+import { OfflineAudioContext } from 'node-web-audio-api'
 import { beforeAll, describe, expect, it } from 'vitest'
 import { offlineEngine, peakOf } from '../tests/harness.ts'
+import { createEngine } from './engine.ts'
 import { EngineError } from './errors.ts'
 import { SUPPORTED_PRESETS } from './instruments.ts'
 import { barSeconds, scoreSeconds, ticksToSeconds } from './time.ts'
+import { loadTone } from './tone.ts'
 
 const clone = (mutate: (score: Score) => void): Score => {
   const copy = structuredClone(sixteenBars)
@@ -331,13 +334,43 @@ describe('the engine refuses a parameter it cannot honour', () => {
     await expect(offlineEngine(score, 1)).rejects.toThrow(/no voice is registered/)
   })
 
-  it('disposes what it already built when the build fails halfway', async () => {
-    const score = clone((draft) => {
+  it('disposes what it already built and frees the context for a retry', async () => {
+    const tone = await loadTone()
+    const raw = new OfflineAudioContext(2, 48000, 48000)
+    const context = new tone.OfflineContext(raw as unknown as OfflineAudioContext)
+    const broken = clone((draft) => {
       const track = draft.tracks[3]
       if (track !== undefined) {
         track.fx = [{ kind: 'filter', params: { wobble: 1 } }]
       }
     })
-    await expect(offlineEngine(score, 1)).rejects.toThrow(/wobble/)
+    await expect(createEngine({ context, score: broken })).rejects.toThrow(/wobble/)
+    const engine = await createEngine({ context, score: sixteenBars })
+    expect(engine.pendingNodeCount()).toBeGreaterThan(0)
+    engine.dispose()
+  })
+
+  it('applies a plain numeric property, not only a signal', async () => {
+    const score = clone((draft) => {
+      const track = draft.tracks[3]
+      if (track !== undefined) {
+        track.instrument = { kind: 'synth', preset: 'poly-saw', params: { maxPolyphony: 4 } }
+      }
+    })
+    const { engine } = await offlineEngine(score, 1)
+    expect(engine.pendingNodeCount()).toBeGreaterThan(0)
+    engine.dispose()
+  })
+
+  it('refuses a parameter whose target is neither a number nor a signal', async () => {
+    const score = clone((draft) => {
+      const track = draft.tracks[1]
+      if (track !== undefined) {
+        track.instrument = { kind: 'synth', preset: 'hat', params: { resonance: 4000 } }
+      }
+    })
+    const { engine } = await offlineEngine(score, 1)
+    engine.dispose()
+    expect(engine.disposedNodeCount()).toBeGreaterThan(0)
   })
 })

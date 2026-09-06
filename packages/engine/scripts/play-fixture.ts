@@ -9,7 +9,7 @@ const context = new AudioContext({ sampleRate: 48000 })
 const engine = await createEngine({ context, score: sixteenBars })
 
 engine.on('bar', (event) => {
-  process.stdout.write(`\rbar ${String((event?.bar ?? 0) + 1).padStart(2, ' ')} of 16`)
+  process.stdout.write(`\rbar ${String(event.bar + 1).padStart(2, ' ')} of 16`)
 })
 
 const finished = new Promise<void>((resolve) => {

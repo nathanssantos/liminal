@@ -36,6 +36,10 @@ export function wrapContext(tone: Tone, context: EngineContext): Wrapped {
   }
 }
 
+export function rawContextOf(context: EngineContext): BaseAudioContext {
+  return isToneContext(context) ? context.rawContext : context
+}
+
 export function rendersOffline(context: EngineContext): boolean {
   const raw = isToneContext(context) ? context.rawContext : context
   return typeof (raw as OfflineAudioContext).startRendering === 'function'

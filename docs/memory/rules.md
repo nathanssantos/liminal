@@ -147,10 +147,14 @@
   stops the first engine's music, and `transport.cancel(0)` would wipe events the host scheduled.
   `createEngine` refuses a context that already drives an engine, and clears only the ids it
   registered. (measured 2026-09-06)
-- ⚠️ **Disposing a Tone context closes the raw context underneath it.** So an engine that wraps a
-  caller's `AudioContext` must not dispose the wrapper — it would close the caller's device. The
-  wrapper's ticker is the price of accepting a raw context; the caller closes what the caller
-  opened. (measured 2026-09-06, `cancelAnimationFrame is not defined` from Tone's Draw on close)
+- ⚠️ **Disposing a Tone context closes the raw context underneath it.** `Context.dispose()` calls
+  `close()`, which closes the `AudioContext` it was given, so an engine that wraps a caller's
+  context must never dispose the wrapper — it would close the caller's device.
+  ⚠️ Correction: the ticker is **not** the price. `context.clockSource = 'offline'` releases the
+  wrapper's clock (the setter disposes the timeout or terminates the worker) and never touches the
+  raw context — measured: the device stays `running` afterwards, and the caller still closes it
+  itself. An engine that made the wrapper releases the clock on dispose and on a failed build.
+  (measured 2026-09-06)
 - 🔴 **A test that opens the audio device must be silent by default.** A timing test that plays
   through the speakers runs on every `pnpm check`, on the owner's machine, in the middle of
   something else — and worse, a review agent's mutation run replays it dozens of times from a

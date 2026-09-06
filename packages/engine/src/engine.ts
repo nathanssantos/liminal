@@ -2,6 +2,7 @@ import type { Automation, Position, Score, Track } from '@liminal/score'
 import { scoreLengthTicks, tickToPosition, validate } from '@liminal/score'
 import type { AutomationTargetKind, DowngradedCurve, Move, Ramped } from './automation.ts'
 import { planAutomation, refuseOutOfRange } from './automation.ts'
+import type { Effect } from './effects.ts'
 import { createEffect } from './effects.ts'
 import { EngineError } from './errors.ts'
 import type { NodeLedger } from './graph.ts'
@@ -9,22 +10,24 @@ import { createLedger } from './graph.ts'
 import { createVoice } from './instruments.ts'
 import { barSeconds, scoreSeconds, secondsToTicks, ticksToSeconds } from './time.ts'
 import type { EngineContext, Tone, ToneContext, ToneNode } from './tone.ts'
-import { loadTone, rendersOffline, wrapContext } from './tone.ts'
+import { loadTone, rawContextOf, rendersOffline, wrapContext } from './tone.ts'
 
 export const DEFAULT_LOOK_AHEAD_SECONDS = 0.2
 
-const ENGINES_BY_CONTEXT = new WeakSet<ToneContext>()
+const ENGINES_BY_CONTEXT = new WeakSet<BaseAudioContext>()
 
 export type EngineEvent = 'bar' | 'stopped' | 'ended'
 
 export type BarEvent = { bar: number; time: number }
+
+export type EnginePayload = { bar: BarEvent; ended: BarEvent; stopped: undefined }
 
 export type Engine = {
   play: () => void
   stop: () => void
   dispose: () => void
   position: () => Position
-  on: (event: EngineEvent, listener: (payload: BarEvent | undefined) => void) => () => void
+  on: <E extends EngineEvent>(event: E, listener: (payload: EnginePayload[E]) => void) => () => void
   pendingNodeCount: () => number
   disposedNodeCount: () => number
   lookAhead: () => number
@@ -41,28 +44,49 @@ export type EngineOptions = {
 type Chain = {
   gain: { gain: Ramped }
   panner: { pan: Ramped }
-  filter?: { cutoff?: Ramped; quality?: Ramped }
+  filter?: Effect
   trigger: (pitch: number, duration: number, time: number, velocity: number) => void
 }
 
 export async function createEngine(options: EngineOptions): Promise<Engine> {
+  const key = rawContextOf(options.context)
+  if (ENGINES_BY_CONTEXT.has(key)) {
+    throw new EngineError(
+      'context-in-use',
+      'this context already drives an engine, and one transport cannot serve two',
+    )
+  }
+  const tone = await loadTone()
+  const { context, owned } = wrapContext(tone, options.context)
+  const release = () => {
+    ENGINES_BY_CONTEXT.delete(key)
+    if (owned) {
+      context.clockSource = 'offline'
+    }
+  }
+  ENGINES_BY_CONTEXT.add(key)
   const ledger = createLedger()
   try {
-    return await buildEngine(options, ledger)
+    return await buildEngine(options, { tone, context, ledger, release })
   } catch (failure) {
     try {
       ledger.disposeAll()
     } catch (whileCleaningUp) {
+      release()
       throw new AggregateError(
         [failure, whileCleaningUp],
         'the engine failed to build, and cleaning up after it failed too',
       )
     }
+    release()
     throw failure
   }
 }
 
-async function buildEngine(options: EngineOptions, ledger: NodeLedger): Promise<Engine> {
+type Built = { tone: Tone; context: ToneContext; ledger: NodeLedger; release: () => void }
+
+async function buildEngine(options: EngineOptions, built: Built): Promise<Engine> {
+  const { tone, context, ledger, release } = built
   const { context: raw, score } = options
   const problems = validate(score)
   if (problems.errors.length > 0) {
@@ -71,15 +95,6 @@ async function buildEngine(options: EngineOptions, ledger: NodeLedger): Promise<
       code: first?.code ?? 'unknown',
     })
   }
-  const tone = await loadTone()
-  const { context } = wrapContext(tone, raw)
-  if (ENGINES_BY_CONTEXT.has(context)) {
-    throw new EngineError(
-      'context-in-use',
-      'this context already drives an engine, and one transport cannot serve two',
-    )
-  }
-  ENGINES_BY_CONTEXT.add(context)
   const offline = rendersOffline(raw)
   const lookAheadSeconds = options.lookAheadSeconds ?? DEFAULT_LOOK_AHEAD_SECONDS
   if (!offline) {
@@ -132,15 +147,23 @@ async function buildEngine(options: EngineOptions, ledger: NodeLedger): Promise<
   }
 
   let playing = false
-  const listeners = new Map<EngineEvent, Set<(payload: BarEvent | undefined) => void>>()
+  let disposed = false
+  const listeners = new Map<EngineEvent, Set<(payload: never) => void>>()
   const emit = (event: EngineEvent, payload?: BarEvent) => {
     for (const listener of listeners.get(event) ?? []) {
-      listener(payload)
+      ;(listener as (given: BarEvent | undefined) => void)(payload)
     }
   }
 
   const parts = score.clips.map((clip) => {
     const chain = chains.get(clip.trackId)
+    if (chain === undefined) {
+      throw new EngineError(
+        'automation-target-missing',
+        `clip ${clip.id} names track ${clip.trackId}, which the engine did not build`,
+        { clip: clip.id, track: clip.trackId },
+      )
+    }
     const events = clip.notes.map((note) => ({
       time: ticksToSeconds(clip.start + note.at, score.tempo.bpm),
       pitch: note.pitch,
@@ -151,7 +174,7 @@ async function buildEngine(options: EngineOptions, ledger: NodeLedger): Promise<
       new tone.Part({
         context,
         callback: (time: number, event: (typeof events)[number]) => {
-          chain?.trigger(event.pitch, event.duration, time, event.velocity)
+          chain.trigger(event.pitch, event.duration, time, event.velocity)
         },
         events,
       }),
@@ -170,7 +193,7 @@ async function buildEngine(options: EngineOptions, ledger: NodeLedger): Promise<
         if (!playing) {
           return
         }
-        const bar = Math.round(transport.getSecondsAtTime(time) / perBar)
+        const bar = Math.max(0, Math.round(transport.getSecondsAtTime(time) / perBar))
         if (bar * perBar < totalSeconds) {
           emit('bar', { bar, time })
         }
@@ -238,6 +261,10 @@ async function buildEngine(options: EngineOptions, ledger: NodeLedger): Promise<
       emit('stopped')
     },
     dispose: () => {
+      if (disposed) {
+        return
+      }
+      disposed = true
       playing = false
       transport.stop(0)
       for (const id of scheduled) {
@@ -249,9 +276,12 @@ async function buildEngine(options: EngineOptions, ledger: NodeLedger): Promise<
       for (const part of parts) {
         part.stop(0)
       }
-      ledger.disposeAll()
-      listeners.clear()
-      ENGINES_BY_CONTEXT.delete(context)
+      try {
+        ledger.disposeAll()
+      } finally {
+        listeners.clear()
+        release()
+      }
     },
     position: () => {
       const seconds = Math.min(transport.seconds, totalSeconds)
@@ -262,10 +292,11 @@ async function buildEngine(options: EngineOptions, ledger: NodeLedger): Promise<
     },
     on: (event, listener) => {
       const set = listeners.get(event) ?? new Set()
-      set.add(listener)
+      const stored = listener as (payload: never) => void
+      set.add(stored)
       listeners.set(event, set)
       return () => {
-        set.delete(listener)
+        set.delete(stored)
       }
     },
     pendingNodeCount: () => ledger.pending(),
@@ -309,11 +340,9 @@ function buildChain(
   }
   const filter = effects.find((effect) => effect.cutoff !== undefined)
   return {
-    gain: gain as unknown as { gain: Ramped },
-    panner: panner as unknown as { pan: Ramped },
-    ...(filter === undefined
-      ? {}
-      : { filter: filter as unknown as { cutoff?: Ramped; quality?: Ramped } }),
+    gain,
+    panner,
+    ...(filter === undefined ? {} : { filter }),
     trigger: voice.trigger,
   }
 }
@@ -321,11 +350,11 @@ function buildChain(
 function resolveTarget(
   automation: Automation,
   chains: Map<string, Chain>,
-  master: unknown,
+  master: { gain: Ramped },
 ): { param: Ramped; kind: AutomationTargetKind } {
   const target = automation.target
   if (!('trackId' in target)) {
-    return { param: (master as { gain: Ramped }).gain, kind: 'signed' }
+    return { param: master.gain, kind: 'signed' }
   }
   const chain = chains.get(target.trackId)
   if (chain === undefined) {

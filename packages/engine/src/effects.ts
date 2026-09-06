@@ -12,6 +12,8 @@ export type Effect = {
 
 type Range = { min: number; max: number }
 
+const asRamped = (signal: { value: unknown }): Ramped => signal as Ramped
+
 const FILTER_PARAMS: Record<string, Range> = {
   cutoff: { min: 20, max: 20000 },
   q: { min: 0.0001, max: 100 },
@@ -64,11 +66,7 @@ export function createEffect(
         Q: fx.params.q ?? 1,
       }),
     )
-    return {
-      node,
-      cutoff: node.frequency as unknown as Ramped,
-      quality: node.Q as unknown as Ramped,
-    }
+    return { node, cutoff: asRamped(node.frequency), quality: node.Q }
   }
   if (fx.kind === 'eq3') {
     refuseUnknown('eq3', fx.params, EQ3_PARAMS)
