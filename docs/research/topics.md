@@ -23,6 +23,10 @@
 | R14 | Music theory for tension and release | tritone, diminished, pedal tones, modal interchange — as rules a generator can apply | M3 | open |
 | R15 | UI patterns of DJ and music apps | timelines, energy displays, transport, what first-time users understand | M5 | open |
 | R16 | Other genres: what synthesis alone cannot do | jazz, orchestral, hip-hop — where samples are mandatory | after M5 | open |
+| R22 | Melody transcription from real recordings | which models and tools work today on a full mix, on stems, on an isolated line; note accuracy; runtime on a laptop; licences | B05 spike | open |
+| R23 | Chord recognition and structure from audio | accuracy per bar on electronic and non-electronic music; which tools; what confidence they expose | B05 spike | open |
+| R24 | Rights for reworks, remixes and covers | what a private rework may do, what sharing needs (mechanical, sync), what public-domain and own-material doors exist, how products handle it | B05 decision | open |
+| R25 | How electronic producers rework a song — the craft of the edit and the remix | how the melody is kept recognisable while the rhythm, register and harmony change; typical arrangement maps from song sections to intro/build/drop/break | B05 arrangement | open |
 | R20 | Who else needs endless, coherent, licence-free music — streams, venues, shops, games | what they use today, what it costs, what breaks (repetition, licensing, mood), and whether steerability matters to them | exploration | open |
 | R21 | How music tools found their first users | which products in this space got traction, through whom, and what the first version did and did not do | exploration | open |
 | R19 | What DJs and listeners actually touch during a set | which controls get used and how often (volume, filter, EQ kills, loops, cue), what first-timers reach for, what is never used | M4–M5 | open |
