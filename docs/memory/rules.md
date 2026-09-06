@@ -155,6 +155,17 @@
   raw context — measured: the device stays `running` afterwards, and the caller still closes it
   itself. An engine that made the wrapper releases the clock on dispose and on a failed build.
   (measured 2026-09-06)
+- 🔴 **A mutation run belongs in a worktree, never in the working tree.** An interrupted run left
+  `if (false && …)` sitting in `instruments.ts`, uncommitted, and the next measurements were taken
+  against sabotaged code — two tests "failed" for a reason that did not exist. `git diff HEAD` on
+  the sources is the check before trusting any number that follows a mutation pass.
+  (measured 2026-09-06)
+- ⭐ **A test renders only as far as it looks.** The engine suite spent 41 s of its 47 on six tests
+  that rendered the whole 30-second fixture to read a value at bar 8 or observe bar 4. Rendering to
+  the instant asserted, with the notes stripped where no one listens, took the same six from ~11 s
+  each to under 1 s and the suite from 47 s to 9 s — with every assertion unchanged. The cost is
+  the audio graph, not the test: 4 s of the fixture renders in 192 ms, and 48 ms with no notes.
+  (measured 2026-09-06)
 - 🔴 **A test that opens the audio device must be silent by default.** A timing test that plays
   through the speakers runs on every `pnpm check`, on the owner's machine, in the middle of
   something else — and worse, a review agent's mutation run replays it dozens of times from a

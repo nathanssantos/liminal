@@ -10,6 +10,14 @@ import { SUPPORTED_PRESETS } from './instruments.ts'
 import { barSeconds, scoreSeconds, ticksToSeconds } from './time.ts'
 import { loadTone } from './tone.ts'
 
+const withoutNotes = (score: Score): Score => {
+  const silent = structuredClone(score)
+  for (const clip of silent.clips) {
+    clip.notes = []
+  }
+  return silent
+}
+
 const clone = (mutate: (score: Score) => void): Score => {
   const copy = structuredClone(sixteenBars)
   mutate(copy)
@@ -61,7 +69,10 @@ describe('the engine plays the fixture', () => {
 
 describe('the engine reports where it is', () => {
   it('position() during bar 4 returns bar 4', async () => {
-    const { engine, render } = await offlineEngine(sixteenBars)
+    const { engine, render } = await offlineEngine(
+      withoutNotes(sixteenBars),
+      barSeconds(sixteenBars) * 5,
+    )
     let atBarFour: number | undefined
     engine.on('bar', (event) => {
       if (event?.bar === 4) {
@@ -75,7 +86,10 @@ describe('the engine reports where it is', () => {
   })
 
   it('stop() at bar 3 emits stopped and no bar afterwards', async () => {
-    const { engine, render } = await offlineEngine(sixteenBars)
+    const { engine, render } = await offlineEngine(
+      withoutNotes(sixteenBars),
+      barSeconds(sixteenBars) * 5,
+    )
     const seen: number[] = []
     let stopped = 0
     engine.on('bar', (event) => {
@@ -104,7 +118,7 @@ describe('the engine follows the automation the document carries', () => {
   const endSeconds = ticksToSeconds(barToTick(16, sixteenBars.meter), sixteenBars.tempo.bpm)
 
   const played = async (score: Score) => {
-    const { engine, render } = await offlineEngine(score)
+    const { engine, render } = await offlineEngine(withoutNotes(score), startSeconds + 0.5)
     engine.play()
     await render()
     return engine
