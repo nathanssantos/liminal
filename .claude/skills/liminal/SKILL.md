@@ -27,7 +27,9 @@ Read, in this order, and **turn the iteration** if any asks for it:
 1. **Chat.** A message from the owner since the last iteration? It outranks everything: "stop"
    stops; "prioritise #n" is the card; "change X" becomes a spec edit (docs PR) before any code.
 2. **Sync reported divergence** (issue edited, created by hand, card moved)? Run the sync without
-   `--dry-run`; the `docs/sync-<nº>` PR merges by itself. Read what changed.
+   `--dry-run`; the `docs/sync-<nº>` PR merges by itself. Read what changed. **A rule, spec or
+   design change that touches a `Done` card** (process §16 › Code follows the docs) → a follow-up
+   card in the open milestone, cited to the change, before choosing.
 3. **A PR of mine waiting only on `listening`** with a new `heard: ok` comment? Merge (§6) now.
 4. **A human thread unanswered** on a PR of mine? That is the iteration: draft in the chat →
    approval → answer → fix → full `/review` → continue from §5.

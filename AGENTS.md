@@ -106,6 +106,7 @@ packages/analysis    style card, worker client
 packages/brain       brains: rules and Claude
 packages/conductor   the conductor
 packages/protocol    IPC channels
+packages/ui          the design system: tokens, Radix wrappers, audio controls
 tools/               one uv project, two packages:
   analyzer/          Python: yt-dlp, librosa, worker
   board/             Python: sync, queue, open, move, comment, check, review, deliver

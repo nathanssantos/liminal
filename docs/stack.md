@@ -20,7 +20,8 @@
 | Shell | **Electron 44** + **electron-vite 5** (which caps Vite at 7) + **electron-builder** | Tauri | Tauri plays audio in the system WebView (Safari on macOS) and has no Node in main — we would lose Chromium's Web Audio **and** Tone.js in the engine |
 | UI | **React 19** + **Zustand** | Next.js | no server, no routes, no SSR; `marketmind` already has this pair |
 | Styling | **Tailwind 4** with tokens as CSS vars (`@theme`) | loose CSS Modules | tokens from day one, without inventing a design system before there are two consumers |
-| Primitives | **Radix** when the first real need appears | shadcn up front | do not bring blocks nobody asked for |
+| Primitives | **Radix Primitives** (`radix-ui`), wrapped once in `@liminal/ui` with our tokens, from M1-07 | shadcn; Radix Themes | shadcn brings its own look and copies; Themes styles for us — we want behaviour and accessibility, and our own look (`docs/design/components.md`) |
+| Design system | **`@liminal/ui`**: tokens, Radix wrappers, the audio controls (knob, fader, meter, step grid, waveform), Storybook with `addon-a11y`, RTL + axe tests | components inside the app | every screen reuses the same controls; the app composes, never restyles |
 
 ## Music
 

@@ -19,7 +19,8 @@ position, segment `load`).
 | M1-01 | The score: schema, invariants, fixture | M0 | no |
 | M1-02 | Engine plays a score live | M1-01 | **yes** |
 | M1-03 | Offline render and determinism | M1-02 | no |
-| M1-04 | IPC protocol and the app shell | M1-02 | **yes** |
+| M1-07 | `@liminal/ui`: tokens, Radix primitives and the first components | M0-02 | no |
+| M1-04 | IPC protocol and the app shell | M1-02, M1-07 | **yes** |
 | M1-05 | Soundcheck in the hidden window | M1-03, M1-04 | no |
 | M1-06 | `board.review`: prepared worktree, review state and the merge gate | — | no |
 
@@ -27,6 +28,6 @@ position, segment `load`).
 
 - The engine receives the `AudioContext`; it never creates one (ADR-0002).
 - v1 synth presets are the nine in the score; **no sampler**.
-- The M1 UI is as small as possible **but with tokens**: colour, space and type as CSS vars from
-  the start.
+- The M1 UI is as small as possible **but built from the design system**: tokens, Radix-based
+  controls and the audio controls live in `@liminal/ui` from the first screen.
 - Everything measured here goes to `measurements.md`: render time, Chromium × Node difference.

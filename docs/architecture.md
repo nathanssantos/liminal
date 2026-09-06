@@ -51,6 +51,7 @@ may import.
 | `@liminal/brain` | the head: rules brain and LLM brain (Agent SDK), validated structured output | `score`, `composition`, `analysis`, `protocol` |
 | `@liminal/conductor` | the conductor: layered state, queues, horizon, controllers, transitions | `score`, `composition`, `analysis`, `brain`, `protocol` |
 | `@liminal/protocol` | main ↔ renderer IPC contracts, in Zod | `score`, `analysis` |
+| `@liminal/ui` | the design system: tokens, Radix Primitives wrapped with our tokens, the audio controls; stories and tests | nothing internal |
 | `apps/desktop` | Electron: main, preload, renderer | all |
 | `tools/analyzer` | Python: `yt-dlp`, `librosa`, stdio worker (package of the `uv` project in `tools/`, next to `board`) | — |
 
