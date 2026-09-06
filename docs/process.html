@@ -67,8 +67,8 @@
   .chain .node h3{font-size:22px}
   .chain .node p{color:var(--muted);font-size:15px}
   .chain .node .file{font-family:var(--mono);font-size:13px;background:var(--surface-2);padding:8px 10px;border-radius:6px;overflow-x:auto;white-space:nowrap}
-  .chain .node.now{border-color:var(--loop)}
-  .chain .node.now::after{content:"this chat";position:absolute;top:-10px;right:14px;background:var(--loop);color:var(--loop-ink);font-family:var(--mono);font-size:11px;letter-spacing:.08em;padding:3px 8px;border-radius:999px}
+  .chain .node[data-state]{border-color:var(--loop)}
+  .chain .node[data-state]::after{content:attr(data-state);position:absolute;top:-10px;right:14px;background:var(--loop);color:var(--loop-ink);font-family:var(--mono);font-size:11px;letter-spacing:.08em;padding:3px 8px;border-radius:999px}
   .sources{display:grid;grid-template-columns:1.2fr .9fr 1.2fr;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px;overflow-x:auto}
   .sources .box{display:grid;gap:8px}
   .sources .box h3{font-size:18px}
@@ -161,14 +161,14 @@
 <main class="wrap">
 
   <section class="hero" aria-labelledby="title">
-    <p class="eyebrow">Development process · 2026-09-05</p>
+    <p class="eyebrow">Development process · kept current by the loop (§16)</p>
     <h1 id="title">You switch the loop on and leave.</h1>
-    <p class="lede">liminal is a platform for automated music production and live steering — two products on the same primitives; the endless set ships first. It develops itself: an agent takes a card from the board, implements, proves, reviews, delivers and merges — then takes the next. When a milestone closes, it releases and writes the next specs. When nothing is workable, it researches the domain. It stops for one thing only: a decision that is yours.</p>
+    <p class="lede">liminal is a platform for automated music production and live steering — two products on the same primitives; the endless set ships first. It develops itself: an agent takes a card from the board, implements, proves, reviews, delivers and merges — then takes the next. When a milestone closes, it releases and writes the next specs. It walks the app as a person to find what is missing, researches the domain, and explores where the product could go — and brings you the proposals. It stops for one thing only: a decision that is yours.</p>
     <div class="meta">
       <span><b>/loop 3m /liminal</b> · wakes every 3 min</span>
       <span><b>1 iteration = 1 card</b></span>
       <span><b>spec .md</b> is the source · issue is the mirror</span>
-      <span><b>8 skills</b>, <b>14 agents</b>, all in the repo</span>
+      <span><b>10 skills</b>, <b>14 agents</b>, all in the repo</span>
       <span><b>English</b> in the repo and on GitHub</span>
     </div>
     <div class="legend" aria-label="Colour legend">
@@ -179,11 +179,11 @@
   </section>
 
   <section id="chats" aria-labelledby="h-chats">
-    <div class="section-head"><p class="eyebrow">Three chats, one repo</p><h2 id="h-chats">Who does what, in which order</h2><p>Each chat gets a handoff prompt and the real state of the repo. None assumes the previous one finished: it checks.</p></div>
+    <div class="section-head"><p class="eyebrow">How it was bootstrapped</p><h2 id="h-chats">Three chats, one repo — and only the third one is still running</h2><p>Each chat got a handoff prompt and the real state of the repo, and checked it instead of assuming.</p></div>
     <div class="chain">
-      <article class="node now"><span class="n">01 · PLAN</span><h3>This chat</h3><p>Research, decisions (8 ADRs), plan, architecture, stack, process, product strategy, research agenda, seeded memory, M0–M1 specs, 13 agents, 8 skills, two handoffs.</p><div class="file">/dev/liminal · docs only · no git yet</div></article>
-      <article class="node"><span class="n">02 · SETUP (M0)</span><h3>Foundation chat</h3><p>Public repo, monorepo, CI, board with its columns, spec → issue sync, the board scripts the skills call, agents loading, <code>main</code> protection, open-source hygiene. Releases <code>v0.0.0</code>, closes M0, opens M1.</p><div class="file">docs/handoff/02-setup.md</div></article>
-      <article class="node"><span class="n">03 · LOOP (M1 →)</span><h3>The chat that does not stop</h3><p>Runs <code>/loop 3m /liminal</code> with the repo's own skills and scripts. Card by card. Specs when missing, research when idle, a release per milestone, a proposal when the plan runs out — and a stop when the decision is yours.</p><div class="file">docs/handoff/03-loop.md</div></article>
+      <article class="node" data-state="done · 2026-09-05"><span class="n">01 · PLAN</span><h3>Planning chat</h3><p>Research, the first decisions as ADRs, plan, architecture, stack, process, product strategy, research agenda, seeded memory, M0–M1 specs, the agents, the skills, two handoffs. Still the place where the process itself gets revised.</p><div class="file">docs/ · .claude/agents · .claude/skills</div></article>
+      <article class="node" data-state="done · v0.0.0"><span class="n">02 · SETUP (M0)</span><h3>Foundation chat</h3><p>Public repo, monorepo, CI, the board with its columns, spec ↔ issue sync, the board scripts the skills call, agents loading, <code>main</code> protected, open-source hygiene. Released <code>v0.0.0</code> on 2026-09-05, closed M0, opened M1.</p><div class="file">docs/handoff/02-setup.md</div></article>
+      <article class="node" data-state="running since 2026-09-06"><span class="n">03 · LOOP (M1 →)</span><h3>The chat that does not stop</h3><p>Runs <code>/loop 3m /liminal</code> with the repo's own skills and scripts. Card by card through M1 and on. Specs when missing, discovery and research on their cadence, a release per milestone, proposals when the product could grow — and a stop when the decision is yours.</p><div class="file">docs/handoff/03-loop.md</div></article>
     </div>
   </section>
 
@@ -238,7 +238,9 @@
       <div class="rung"><span class="if">only Specified, dependencies ok</span><span class="then"><b>Promote to Ready</b> and take it.</span></div>
       <div class="rung"><span class="if">only Backlog in the milestone</span><span class="then"><b>Spec iteration.</b> Read plan, architecture, cross-cutting specs, memory and research; check in the code what exists; write each card's <code>.md</code>; <code>spec-reviewer</code> twice; docs PR; the sync creates the cards.</span></div>
       <div class="rung"><span class="if">milestone with no card left</span><span class="then"><b>Release, close, open the next.</b> Prove the gate, paste the evidence, tag <code>v0.N.0</code>, changelog and release notes for users, steward pass, close the milestone. Gate failed → a new card in the same milestone.</span></div>
-      <div class="rung stop"><span class="if">plan is over</span><span class="then"><b>Planning iteration → proposal → stop.</b> Reads journal, measurements, ideas, research, strategy; asks <code>product-strategist</code> and <code>usability-reviewer</code>; proposes <b>one</b> small milestone with a measurable gate as a PR — and waits for your decision. It orders and cuts; it never invents requirements.</span></div>
+      <div class="rung stop"><span class="if">plan is over</span><span class="then"><b>Planning iteration → proposal → stop.</b> Reads journal, measurements, ideas, research, strategy and the bets; asks <code>product-strategist</code> and <code>usability-reviewer</code>; proposes <b>one</b> small milestone with a measurable gate as a PR — and waits for your decision. It orders and cuts; direction changes come through exploration.</span></div>
+      <div class="rung"><span class="if">discovery is due</span><span class="then"><b>Discovery iteration.</b> After every UI card, every 5 cards, and before a milestone closes: walk the scenarios as each person, check every surface against the completeness heuristics, turn gaps into cards (within the improvement budget) or ideas. It comes before the next card.</span></div>
+      <div class="rung stop"><span class="if">exploration is due</span><span class="then"><b>Exploration iteration → proposal or drop.</b> Every 20 cards and at every milestone close: a candidate use or a questioned assumption from <code>bets.md</code>, explored with a brief or a throwaway spike, then proposed to you as a decision — or dropped with a written reason.</span></div>
       <div class="rung"><span class="if">nothing workable</span><span class="then"><b>Research iteration.</b> A topic from the agenda (styles, production, theory, trends, AI in music — electronic first), a sourced brief in <code>docs/research/</code>, ideas as issues. At most one per hour when idle; one every 10 cards regardless.</span></div>
     </div>
   </section>
@@ -258,7 +260,7 @@
   </section>
 
   <section id="review" aria-labelledby="h-review">
-    <div class="section-head"><p class="eyebrow">Review by area</p><h2 id="h-review">Thirteen agents of the repo, all read-only, chosen by what the diff touched</h2><p>Ten reviewers, three advisors and a UI designer that writes design briefs before any screen is built. The same reviewers act as architects when a card opens: they get the spec and answer with the approach and a discarded alternative — no code. A serious finding is checked before acceptance. Three rounds without convergence: <code>Blocked</code>, a comment, another card.</p></div>
+    <div class="section-head"><p class="eyebrow">Review by area</p><h2 id="h-review">Fourteen agents of the repo, all read-only, chosen by what the diff touched</h2><p>Ten reviewers, three advisors and a UI designer that writes design briefs before any screen is built (the only one that writes files, and only under <code>docs/design/</code>). The same reviewers act as architects when a card opens: they get the spec and answer with the approach and a discarded alternative — no code. A serious finding is checked before acceptance. Three rounds without convergence: <code>Blocked</code>, a comment, another card.</p></div>
     <div class="tbl"><table><thead><tr><th scope="col">Path touched</th><th scope="col">Repo agents (<code>.claude/agents/</code>)</th><th scope="col">Machine agents</th></tr></thead><tbody>
       <tr><td>always</td><td><span class="tag proj">spec-reviewer</span></td><td><span class="tag">code-quality-reviewer</span><span class="tag">security-auditor</span><span class="tag">test-engineer</span></td></tr>
       <tr><td>any code change</td><td><span class="tag proj">docs-reviewer</span></td><td>—</td></tr>
@@ -304,7 +306,8 @@
       <tr><td class="you">create an issue labelled <code>research</code></td><td>a research request: the next research iteration picks it</td></tr>
       <tr><td class="you">create an issue without a label</td><td>a hand-made card: the sync creates the <code>.md</code>, the spec iteration completes it</td></tr>
       <tr><td class="you">edit <code>docs/plan.md</code> by PR</td><td>new course; the loop re-plans at the next gate 0</td></tr>
-      <tr><td class="you">merge or close a proposal PR</td><td>your decision on a new milestone: approved or rejected</td></tr>
+      <tr><td class="you">merge or close a proposal PR, or answer a <code>decision</code> issue</td><td>your decision on a new milestone or a new direction: approved, changed or rejected — the loop resumes at the next gate 0</td></tr>
+      <tr><td class="you">point out something missing</td><td>a process failure: fixed as a card <b>and</b> recorded as a class in <code>completeness.md</code>, so the loop finds its siblings itself</td></tr>
     </tbody></table></div>
   </section>
 
@@ -329,20 +332,20 @@
       <div class="m"><span class="f">measurements.md</span><p>A number with date and method: latency, tolerance, threshold, version.</p><span class="when">Every time something is measured that another iteration will want.</span></div>
       <div class="m"><span class="f">research/ · journal.md</span><p>Dated briefs with sources and implications; one line per iteration.</p><span class="when">Every research iteration; end of every iteration.</span></div>
     </div>
-    <div class="note loop">Born with 15 rules, 8 ADRs, the measurements from this research and one brief — including the two that will bite the setup: <code>gh</code> is on the wrong account and lacks the Projects scope.</div>
+    <div class="note loop">It grows every iteration — rules by area, ADRs, measurements, research briefs, the journal. The first entries came from the planning research (the Tone.js polyfill in Node, the <code>gh</code> scopes, the invented commit identity that cost a history rewrite); since M0 the loop has been adding its own, and the page you are reading is kept current the same way.</div>
   </section>
 
   <section id="milestones" aria-labelledby="h-ms">
     <div class="section-head"><p class="eyebrow">Milestones</p><h2 id="h-ms">Every milestone has an observable gate and ends in a release. None opens before the previous one is proven.</h2></div>
     <div class="marcos">
-      <div class="marco done"><div class="id">Plan<small>THIS CHAT</small></div><div class="what">Research, decisions, plan, architecture, process, strategy, agenda, specs M0–M1, agents, skills, handoffs.</div><div class="gate"><b>GATE</b>Docs tree complete, 0 broken links, no person named, everything in English.</div></div>
-      <div class="marco"><div class="id">M0<small>FOUNDATION</small></div><div class="what">Repo, monorepo, CI, board, sync, board scripts, agents loading, <code>main</code> protected, open-source hygiene. 10 cards.</div><div class="gate"><b>GATE</b>CI green with a real test per package; <code>/queue</code> lists the cards; <code>/start #n</code> opens one; <code>v0.0.0</code> released.</div></div>
-      <div class="marco"><div class="id">M1<small>SOUND</small></div><div class="what">The score, the isomorphic Tone.js engine, the Electron shell with Play/Stop, the soundcheck hidden window. 5 cards, 2 with listening.</div><div class="gate"><b>GATE</b>The app plays 16 bars and stops; the same score rendered twice yields identical bytes; you heard kick, hat, bass and chords.</div></div>
+      <div class="marco done"><div class="id">Plan<small>DONE · 2026-09-05</small></div><div class="what">Research, decisions, plan, architecture, process, strategy, agenda, specs M0–M1, agents, skills, handoffs.</div><div class="gate"><b>GATE</b>Docs tree complete, 0 broken links, no person named, everything in English.</div></div>
+      <div class="marco done"><div class="id">M0<small>FOUNDATION · DONE · v0.0.0</small></div><div class="what">Repo, monorepo, CI, board, sync, board scripts, agents loading, <code>main</code> protected, open-source hygiene. 10 cards, released 2026-09-05.</div><div class="gate"><b>GATE</b>CI green with a real test per package; <code>/queue</code> lists the cards; <code>/start #n</code> opens one; <code>v0.0.0</code> released.</div></div>
+      <div class="marco"><div class="id">M1<small>SOUND · IN PROGRESS</small></div><div class="what">The score, the isomorphic Tone.js engine, the Electron shell with Play/Stop, volume, mute and output device, the soundcheck hidden window. 5 cards, 2 with listening; started 2026-09-06.</div><div class="gate"><b>GATE</b>The app plays 16 bars and stops; the same score rendered twice yields identical bytes; you heard kick, hat, bass and chords.</div></div>
       <div class="marco"><div class="id">M2<small>EAR</small></div><div class="what">YouTube → style card; wav → measurement; long-lived Python worker. 10 cards planned, specs in the spec iteration.</div><div class="gate"><b>GATE</b>BPM ±2 and key right on 9 of 10 tracks; the analyzer recovers BPM and key from a score our engine rendered.</div></div>
       <div class="marco"><div class="id">M3<small>COMPOSITION</small></div><div class="what">Generators and transforms from the card, each with a measurable claim — and the first Production door: a complete track from a card, edited by a prompt, exported as wav.</div><div class="gate"><b>GATE</b>"More bass" is a diff and energy below 120 Hz rises; a generated section within ±10% of the reference's bands; a full track exported that <code>ffprobe</code> reads.</div></div>
       <div class="marco"><div class="id">M4<small>CONDUCTING</small></div><div class="what">Conductor and brains. Endless set, two clocks, prompts, feedback, the reference queue and coherent handovers — and the listener's controls: energy, next, hold, tempo, filter, layers.</div><div class="gate"><b>GATE</b>60 min with no gap; 10 s of injected brain latency produces no gap; a live prompt lands in ≤ 8 bars; a queued reference is reached within budget.</div></div>
       <div class="marco"><div class="id">M5<small>BOOTH</small></div><div class="what">The rich UI: every control in <code>docs/product/controls.md</code> on screen — timeline, references and queue, prompts, cue, record and keep, settings.</div><div class="gate"><b>GATE</b>Everything without a terminal.</div></div>
-      <div class="marco"><div class="id">M6+<small>PROPOSED BY THE LOOP, DECIDED BY YOU</small></div><div class="what">Samples and soundfonts, stems, local mp3, export, remote control, other genres — in the order the journal, the measurements, the research and your <code>idea</code>s ask for.</div><div class="gate"><b>GATE</b>Defined in the planning iteration; approved by merging the proposal PR.</div></div>
+      <div class="marco"><div class="id">M6+<small>PROPOSED BY THE LOOP, DECIDED BY YOU</small></div><div class="what">Samples and soundfonts, stems, local mp3, MIDI, remote control, other genres — or a new use altogether from <code>bets.md</code> — in the order the journal, the measurements, the research, the bets and your <code>idea</code>s ask for.</div><div class="gate"><b>GATE</b>Defined in a planning or exploration iteration; approved by merging the proposal PR or answering the decision.</div></div>
     </div>
   </section>
 
