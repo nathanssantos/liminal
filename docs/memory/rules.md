@@ -292,7 +292,8 @@
   about a second, and it also keeps the agent's git state out of the prepared tree.
   (measured 2026-09-06)
 - ⚠️ **No `pnpm install` per agent.** `board.review --prepare` installs once per head; `--scratch`
-  links `node_modules` for a throwaway copy. (measured: the install dominated each round)
+  makes the throwaway copy a worktree with an offline install of its own, about a second.
+  (measured: the install dominated each round)
 - **Recipes — what a deep pass runs per area** (grow these with every card):
   - `engine`: `pnpm --filter engine test` (the touched files' tests, fast tempo where the spec
     allows); one `renderOffline` of `sixteenBars` at 48 kHz; node count before/after `dispose()`;
