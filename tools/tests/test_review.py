@@ -150,7 +150,15 @@ def test_the_merge_gate_refuses_while_a_blocking_finding_is_open(tmp_path: Path)
     record_findings(
         root,
         "M1-02",
-        [{"severity": "blocking", "status": "open", "summary": "voices dropped at the end"}],
+        [
+            {
+                "agent": "engine-reviewer",
+                "round": 1,
+                "severity": "blocking",
+                "status": "open",
+                "summary": "voices dropped at the end",
+            }
+        ],
     )
     round_done(root, "M1-02", "head", deep=True, measured=[])
 
@@ -256,7 +264,17 @@ def test_findings_are_written_through_the_command_line(tmp_path: Path) -> None:
     root = repo_with_commit(tmp_path, "a.txt", "one")
     given = root / "findings.json"
     given.write_text(
-        json.dumps([{"severity": "blocking", "status": "open", "summary": "the tail rewinds"}]),
+        json.dumps(
+            [
+                {
+                    "agent": "engine-reviewer",
+                    "round": 1,
+                    "severity": "blocking",
+                    "status": "open",
+                    "summary": "the tail rewinds",
+                }
+            ]
+        ),
         encoding="utf-8",
     )
     here = Path.cwd()
@@ -326,3 +344,19 @@ def test_the_same_agent_reporting_a_round_again_replaces_its_own_findings(tmp_pa
 
     findings = load_state(root, "M1-02")["findings"]
     assert [f["status"] for f in findings] == ["fixed"]
+
+
+def test_a_finding_the_gate_would_read_by_key_is_refused_without_it(tmp_path: Path) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+
+    for missing in ("agent", "round", "summary"):
+        finding = {
+            "agent": "engine-reviewer",
+            "round": 1,
+            "severity": "blocking",
+            "status": "open",
+            "summary": "the tail rewinds",
+        }
+        del finding[missing]
+        with pytest.raises(ValueError, match=missing):
+            record(root, "M1-02", [finding])

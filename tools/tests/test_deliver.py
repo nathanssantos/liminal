@@ -185,3 +185,13 @@ def test_the_review_gate_stops_a_card_whose_deep_pass_never_ran(tmp_path: Path) 
 
     assert given.passed is False
     assert given.detail == ["no deep pass recorded"]
+
+
+def test_the_review_gate_refuses_a_branch_naming_an_issue_no_spec_claims(tmp_path: Path) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+    run(root, "checkout", "-b", "feat/999-a-card-that-does-not-exist")
+
+    given = review_gate(root, None)
+
+    assert given.passed is False
+    assert given.detail == "the branch names issue 999, which no spec claims"

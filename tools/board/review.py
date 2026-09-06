@@ -193,6 +193,9 @@ SEVERITIES = ("blocking", "major", "minor")
 STATUSES = ("open", "fixed", "discarded", "accepted")
 
 
+REQUIRED = ("agent", "round", "summary")
+
+
 def refuse_malformed(findings: list[dict[str, Any]]) -> None:
     for finding in findings:
         if not isinstance(finding, dict):
@@ -201,6 +204,9 @@ def refuse_malformed(findings: list[dict[str, Any]]) -> None:
             given = finding.get(field)
             if given not in allowed:
                 raise ValueError(f"a finding's {field} is one of {allowed}, not {given!r}")
+        for field in REQUIRED:
+            if finding.get(field) in (None, ""):
+                raise ValueError(f"a finding carries an {field}; the gate reads it")
 
 
 def record_findings(root: Path, card: str, findings: list[dict[str, Any]]) -> dict[str, Any]:
@@ -280,7 +286,10 @@ def main(argv: list[str] | None = None) -> int:
         return emit(scratch(root, card))
     if arguments.findings:
         given = json.loads(Path(arguments.findings).read_text(encoding="utf-8"))
-        return emit(record_findings(root, card, given))
+        try:
+            return emit(record_findings(root, card, given))
+        except ValueError as refused:
+            return emit({"error": str(refused)})
     if arguments.round_done:
         head = git(root, "rev-parse", "HEAD")
         return emit(round_done(root, card, head, deep=arguments.deep,
