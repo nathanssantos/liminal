@@ -1,0 +1,135 @@
+.lm-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--control-gap);
+  box-sizing: border-box;
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-snug);
+  text-align: center;
+  text-decoration: none;
+  border-style: solid;
+  border-width: var(--border-width);
+  border-radius: var(--radius-2);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-1) var(--ease-out),
+    border-color var(--duration-1) var(--ease-out),
+    color var(--duration-1) var(--ease-out);
+}
+
+.lm-button[data-size="sm"] {
+  height: var(--control-height-sm);
+  min-width: var(--control-min-width-sm);
+  padding-inline: var(--control-pad-sm);
+  font-size: var(--text-0);
+}
+
+.lm-button[data-size="md"] {
+  height: var(--control-height-md);
+  min-width: var(--control-min-width-md);
+  padding-inline: var(--control-pad-md);
+  font-size: var(--text-1);
+}
+
+.lm-button[data-size="lg"] {
+  height: var(--control-height-lg);
+  min-width: var(--control-min-width-lg);
+  padding-inline: var(--control-pad-lg);
+  font-size: var(--text-2);
+}
+
+.lm-button[data-icon-only][data-size="sm"] {
+  width: var(--control-height-sm);
+  min-width: var(--control-height-sm);
+  padding-inline: 0;
+}
+
+.lm-button[data-icon-only][data-size="md"] {
+  width: var(--control-height-md);
+  min-width: var(--control-height-md);
+  padding-inline: 0;
+}
+
+.lm-button[data-icon-only][data-size="lg"] {
+  width: var(--control-height-lg);
+  min-width: var(--control-height-lg);
+  padding-inline: 0;
+}
+
+.lm-button[data-size="lg"] .lm-icon {
+  width: var(--icon-lg);
+  height: var(--icon-lg);
+}
+
+.lm-button[data-variant="primary"] {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-accent-ink);
+}
+
+.lm-button[data-variant="quiet"] {
+  background-color: var(--color-surface-2);
+  border-color: var(--color-line-strong);
+  color: var(--color-ink);
+}
+
+.lm-button[data-variant="danger"] {
+  background-color: var(--color-surface-2);
+  border-color: var(--color-signal-error);
+  color: var(--color-signal-error);
+}
+
+.lm-button[data-variant="primary"]:hover:not(:where(:disabled, [data-loading], [data-disabled])) {
+  background-color: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
+}
+
+.lm-button[data-variant="quiet"]:hover:not(:where(:disabled, [data-loading], [data-disabled])) {
+  background-color: var(--color-surface-3);
+}
+
+.lm-button[data-variant="danger"]:hover:not(:where(:disabled, [data-loading], [data-disabled])) {
+  background-color: var(--color-signal-error);
+  border-color: var(--color-signal-error);
+  color: var(--color-signal-error-ink);
+}
+
+.lm-button[data-variant="primary"]:active:not(:where(:disabled, [data-loading], [data-disabled])) {
+  background-color: var(--color-accent-active);
+  border-color: var(--color-accent-active);
+}
+
+.lm-button[data-variant="quiet"]:active:not(:where(:disabled, [data-loading], [data-disabled])) {
+  background-color: var(--color-surface-3);
+  border-color: var(--color-accent);
+}
+
+.lm-button[data-variant="danger"]:active:not(:where(:disabled, [data-loading], [data-disabled])) {
+  background-color: var(--color-signal-error);
+  border-color: var(--color-signal-error);
+  color: var(--color-signal-error-ink);
+  transform: translateY(var(--press-shift));
+}
+
+.lm-button:disabled,
+.lm-button[data-disabled] {
+  background-color: var(--color-surface-2);
+  border-color: var(--color-line);
+  color: var(--color-muted);
+  cursor: not-allowed;
+}
+
+.lm-button[data-disabled]:not(:where(:disabled)) {
+  pointer-events: none;
+}
+
+.lm-button[data-loading] {
+  cursor: progress;
+}
+
+.lm-button-label {
+  display: inline-block;
+}

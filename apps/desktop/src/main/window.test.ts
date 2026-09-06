@@ -1,3 +1,4 @@
+import { colourToken } from '@liminal/ui/colours'
 import { describe, expect, it } from 'vitest'
 import { mainWindowOptions, WINDOW_TITLE } from './window.ts'
 
@@ -11,6 +12,10 @@ describe('the main window', () => {
     expect(webPreferences.contextIsolation).toBe(true)
     expect(webPreferences.nodeIntegration).toBe(false)
     expect(webPreferences.sandbox).toBe(true)
+  })
+
+  it('paints the surface the renderer paints, so the first frame does not flash', () => {
+    expect(mainWindowOptions('/out/preload').backgroundColor).toBe(colourToken('surface'))
   })
 
   it('loads the preload bundle from the given directory', () => {

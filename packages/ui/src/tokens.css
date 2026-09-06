@@ -1,0 +1,169 @@
+@import "./base.css";
+
+:root {
+  --color-surface: #0e1114;
+  --color-surface-2: #181c20;
+  --color-surface-3: #22272c;
+  --color-ink: #e9edf0;
+  --color-muted: #9ba6ae;
+  --color-line: #282e33;
+  --color-line-strong: #6a747c;
+  --color-accent: #f2a65a;
+  --color-accent-hover: #f7b876;
+  --color-accent-active: #d98e42;
+  --color-accent-ink: #1a1206;
+  --color-signal-ok: #5fd08a;
+  --color-signal-warn: #e8b44a;
+  --color-signal-error: #ff8080;
+  --color-signal-error-ink: #1a0808;
+  --color-focus: var(--color-accent);
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  --radius-1: 4px;
+  --radius-2: 8px;
+  --radius-3: 12px;
+  --radius-pill: 999px;
+
+  --font-display: "Avenir Next", "SF Pro Display", system-ui, Cantarell, "Noto Sans", sans-serif;
+  --font-body: system-ui, -apple-system, "Segoe UI", Cantarell, "Noto Sans", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, "Noto Sans Mono", monospace;
+
+  --text-0: 13px;
+  --text-1: 15px;
+  --text-2: 18px;
+  --text-3: 22px;
+  --text-4: 26px;
+  --text-5: 31px;
+  --text-6: 37px;
+  --text-7: 45px;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+
+  --leading-tight: 1.15;
+  --leading-snug: 1.3;
+  --leading-normal: 1.5;
+
+  --tracking-tight: -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.06em;
+
+  --duration-1: 120ms;
+  --duration-2: 240ms;
+  --tempo-bpm: 120;
+  --duration-beat: calc(60s / var(--tempo-bpm));
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --control-height-sm: 28px;
+  --control-height-md: 36px;
+  --control-height-lg: 44px;
+  --control-pad-sm: var(--space-2);
+  --control-pad-md: var(--space-3);
+  --control-pad-lg: var(--space-4);
+  --control-min-width-sm: 64px;
+  --control-min-width-md: 80px;
+  --control-min-width-lg: 96px;
+  --control-gap: var(--space-2);
+  --hit-min: 24px;
+  --border-width: 1px;
+  --hidden-text-size: 1px;
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+  --press-shift: 1px;
+
+  --icon-sm: 16px;
+  --icon-lg: 20px;
+  --dot-size: 8px;
+  --chip-height: 28px;
+  --chip-height-md: 24px;
+  --chip-shape-size: 10px;
+  --shape-stroke: 1.5px;
+
+  --slider-track-height: 4px;
+  --slider-track-height-sm: 3px;
+  --slider-thumb-size: 16px;
+  --slider-thumb-size-sm: 14px;
+  --slider-thumb-border: 2px;
+  --slider-row-height: 44px;
+  --slider-row-height-sm: 36px;
+  --slider-label-height: 20px;
+  --slider-vertical-length: 120px;
+  --slider-tick-width: 2px;
+  --slider-tick-height: 6px;
+
+  --select-item-height: 32px;
+  --select-max-height: 320px;
+  --select-check-gutter: 24px;
+
+  --readout-height-md: 56px;
+  --readout-height-lg: 64px;
+  --readout-rule-height: 24px;
+  --readout-line-md: 30px;
+  --readout-line-lg: 36px;
+  --readout-tempo-ch: 3;
+  --readout-key-ch: 6;
+  --readout-bar-ch: 7;
+  --readout-elapsed-ch: 7;
+  --readout-unit-ch: 3;
+
+  --error-rule-width: 3px;
+  --error-min-height: 48px;
+
+  --shell-deck-height: 88px;
+  --shell-content-max: 1200px;
+}
+
+[data-theme="light"] {
+  --color-surface: #faf9f7;
+  --color-surface-2: #f0eee9;
+  --color-surface-3: #e8e5df;
+  --color-ink: #16191c;
+  --color-muted: #5c6670;
+  --color-line: #dfdcd5;
+  --color-line-strong: #787e84;
+  --color-accent: #95500a;
+  --color-accent-hover: #7e4308;
+  --color-accent-active: #6b3906;
+  --color-accent-ink: #ffffff;
+  --color-signal-ok: #17743e;
+  --color-signal-warn: #8a5a00;
+  --color-signal-error: #b3261e;
+  --color-signal-error-ink: #ffffff;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:where(:not([data-theme="dark"])) {
+    --color-surface: #faf9f7;
+    --color-surface-2: #f0eee9;
+    --color-surface-3: #e8e5df;
+    --color-ink: #16191c;
+    --color-muted: #5c6670;
+    --color-line: #dfdcd5;
+    --color-line-strong: #787e84;
+    --color-accent: #95500a;
+    --color-accent-hover: #7e4308;
+    --color-accent-active: #6b3906;
+    --color-accent-ink: #ffffff;
+    --color-signal-ok: #17743e;
+    --color-signal-warn: #8a5a00;
+    --color-signal-error: #b3261e;
+    --color-signal-error-ink: #ffffff;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-1: 1ms;
+    --duration-2: 1ms;
+  }
+}

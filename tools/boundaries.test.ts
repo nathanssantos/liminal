@@ -31,6 +31,19 @@ describe('package boundaries', () => {
     ])
   })
 
+  it('catches the ui package importing the engine', () => {
+    const violations = boundaryViolations([
+      {
+        path: join('packages', 'ui', 'package.json'),
+        name: '@liminal/ui',
+        dependencies: { '@liminal/engine': 'workspace:*' },
+      },
+    ])
+    expect(violations).toEqual([
+      'packages/ui/package.json: @liminal/ui may not import @liminal/engine',
+    ])
+  })
+
   it('catches a package that is not in the architecture table', () => {
     const violations = boundaryViolations([
       { path: 'packages/ghost/package.json', name: '@liminal/ghost' },

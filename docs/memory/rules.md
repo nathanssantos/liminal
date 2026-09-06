@@ -286,6 +286,65 @@
 - ⚠️ **`electron-vite` 5 caps Vite at 7** (peer `^5 || ^6 || ^7`), so the newest Vite does not fit.
   The pinned pair is electron-vite 5.0.0 + Vite 7.3.6 + Electron 44.2.0 + `@vitejs/plugin-react`
   5.2.0. `@vitejs/plugin-react` 6 needs Vite 8 and is therefore out. (measured 2026-09-05, `npm view`)
+- ⚠️ **Storybook 10.6 pairs with Vite 7 as it is** — `@storybook/react-vite` accepts
+  `^5 || ^6 || ^7 || ^8`, so no version had to be held back. (measured 2026-09-06, `npm view`)
+- 🔴 **`@storybook/addon-vitest` needs a real browser** (`@vitest/browser` plus a Playwright
+  install), which the ubuntu `pnpm check` job does not have. The interaction tests run instead as
+  **portable stories** — `composeStories` from `@storybook/react-vite`, rendered in jsdom, each
+  story's `play` driven by hand — so `pnpm check` runs every `play` with no browser download.
+- 🔴 **Vitest stubs every CSS import, `?raw` included, unless `test.css: true`.** A module that
+  parses its own stylesheet reads an empty string and fails silently in tests while working in the
+  real build. (measured 2026-09-06 on `@liminal/ui`)
+- 🔴 **electron-vite keeps a workspace package external in the main bundle**, whatever
+  `ssr.noExternal` or `rollupOptions.external` say. So anything the main process imports from a
+  workspace package must be a file **Node can run as it is** — plain `.mjs`, no TypeScript, no
+  bundler-only syntax. `@liminal/ui/colours` is that file; the barrel, which is TSX and CSS, would
+  crash the app at launch with no error on screen. (measured 2026-09-06)
+- 🔴 **A shared stylesheet reaches the component only if something imports it.** `base.css` was
+  imported from `index.ts`, and the stories import the component files directly — so in Storybook
+  the visually hidden text rendered as visible text on the page. It is imported from `tokens.css`
+  now, which every consumer must load anyway. (measured 2026-09-06, seen in the story screenshot)
+- ⚠️ **A story's URL `args` did not reach the rendered component** in Storybook 10.6 portable
+  builds: the readout showed the same numbers at every step, so a "nothing moves" measurement
+  passed while measuring the same frame three times. Measure named stories instead. (measured
+  2026-09-06)
+- ⚠️ **jsdom cannot judge colour contrast**, so `axe` reports it as incomplete rather than as a
+  violation. Contrast is a unit test over `tokens.css` with the WCAG formula, plus the reviewer's
+  measurement on the real screen.
+- 🔴 **A `prefers-reduced-motion` override must be at least as specific as the rule it cancels.**
+  `.lm-transport-shape[data-pulse] { animation: none }` lost to
+  `.lm-transport-shape[data-shape="playing"][data-pulse]`, so the beat kept pulsing with the
+  preference on. Lint, types and every test passed; only `emulateMedia({ reducedMotion: 'reduce' })`
+  plus a computed-style read found it. Every motion switch is measured, both ways. (measured
+  2026-09-06)
+- 🔴 **A Radix component goes uncontrolled the moment its `value` prop is absent.** Building the
+  prop conditionally (`{...(value === null ? {} : { value })}`, the shape
+  `exactOptionalPropertyTypes` pushes you towards) makes the trigger show a choice the consumer
+  never accepted, and a reset to `null` leaves the old label on screen. Pass a controlled empty
+  value instead. (measured 2026-09-06 with a probe test)
+- 🔴 **`axe` in jsdom sees only what is inside the element you hand it.** Radix portals its panel
+  into `document.body`, so scanning the render container checks everything except the part most
+  likely to be wrong. Scan `document.body`, and turn off `region` — a component rendered on its own
+  is never inside a landmark. (measured 2026-09-06)
+- 🔴 **`border-radius: inherit` on a focus ring takes the PARENT's radius, not the element's own.**
+  The rule shipped from a design brief that spelled it out literally, and every rounded control —
+  the pill toggle, the circular slider thumb, the 8 px button and select — snapped to square
+  corners the instant it took keyboard focus: measured `999px → 0px` and `8px → 0px` in Chromium.
+  Nothing in jsdom, lint or types sees it, and the story screenshots at rest look right because no
+  control is focused in them. An `outline` already follows the element's own radius, so the
+  declaration was never needed. **A brief's literal CSS is still measured before it is believed.**
+  (measured 2026-09-06 on the built Storybook)
+- ⚠️ **Radix `Select` hides the page behind its open panel, and `axe` calls that a violation.**
+  `Select.Content` runs `hideOthers`, so the subtree holding the trigger gets `aria-hidden` while
+  the panel is open, and the trigger is a real `<button>` inside it — `aria-hidden-focus`, serious,
+  in a real browser. `modal={false}` does not change it. Measured: the focus trap holds, Tab and
+  Shift+Tab never reach the hidden trigger, and `Escape` returns focus to it, so nobody is stranded.
+  It is upstream behaviour, not ours; the story gate names it as such rather than pretending it is
+  absent. Every future Radix component with a portal will report the same. (measured 2026-09-06,
+  axe-core 4.13 in Chromium)
+- ⚠️ **A gate that walks the tree must assert it walked something.** The loose-value scan globbed
+  from `process.cwd()`, so from any other directory it returned an empty list and the gate passed
+  green over zero files. It resolves from its own module now and asserts a file count first.
 
 ## review
 

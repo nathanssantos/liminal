@@ -1,0 +1,178 @@
+{
+  "card": "M1-07",
+  "round": 0,
+  "head": "0d4d0f9962624d3d718994a0f4a8bab0148b24d9",
+  "reviewedHead": null,
+  "deepPassHead": null,
+  "measured": [],
+  "findings": [
+    {
+      "agent": "usability-reviewer",
+      "severity": "blocking",
+      "status": "fixed",
+      "round": 1,
+      "summary": "the shell offered play with an enabled button that did nothing"
+    },
+    {
+      "agent": "code-quality-reviewer",
+      "severity": "blocking",
+      "status": "fixed",
+      "round": 1,
+      "summary": "Select's empty panel branch was unreachable dead UI"
+    },
+    {
+      "agent": "code-quality-reviewer",
+      "severity": "blocking",
+      "status": "fixed",
+      "round": 1,
+      "summary": "Select flipped to uncontrolled when value was null, so the trigger showed a choice the consumer never accepted"
+    },
+    {
+      "agent": "code-quality-reviewer",
+      "severity": "blocking",
+      "status": "fixed",
+      "round": 1,
+      "summary": "Button asChild dropped ref and did not guard disabled"
+    },
+    {
+      "agent": "accessibility-auditor",
+      "severity": "blocking",
+      "status": "fixed",
+      "round": 1,
+      "summary": "ErrorStrip dropped focus to the document body when dismissed with no focusOnDismiss"
+    },
+    {
+      "agent": "design-system-guardian",
+      "severity": "blocking",
+      "status": "fixed",
+      "round": 1,
+      "summary": "the Readout tempo field narrowed when the value was missing"
+    },
+    {
+      "agent": "design-system-guardian",
+      "severity": "blocking",
+      "status": "fixed",
+      "round": 1,
+      "summary": "Select replaced Radix's sideOffset with a margin the collision maths cannot see"
+    },
+    {
+      "agent": "spec-reviewer",
+      "severity": "blocking",
+      "status": "fixed",
+      "round": 1,
+      "summary": "the shot evidence predated the committed shell CSS"
+    },
+    {
+      "agent": "spec-reviewer",
+      "severity": "blocking",
+      "status": "fixed",
+      "round": 1,
+      "summary": "a gates log from before the card backed the gates-green claim"
+    },
+    {
+      "agent": "spec-reviewer",
+      "severity": "blocking",
+      "status": "fixed",
+      "round": 1,
+      "summary": "test:stories named a vitest project that does not exist"
+    },
+    {
+      "agent": "spec-reviewer",
+      "severity": "blocking",
+      "status": "fixed",
+      "round": 1,
+      "summary": "the ReducedMotion story was missing and no reduced-motion branch was exercised"
+    },
+    {
+      "agent": "spec-reviewer",
+      "severity": "blocking",
+      "status": "fixed",
+      "round": 1,
+      "summary": "the Select test named Home and End never sent Home"
+    },
+    {
+      "agent": "test-engineer",
+      "severity": "blocking",
+      "status": "fixed",
+      "round": 1,
+      "summary": "the loose-value gate could pass over zero files"
+    },
+    {
+      "agent": "test-engineer",
+      "severity": "major",
+      "status": "fixed",
+      "round": 1,
+      "summary": "axe scanned the render container, missing the portalled Select panel"
+    },
+    {
+      "agent": "test-engineer",
+      "severity": "major",
+      "status": "fixed",
+      "round": 1,
+      "summary": "the story-coverage test asserted only that more than one story exists"
+    },
+    {
+      "agent": "test-engineer",
+      "severity": "major",
+      "status": "fixed",
+      "round": 1,
+      "summary": "the two light-theme blocks could drift with nothing checking"
+    },
+    {
+      "agent": "code-quality-reviewer",
+      "severity": "major",
+      "status": "fixed",
+      "round": 1,
+      "summary": "the Slider page step never fired onValueCommit"
+    },
+    {
+      "agent": "code-quality-reviewer",
+      "severity": "major",
+      "status": "fixed",
+      "round": 1,
+      "summary": "the shell pinned the root font size, overriding the reader's preference"
+    },
+    {
+      "agent": "docs-reviewer",
+      "severity": "major",
+      "status": "fixed",
+      "round": 1,
+      "summary": "the README and the loop handoff still said seven packages"
+    },
+    {
+      "agent": "accessibility-auditor",
+      "severity": "major",
+      "status": "fixed",
+      "round": 1,
+      "summary": "the missing-value dash was read out as well as the words"
+    },
+    {
+      "agent": "accessibility-auditor",
+      "severity": "minor",
+      "status": "fixed",
+      "round": 1,
+      "summary": "the focus ring colour was never measured for contrast"
+    },
+    {
+      "agent": "design-system-guardian",
+      "severity": "minor",
+      "status": "fixed",
+      "round": 1,
+      "summary": "the focus rule omitted border-radius inherit"
+    },
+    {
+      "agent": "the measurement pass",
+      "severity": "blocking",
+      "status": "fixed",
+      "round": 1,
+      "summary": "the reduced-motion override lost on specificity, so the beat kept pulsing with the preference on"
+    },
+    {
+      "agent": "dependency-guardian",
+      "severity": "minor",
+      "status": "fixed",
+      "round": 1,
+      "summary": "the unified radix-ui package was not proven to tree-shake"
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 import { join } from 'node:path'
+import { WINDOW_BACKGROUND } from '@liminal/ui/colours'
 
 export const WINDOW_TITLE = 'liminal'
 
@@ -22,7 +23,7 @@ export function mainWindowOptions(preloadDirectory: string): WindowOptions {
     width: 1440,
     height: 900,
     show: false,
-    backgroundColor: '#0b0b0f',
+    backgroundColor: WINDOW_BACKGROUND,
     webPreferences: {
       preload: join(preloadDirectory, 'index.mjs'),
       contextIsolation: true,

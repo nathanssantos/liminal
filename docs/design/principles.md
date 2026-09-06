@@ -1,7 +1,7 @@
 # Design principles — the visual and interaction language
 
 > What "beautiful and good to use" means for liminal. Every design brief in this folder and every
-> token in `apps/desktop/src/renderer/tokens.css` derive from here. Changes by PR, with a reason.
+> token in `packages/ui/src/tokens.css` derives from here. Changes by PR, with a reason.
 
 ## The feel
 
@@ -31,6 +31,19 @@ The first screen (F1) shows 1 and 2 with an example set ready to play. Nothing e
 Colour by role: `surface`, `surface-2`, `ink`, `muted`, `line`, `accent` (the beat, the actionable),
 `accent-ink`, `signal-ok`, `signal-warn`, `signal-error`. Both themes define every role. Contrast
 ≥ 4.5:1 for text, ≥ 3:1 for large text and UI edges — measured.
+
+Six more roles came with the first components (M1-07), each because no role above does its job:
+
+| Role | What it is for |
+|---|---|
+| `surface-3` | the fill a control takes under the pointer or while pressed, on a panel that is already `surface-2` |
+| `line-strong` | the edge of a control, which needs 3:1; `line` is a separator and is not allowed as a control edge |
+| `accent-hover`, `accent-active` | the accent's own two interaction steps, for a control filled with the accent |
+| `signal-error-ink` | text on an error fill, where `accent-ink` fails |
+| `focus` | the focus ring; today an alias of `accent`, so the ring can change without moving the accent |
+
+The values, both themes, with every contrast pair computed, are in
+[`M1-07.md › Tokens`](M1-07.md); the pairs are a unit test in `@liminal/ui`.
 
 Space on a 4 px base: `space-1` … `space-8` (4, 8, 12, 16, 24, 32, 48, 64). Radius: `radius-1` 4,
 `radius-2` 8, `radius-3` 12; pills only for chips and toggles.
