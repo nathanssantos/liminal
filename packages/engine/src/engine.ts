@@ -98,6 +98,7 @@ async function buildEngine(options: EngineOptions, built: Built): Promise<Engine
   }
   const offline = rendersOffline(raw)
   const lookAheadSeconds = options.lookAheadSeconds ?? DEFAULT_LOOK_AHEAD_SECONDS
+  const callerLookAhead = context.lookAhead
   if (!offline) {
     context.lookAhead = lookAheadSeconds
   }
@@ -231,20 +232,22 @@ async function buildEngine(options: EngineOptions, built: Built): Promise<Engine
     restoreStaticValues()
   }
 
-  let tailId: number | undefined
-  const cancelTail = () => {
-    if (tailId !== undefined) {
-      context.clearTimeout(tailId)
-      tailId = undefined
+  let deferredId: number | undefined
+  const cancelDeferred = () => {
+    if (deferredId !== undefined) {
+      context.clearTimeout(deferredId)
+      deferredId = undefined
     }
   }
-
-  const startTransport = () => {
-    if (offline) {
-      transport.start(0)
-    } else {
-      transport.start()
-    }
+  const defer = (seconds: number, action: () => void) => {
+    cancelDeferred()
+    deferredId = context.setTimeout(() => {
+      deferredId = undefined
+      if (disposed) {
+        return
+      }
+      action()
+    }, seconds)
   }
 
   let endId: number | undefined
@@ -255,17 +258,10 @@ async function buildEngine(options: EngineOptions, built: Built): Promise<Engine
         return
       }
       state = 'ringing'
-      tailId = context.setTimeout(
-        () => {
-          tailId = undefined
-          if (state !== 'ringing') {
-            return
-          }
-          state = 'idle'
-          rewind()
-        },
-        Math.max(0, time + releaseTailSeconds - context.now()),
-      )
+      defer(releaseTailSeconds, () => {
+        state = 'idle'
+        rewind()
+      })
       emit('ended', { bar: Math.round(totalSeconds / perBar), time })
     }, totalSeconds)
   }
@@ -277,32 +273,29 @@ async function buildEngine(options: EngineOptions, built: Built): Promise<Engine
         return
       }
       if (state === 'ringing') {
-        cancelTail()
         state = 'playing'
-        context.setTimeout(() => {
-          if (disposed || state !== 'playing') {
-            return
-          }
+        defer(0, () => {
           rewind()
           if (endId === undefined) {
             armEnd()
           }
           transport.start()
-        }, 0)
+        })
         return
       }
       state = 'playing'
+      cancelDeferred()
       if (endId === undefined) {
         armEnd()
       }
-      startTransport()
+      transport.start()
     },
     stop: () => {
       if (disposed || state === 'idle') {
         return
       }
       state = 'idle'
-      cancelTail()
+      cancelDeferred()
       rewind()
       emit('stopped')
     },
@@ -312,7 +305,7 @@ async function buildEngine(options: EngineOptions, built: Built): Promise<Engine
       }
       disposed = true
       state = 'idle'
-      cancelTail()
+      cancelDeferred()
       transport.stop(0)
       for (const id of scheduled) {
         transport.clear(id)
@@ -322,6 +315,9 @@ async function buildEngine(options: EngineOptions, built: Built): Promise<Engine
       }
       for (const part of parts) {
         part.stop(0)
+      }
+      if (!offline) {
+        context.lookAhead = callerLookAhead
       }
       try {
         ledger.disposeAll()

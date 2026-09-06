@@ -4,6 +4,7 @@ import type { Engine } from '../src/engine.ts'
 import { createEngine } from '../src/engine.ts'
 import { scoreReleaseTailSeconds } from '../src/instruments.ts'
 import { scoreSeconds } from '../src/time.ts'
+import type { ToneContext } from '../src/tone.ts'
 import { loadTone } from '../src/tone.ts'
 
 const SAMPLE_RATE = 48000
@@ -12,6 +13,7 @@ const PAST_THE_TAIL_SECONDS = 0.25
 
 export type Rendered = {
   engine: Engine
+  context: ToneContext
   render: () => Promise<AudioBuffer>
 }
 
@@ -22,7 +24,7 @@ export async function offlineEngine(score: Score, seconds?: number): Promise<Ren
   const raw = new OfflineAudioContext(2, Math.ceil(SAMPLE_RATE * length), SAMPLE_RATE)
   const context = new tone.OfflineContext(raw as unknown as OfflineAudioContext)
   const engine = await createEngine({ context, score })
-  return { engine, render: () => context.render() as unknown as Promise<AudioBuffer> }
+  return { engine, context, render: () => context.render() as unknown as Promise<AudioBuffer> }
 }
 
 export function peakOf(buffer: AudioBuffer): number {

@@ -180,16 +180,28 @@
   alone would leave CI blind, because CI has no device. The bar events do not move: the bar
   callback already refuses to fire past the score's length. (⚠️ Correction: a seventeenth `bar`
   event was written here and does not reproduce.) (measured 2026-09-06)
-- 🔴 **A guard that makes the symptom impossible also makes the conserto untestable.** The parts
+- 🔴 **A guard that makes the symptom impossible also makes the fix untestable.** The parts
   once refused to trigger outside the playing state. In working code it changed no number; what it
   did was let the stop go back inside the tick with the suite still green. The assertion has to sit
   on the invariant itself — the notes triggered against the notes written — with nothing between it
   and the defect. (measured 2026-09-06)
-- 🔴 **A callback that runs inside a tick must not schedule from `context.now()`.** `now()` is
-  `currentTime + lookAhead`, and the tick's `time` argument sits a lookahead behind it, so a timeout
-  armed with a plain delay lands early — by 0.15–0.2 s with the default lookahead. The engine's
-  release tail counts from the event's own audio time. Offline never sees this: there the lookahead
-  is zero. (measured 2026-09-06)
+- ⚠️ **A Tone `context.setTimeout` already cancels the lookahead, so arm it with a plain delay.**
+  It stores `now() + delay` and fires against `now()`, and `now()` carries the lookahead on both
+  sides. Subtracting the tick's `time` from `now()` to "correct" the anchor only moves the callback
+  earlier, by at most one update interval, and clamps to zero for any tail shorter than that — a
+  hat-only score would lose its tail entirely. (⚠️ Correction: this rule first claimed the plain
+  delay lands 0.15–0.2 s early; it does not.) (measured 2026-09-06)
+- 🔴 **A deferred rewind is a resource: hold its id and cancel it on every transition.** `play()`
+  during the release tail defers its rewind. A callback that only checks the state finds `playing`
+  again after a `stop()` and a fresh `play()`, and throws the new session back to bar zero. The
+  engine keeps one pending timeout, and `play()`, `stop()` and `dispose()` all cancel it before
+  doing anything else. A session counter on top of that was written and removed: with every
+  transition cancelling, no test could reach the stale path, and an unreachable guard is a branch
+  nobody has ever seen. (measured 2026-09-06)
+- 🔴 **`transport.start(0)` is right only for the first start.** Offline the context clock begins at
+  zero, so the two agree once; on any later start the transport integrates from zero to the current
+  render time and jumps straight to the end, playing nothing and emitting nothing. `start()` with no
+  argument is right every time. (measured 2026-09-06)
 - ⭐ **The release tail is a musical number, so it comes from the presets.** How long the engine
   keeps the transport after `ended` is the longest tail among the score's voices — the envelope's
   release when it sustains, decay plus release when it does not. A constant would silently truncate
