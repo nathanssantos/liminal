@@ -17,6 +17,8 @@ from board.review import round_done
 from board.stale import missing_commands, missing_paths
 from tests.helpers import commit, repo_with_commit, run
 
+A_HEAD = "0123456789abcdef0123456789abcdef01234567"
+
 AGENTS = "## Commands\n\n| Command | Does |\n|---|---|\n| `pnpm ghost` | nothing |\n"
 
 
@@ -241,7 +243,7 @@ def a_card_named(root: Path, issue: int) -> None:
 def test_merging_asks_the_pull_request_for_its_branch_and_head(tmp_path: Path) -> None:
     root = repo_with_commit(tmp_path, "a.txt", "one")
     a_card_named(root, 55)
-    answers = Answers({"headRefName": "feat/55-board-review", "headRefOid": "abc123"})
+    answers = Answers({"headRefName": "feat/55-board-review", "headRefOid": A_HEAD})
     github = GitHub(owner="o", name="n", runner=answers)
 
     given = merge_pull_request(github, root, 7, {"verdict": "PASS", "gates": []})
@@ -249,6 +251,7 @@ def test_merging_asks_the_pull_request_for_its_branch_and_head(tmp_path: Path) -
     assert answers.calls[0][:3] == ["pr", "view", "7"]
     assert "headRefName,headRefOid" in answers.calls[0]
     assert given["verdict"] == "FAIL"
+    assert given["gates"][-1]["detail"] == ["no deep pass recorded"]
     assert answers.merged() is False
 
 
@@ -257,10 +260,49 @@ def test_merging_refuses_when_the_head_and_the_branch_arrive_the_wrong_way_round
 ) -> None:
     root = repo_with_commit(tmp_path, "a.txt", "one")
     a_card_named(root, 55)
-    answers = Answers({"headRefName": "abc123", "headRefOid": "feat/55-board-review"})
+    answers = Answers({"headRefName": A_HEAD, "headRefOid": "feat/55-board-review"})
     github = GitHub(owner="o", name="n", runner=answers)
 
     given = merge_pull_request(github, root, 7, {"verdict": "PASS", "gates": []})
 
     assert given["verdict"] == "FAIL"
     assert answers.merged() is False
+
+
+def test_merging_refuses_when_the_pull_request_answers_a_field_it_does_not_know(
+    tmp_path: Path,
+) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+    a_card_named(root, 55)
+    answers = Answers({"headRef": "feat/55-board-review", "headRefOid": A_HEAD})
+    github = GitHub(owner="o", name="n", runner=answers)
+
+    given = merge_pull_request(github, root, 7, {"verdict": "PASS", "gates": []})
+
+    assert given["verdict"] == "FAIL"
+    assert answers.merged() is False
+
+
+def test_merging_a_reviewed_pull_request_asks_github_to_squash_it(tmp_path: Path) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+    a_card_named(root, 55)
+    round_done(root, "M1-06", A_HEAD, deep=True, measured=["tools/board/review.py"])
+    answers = Answers({"headRefName": "feat/55-board-review", "headRefOid": A_HEAD})
+    github = GitHub(owner="o", name="n", runner=answers)
+
+    given = merge_pull_request(github, root, 7, {"verdict": "PASS", "gates": []})
+
+    assert given == {"merged": 7}
+    assert answers.calls[-1] == [
+        "pr", "merge", "7", "--repo", "o/n", "--squash", "--delete-branch",
+    ]
+
+
+def test_a_branch_whose_name_is_all_hexadecimal_still_passes(tmp_path: Path) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+    answers = Answers({"headRefName": "deadbeef", "headRefOid": A_HEAD})
+    github = GitHub(owner="o", name="n", runner=answers)
+
+    given = merge_pull_request(github, root, 7, {"verdict": "PASS", "gates": []})
+
+    assert given == {"merged": 7}

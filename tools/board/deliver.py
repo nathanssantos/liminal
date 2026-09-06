@@ -19,7 +19,7 @@ COMMENT = re.compile(r"^\+\s*(//|/\*|#(?!\!)|\*\s)")
 
 PROSE_AND_LOCKS = (":!*.lock", ":!*lock.yaml", ":!*.md", ":!*.json")
 ALLOWED_COMMENT = re.compile(r"biome-ignore|eslint-disable|noqa|type:\s*ignore|TODO\(#\d+\)|MOCK:")
-COMMIT = re.compile(r"^[0-9a-f]{7,40}$")
+COMMIT = re.compile(r"^[0-9a-f]{40}$")
 
 CONVENTIONAL = re.compile(
     r"^(feat|fix|docs|chore|ci|refactor|test|perf|build|style|revert)(\([a-z0-9-]+\))?!?: .+"
@@ -103,7 +103,7 @@ def pull_request_head(github: GitHub, number: int) -> tuple[str, str]:
         None,
     )
     seen = json.loads(output)
-    return str(seen["headRefName"]), str(seen["headRefOid"])
+    return str(seen.get("headRefName", "")), str(seen.get("headRefOid", ""))
 
 
 def merge_pull_request(
@@ -112,7 +112,7 @@ def merge_pull_request(
     branch, head = pull_request_head(github, number)
     review = (
         review_gate(root, branch, head)
-        if COMMIT.match(head) and not COMMIT.match(branch)
+        if branch and COMMIT.match(head)
         else Gate(
             "review", False, f"pull request {number} answered branch {branch!r}, head {head!r}"
         )

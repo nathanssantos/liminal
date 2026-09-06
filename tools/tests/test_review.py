@@ -406,3 +406,20 @@ def test_a_worktree_that_refuses_to_be_removed_is_left_alone(tmp_path: Path) -> 
 
     assert second["dropped"] == []
     assert first.exists()
+
+
+def test_findings_that_are_not_an_array_come_back_as_an_error(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+    given = root / "findings.json"
+    here = Path.cwd()
+    for content, expected in (("5", "array"), ("{}", "array"), ("not json", "")):
+        given.write_text(content, encoding="utf-8")
+        try:
+            os.chdir(root)
+            code = main(["--card", "M1-02", "--findings", str(given)])
+        finally:
+            os.chdir(here)
+        assert code == 1
+        assert expected in json.loads(capsys.readouterr().out)["error"]
