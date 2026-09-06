@@ -49,7 +49,11 @@ nothing is written as if the set, or a single track, were the only thing.
 
 ---
 
-## The five requirements that define the product
+## The requirements that define the product today
+
+They are the accepted bets of [`docs/product/bets.md`](product/bets.md), written as gates. They
+change when a bet is revised — by a decision of the owner, proposed by the loop with evidence
+(process §18).
 
 | # | Requirement | How we know it is done |
 |---|---|---|

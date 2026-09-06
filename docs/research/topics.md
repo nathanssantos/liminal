@@ -23,6 +23,8 @@
 | R14 | Music theory for tension and release | tritone, diminished, pedal tones, modal interchange — as rules a generator can apply | M3 | open |
 | R15 | UI patterns of DJ and music apps | timelines, energy displays, transport, what first-time users understand | M5 | open |
 | R16 | Other genres: what synthesis alone cannot do | jazz, orchestral, hip-hop — where samples are mandatory | after M5 | open |
+| R20 | Who else needs endless, coherent, licence-free music — streams, venues, shops, games | what they use today, what it costs, what breaks (repetition, licensing, mood), and whether steerability matters to them | exploration | open |
+| R21 | How music tools found their first users | which products in this space got traction, through whom, and what the first version did and did not do | exploration | open |
 | R19 | What DJs and listeners actually touch during a set | which controls get used and how often (volume, filter, EQ kills, loops, cue), what first-timers reach for, what is never used | M4–M5 | open |
 | R18 | AI song and track generators (prompt → audio) | what producers use them for, what they export, what they miss (editability, stems, MIDI), licensing and training-data constraints | M3–M5 | open |
 | R17 | How DJs travel between subgenres and tempos in one set | tempo ramps vs. half-time tricks, key paths, how many tracks a 124→140 journey takes, what listeners accept | M4 | open |

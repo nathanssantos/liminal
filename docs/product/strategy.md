@@ -12,6 +12,12 @@ primitive others will build on** (document, transforms, generators, style cards,
 A proposal that does neither waits. Course decisions — a new product on the platform, a new
 audience, a new dependency with cost or licence — are the owner's (process §15).
 
+## The product is a set of bets
+
+The proposal evolves. `bets.md` holds every hypothesis — the current products, candidate uses,
+and the assumptions of the first proposal that evidence may overturn — with what would prove or
+kill each. The loop explores them (process §18) and brings proposals; the owner decides.
+
 ## Who it is for, first
 
 | Audience | What they want | What wins them | What loses them |

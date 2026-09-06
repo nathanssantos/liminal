@@ -393,10 +393,10 @@ next is too vague to spec.
    saying so in the chat), reject by closing it, or change it by editing.
 5. Milestones are small: 5–10 cards. A big one becomes two.
 
-⚠️ **Planning does not invent direction — but it owns completeness.** A new *direction* (a new
-product, a new audience, a new principle) comes from you. Everything a person would reasonably
-expect from the flows, the scenarios and the platform frame is the loop's job to find and propose
-(§17) — the owner should never have to point out a missing volume control.
+⚠️ **Planning does not decide direction — but it owns completeness and it brings direction to the
+table.** Everything a person would reasonably expect from the flows, the scenarios and the platform
+frame is the loop's job to find and propose (§17). New uses, audiences and revised assumptions are
+the loop's job to explore and **propose** (§18); deciding them is yours.
 
 ---
 
@@ -431,6 +431,27 @@ without asking. Beyond that, the extra ones wait for the planning iteration.
 **When the owner still has to point out a gap**, that is a process failure: the fix ships **and**
 the gap's class becomes a row in `completeness.md` in the same PR, so the next discovery
 iteration catches its siblings.
+
+---
+
+## 18 · Product exploration — the proposal itself evolves
+
+The first proposal is a set of **bets**, not a contract (`docs/product/bets.md`). Discovery (§17)
+completes what exists; exploration asks whether the product should become something more, or
+something else: new uses, new audiences, assumptions the evidence no longer supports.
+
+**The strategy iteration** (skill `/explore`): read the signals (bets and their proof columns,
+research, issues from other people, the journal), pick at most two questions, explore them cheaply
+— a research brief, a **spike** (`spike/<slug>`, throwaway, ≤ 2 days, never merged as product), a
+design canvas — and either **propose** (a `decision` issue with evidence, cost and what changes in
+`plan.md` → `Decision needed` → stop) or **drop** with a written reason.
+
+**Cadence.** At every milestone close, after discovery and before planning; every 20 card
+iterations; whenever a brief or a user signal suggests a new use. A long silence without a
+proposal is itself a signal to report.
+
+**The division stays:** the loop proposes direction; the owner decides it. What changes is that
+the agenda of decisions comes from the loop — not from the owner having to think of it.
 
 ---
 
@@ -531,6 +552,7 @@ users (Keep a Changelog), GitHub Release notes with how to try it and what to li
 | every iteration | one card end to end; journal line; memory; docs current |
 | every 5 card iterations, and after every UI card | one discovery iteration (§17): scenarios walked, gaps to cards or ideas |
 | every 10 card iterations | one research iteration |
+| every 20 card iterations, and at every milestone close | one exploration iteration (§18): a bet explored, proposed to you or dropped with a reason |
 | every milestone close | gate proven → release → memory cleanup → next milestone opened (or planning) |
 | every planning iteration | `product-strategist` and `usability-reviewer` advise; the proposal waits for your decision |
 | every release | `open-source-steward` and `docs-reviewer` pass; signals (stars, issues) recorded with a date in `docs/product/strategy.md` |

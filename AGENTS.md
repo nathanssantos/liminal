@@ -23,7 +23,7 @@ versioned file.
 2. `docs/architecture.md` — packages, boundaries, what proves what.
 3. `docs/process.md` — how work moves (SDD + loop). **§12 says what to read per area; §15 says
    when to stop and ask; §16 says which docs a change makes stale.**
-3½. `docs/product/strategy.md`, `usability.md`, `controls.md`, `completeness.md`, `scenarios.md` —
+3½. `docs/product/strategy.md`, `bets.md`, `usability.md`, `controls.md`, `completeness.md`, `scenarios.md` —
    who it is for, what good looks like, what must exist, what a person expects, how they use it;
    `docs/design/principles.md` — the visual and interaction language; `docs/research/` — what the
    loop has learned about the domain.
@@ -54,6 +54,8 @@ versioned file.
 - **Completeness is the loop's.** What a person would expect from a surface (`docs/product/completeness.md`)
   or a scenario (`docs/product/scenarios.md`) is found and proposed by the loop, never left for the
   owner to notice (`docs/process.md › §17`).
+- **The proposal evolves.** The product is a set of bets (`docs/product/bets.md`); the loop explores
+  new uses and questions old assumptions, and brings proposals (`docs/process.md › §18`).
 - **Course decisions are the owner's.** When a doubt changes the product's direction, stop and ask
   (`docs/process.md › §15`); local doubts become a `question` and the loop moves on.
 - **Screens are proven on screen.** Playwright with Electron opens the app, drives it, measures
