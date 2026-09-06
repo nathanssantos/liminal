@@ -48,6 +48,11 @@ def save_state(root: Path, card: str, state: dict[str, Any]) -> None:
     path.write_text(json.dumps(state, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
+def branch_of(root: Path) -> str:
+    branch = git(root, "rev-parse", "--abbrev-ref", "HEAD")
+    return "detached" if branch in ("", "HEAD") else branch
+
+
 def prepared_path(base: Path, branch: str, head: str) -> Path:
     return base / branch.replace("/", "-") / head
 
@@ -82,7 +87,7 @@ def prepare(
     base: Path = REVIEW_ROOT,
     runner: Runner = shell,
 ) -> dict[str, Any]:
-    branch = git(root, "rev-parse", "--abbrev-ref", "HEAD")
+    branch = branch_of(root)
     head = git(root, "rev-parse", "HEAD")
     path = prepared_path(base, branch, head)
     dropped = drop_older_heads(root, path, runner)
@@ -132,7 +137,7 @@ def clean_scratch(
     base: Path = REVIEW_ROOT,
     runner: Runner = shell,
 ) -> dict[str, Any]:
-    branch = git(root, "rev-parse", "--abbrev-ref", "HEAD")
+    branch = branch_of(root)
     head = git(root, "rev-parse", "HEAD")
     room = prepared_path(base, branch, head).parent / f"{head}-scratch"
     removed = sorted(str(entry) for entry in room.iterdir()) if room.exists() else []

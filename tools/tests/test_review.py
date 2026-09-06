@@ -5,6 +5,7 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from board.review import (
+    branch_of,
     clean_scratch,
     load_state,
     prepare,
@@ -200,3 +201,12 @@ def test_preparing_a_new_head_drops_the_trees_of_the_older_ones(tmp_path: Path) 
     assert not stale_scratch.exists()
     assert Path(second["reviewPath"]).exists()
     assert str(first) in second["dropped"]
+
+
+def test_a_detached_head_gets_a_room_of_its_own_rather_than_one_called_head(
+    tmp_path: Path,
+) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+    run(root, "checkout", "--detach")
+
+    assert branch_of(root) == "detached"
