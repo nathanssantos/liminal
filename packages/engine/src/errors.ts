@@ -6,7 +6,9 @@ export type EngineErrorCode =
   | 'automation-target-missing'
   | 'automation-out-of-range'
   | 'invalid-score'
+  | 'invalid-audio'
   | 'context-in-use'
+  | 'context-not-offline'
 
 export class EngineError extends Error {
   readonly code: EngineErrorCode

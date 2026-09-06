@@ -7,8 +7,10 @@ import { barToTick, PPQ, scoreLengthTicks } from '@liminal/score'
 import { sixteenBars } from '@liminal/score/fixtures'
 import { OfflineAudioContext } from 'node-web-audio-api'
 import { beforeAll, describe, expect, it } from 'vitest'
+import { createEngine } from './engine.ts'
 import { DEFAULT_SAMPLE_RATE, encodeWav, measureBasic, renderOffline } from './render.ts'
 import type { EngineContext } from './tone.ts'
+import { loadTone } from './tone.ts'
 
 const SECONDS_PER_MINUTE = 60
 
@@ -23,12 +25,19 @@ const twoBars = (): Score => {
   if (section !== undefined) {
     section.bars = 2
   }
+  const end = barToTick(2, score.meter)
   score.clips = score.clips.map((clip) => ({
     ...clip,
-    length: barToTick(2, score.meter),
-    notes: clip.notes.filter((note) => note.at < barToTick(2, score.meter)),
+    length: end,
+    notes: clip.notes.filter((note) => note.at < end),
   }))
-  score.automation = []
+  score.automation = score.automation.map((automation) => ({
+    ...automation,
+    points: [
+      { at: 0, value: 800, curve: 'linear' as const },
+      { at: end - 1, value: 8000, curve: 'linear' as const },
+    ],
+  }))
   return score
 }
 
@@ -44,8 +53,11 @@ const ffprobeDuration = (wav: Uint8Array): number | undefined => {
       { encoding: 'utf8' },
     )
     return Number.parseFloat(out.trim())
-  } catch {
-    return undefined
+  } catch (refused) {
+    if ((refused as NodeJS.ErrnoException).code === 'ENOENT') {
+      return undefined
+    }
+    throw refused
   }
 }
 
@@ -83,7 +95,7 @@ describe('renderOffline turns a document into samples', () => {
     }
   })
 
-  it('ignores the seed, which writes notes rather than playing them', async () => {
+  it('does not read the seed, which writes notes rather than playing them', async () => {
     const first = await renderTwoBars()
     const reseeded = twoBars()
     reseeded.seed = reseeded.seed + 1
@@ -91,6 +103,42 @@ describe('renderOffline turns a document into samples', () => {
     for (let channel = 0; channel < first.channels.length; channel += 1) {
       expect(other.channels[channel]).toEqual(first.channels[channel])
     }
+  })
+})
+
+describe('renderOffline refuses a context it cannot render', () => {
+  it('refuses a context that cannot render offline', async () => {
+    await expect(
+      renderOffline({
+        score: twoBars(),
+        createContext: () => ({ sampleRate: 48000 }) as unknown as EngineContext,
+      }),
+    ).rejects.toThrow(/plays live/)
+  })
+
+  it('refuses a context already wrapped as a live one, whose transport would never advance', async () => {
+    const tone = await loadTone()
+    const raw = new OfflineAudioContext(2, 48000, 48000)
+    const wrapped = new tone.Context({ context: raw as unknown as AudioContext })
+    await expect(
+      renderOffline({ score: twoBars(), createContext: () => wrapped as unknown as EngineContext }),
+    ).rejects.toThrow(/never advance/)
+  })
+
+  it('frees the context it was given when the render throws', async () => {
+    const raw = new OfflineAudioContext(2, 48000, 48000)
+    Reflect.set(raw, 'startRendering', () => Promise.reject(new Error('the device gave up')))
+
+    await expect(
+      renderOffline({ score: twoBars(), createContext: () => raw as unknown as EngineContext }),
+    ).rejects.toThrow(/gave up/)
+
+    const engine = await createEngine({
+      context: raw as unknown as EngineContext,
+      score: twoBars(),
+    })
+    expect(engine.pendingNodeCount()).toBeGreaterThan(0)
+    engine.dispose()
   })
 })
 
@@ -105,6 +153,10 @@ describe('encodeWav writes a file a decoder can read', () => {
     expect(text(8)).toBe('WAVE')
     expect(text(12)).toBe('fmt ')
     expect(text(36)).toBe('data')
+    expect(view.getUint32(16, true)).toBe(16)
+    expect(view.getUint16(20, true)).toBe(1)
+    expect(view.getUint32(28, true)).toBe(DEFAULT_SAMPLE_RATE * 2 * 2)
+    expect(view.getUint16(32, true)).toBe(2 * 2)
     expect(view.getUint16(22, true)).toBe(2)
     expect(view.getUint32(24, true)).toBe(DEFAULT_SAMPLE_RATE)
     expect(view.getUint16(34, true)).toBe(16)

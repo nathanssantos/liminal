@@ -50,7 +50,7 @@ export async function renderOffline(options: RenderOptions): Promise<Render> {
   const raw = options.createContext(CHANNELS, length, sampleRate)
   if (!rendersOffline(raw)) {
     throw new EngineError(
-      'context-in-use',
+      'context-not-offline',
       'renderOffline needs a context that renders offline, and this one plays live',
     )
   }
@@ -58,14 +58,18 @@ export async function renderOffline(options: RenderOptions): Promise<Render> {
   const { context } = wrapContext(tone, raw)
   if (!rendersToneOffline(context)) {
     throw new EngineError(
-      'context-in-use',
-      'renderOffline needs a context that renders offline, and this one plays live',
+      'context-not-offline',
+      'this context was wrapped as a live one, so its transport would never advance',
     )
   }
   const engine = await createEngine({ context, score: options.score })
-  engine.play()
-  const buffer = (await context.render()) as unknown as AudioBuffer
-  engine.dispose()
+  let buffer: AudioBuffer
+  try {
+    engine.play()
+    buffer = (await context.render()) as unknown as AudioBuffer
+  } finally {
+    engine.dispose()
+  }
   return {
     channels: Array.from({ length: buffer.numberOfChannels }, (_, channel) =>
       Float32Array.from(buffer.getChannelData(channel)),
@@ -96,12 +100,12 @@ export function measureBasic(channels: readonly Float32Array[]): BasicMeasuremen
 
 export function encodeWav(channels: readonly Float32Array[], sampleRate: number): Uint8Array {
   if (channels.length === 0) {
-    throw new EngineError('invalid-score', 'a wav needs at least one channel')
+    throw new EngineError('invalid-audio', 'a wav needs at least one channel')
   }
   const frames = channels[0]?.length ?? 0
   for (const data of channels) {
     if (data.length !== frames) {
-      throw new EngineError('invalid-score', 'every channel of a wav has the same length')
+      throw new EngineError('invalid-audio', 'every channel of a wav has the same length')
     }
   }
   const dataBytes = frames * channels.length * BYTES_PER_SAMPLE
