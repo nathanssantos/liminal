@@ -7,8 +7,10 @@ import { barToTick, PPQ, scoreLengthTicks } from '@liminal/score'
 import { sixteenBars } from '@liminal/score/fixtures'
 import { OfflineAudioContext } from 'node-web-audio-api'
 import { beforeAll, describe, expect, it } from 'vitest'
-import { createEngine } from './engine.ts'
+import { offlineEngine, peakOf } from '../tests/harness.ts'
+import { createEngine, OUTPUT_GAIN_DB } from './engine.ts'
 import { DEFAULT_SAMPLE_RATE, encodeWav, measureBasic, renderOffline } from './render.ts'
+import { scoreSeconds } from './time.ts'
 import type { EngineContext } from './tone.ts'
 import { loadTone } from './tone.ts'
 
@@ -203,5 +205,41 @@ describe('measureBasic says whether anything is there', () => {
     expect(measured.peak).toBe(1)
     expect(measured.rms).toBeCloseTo(1, 6)
     expect(measured.silent).toBe(false)
+  })
+})
+
+describe('the output stage belongs to the listener, not to the document', () => {
+  it('renders the same samples whether the engine is muted or not', async () => {
+    const score = twoBars()
+    const heard = await offlineEngine(score, scoreSeconds(score))
+    heard.engine.play()
+    const open = await heard.render()
+    heard.engine.dispose()
+
+    const silenced = await offlineEngine(score, scoreSeconds(score))
+    silenced.engine.setMuted(true)
+    silenced.engine.setOutputGain(OUTPUT_GAIN_DB.min)
+    silenced.engine.play()
+    const quiet = await silenced.render()
+    silenced.engine.dispose()
+
+    for (let channel = 0; channel < open.numberOfChannels; channel += 1) {
+      expect(Float32Array.from(quiet.getChannelData(channel))).toEqual(
+        Float32Array.from(open.getChannelData(channel)),
+      )
+    }
+    expect(peakOf(open)).toBeGreaterThan(0.05)
+  })
+
+  it('refuses to choose a device on a context that has no sink', async () => {
+    const { engine } = await offlineEngine(twoBars(), 0.1)
+
+    engine.setOutputGain(OUTPUT_GAIN_DB.min)
+    engine.setMuted(true)
+
+    expect(engine.outputGain()).toBe(OUTPUT_GAIN_DB.min)
+    expect(engine.muted()).toBe(true)
+    await expect(engine.setSinkId('default')).rejects.toThrow(/output device/)
+    engine.dispose()
   })
 })

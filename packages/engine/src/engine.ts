@@ -14,6 +14,16 @@ import { loadTone, rawContextOf, rendersOffline, wrapContext } from './tone.ts'
 
 export const DEFAULT_LOOK_AHEAD_SECONDS = 0.2
 
+export const OUTPUT_GAIN_DB = { min: -60, max: 0 }
+
+export const SAFE_OUTPUT_GAIN_DB = -12
+
+const SILENT_GAIN = 0
+
+const DECIBEL_DECADE = 20
+
+const dbToGain = (db: number): number => 10 ** (db / DECIBEL_DECADE)
+
 const ENGINES_BY_CONTEXT = new WeakSet<BaseAudioContext>()
 
 export type EngineEvent = 'bar' | 'stopped' | 'ended'
@@ -32,6 +42,11 @@ export type Engine = {
   disposedNodeCount: () => number
   triggeredNoteCount: () => number
   lookAhead: () => number
+  setOutputGain: (db: number) => void
+  setMuted: (muted: boolean) => void
+  setSinkId: (id: string) => Promise<void>
+  outputGain: () => number
+  muted: () => boolean
   downgradedCurves: () => readonly DowngradedCurve[]
   automationValueAt: (automationId: string, seconds: number) => number
 }
@@ -108,12 +123,27 @@ async function buildEngine(options: EngineOptions, built: Built): Promise<Engine
   const master = ledger.add(
     new tone.Gain({ context, gain: score.mix.master.gainDb, units: 'decibels' }),
   )
+  let documentOut: ToneNode = master
   if (score.mix.master.limiter) {
     const limiter = ledger.add(new tone.Limiter({ context, threshold: -1 }))
     master.connect(limiter)
-    limiter.toDestination()
+    documentOut = limiter
+  }
+  const output = offline
+    ? undefined
+    : ledger.add(new tone.Gain({ context, gain: SAFE_OUTPUT_GAIN_DB, units: 'decibels' }))
+  if (output === undefined) {
+    documentOut.toDestination()
   } else {
-    master.toDestination()
+    documentOut.connect(output)
+    output.toDestination()
+  }
+  let outputGainDb = SAFE_OUTPUT_GAIN_DB
+  let outputMuted = false
+  const applyOutput = () => {
+    if (output !== undefined) {
+      output.gain.value = outputMuted ? SILENT_GAIN : dbToGain(outputGainDb)
+    }
   }
 
   const chains = new Map<string, Chain>()
@@ -352,6 +382,25 @@ async function buildEngine(options: EngineOptions, built: Built): Promise<Engine
     disposedNodeCount: () => ledger.disposed(),
     triggeredNoteCount: () => triggered,
     lookAhead: () => (offline ? 0 : context.lookAhead),
+    setOutputGain: (db) => {
+      outputGainDb = Math.min(OUTPUT_GAIN_DB.max, Math.max(OUTPUT_GAIN_DB.min, db))
+      applyOutput()
+    },
+    setMuted: (muted) => {
+      outputMuted = muted
+      applyOutput()
+    },
+    setSinkId: async (id) => {
+      const raw = rawContextOf(options.context) as { setSinkId?: (given: string) => Promise<void> }
+      if (typeof raw.setSinkId !== 'function') {
+        throw new EngineError('sink-unavailable', 'this context cannot choose an output device', {
+          sink: id,
+        })
+      }
+      await raw.setSinkId(id)
+    },
+    outputGain: () => outputGainDb,
+    muted: () => outputMuted,
     downgradedCurves: () => downgraded,
     automationValueAt: (automationId, seconds) => {
       const param = automated.get(automationId)

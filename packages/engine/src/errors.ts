@@ -9,6 +9,7 @@ export type EngineErrorCode =
   | 'invalid-audio'
   | 'context-in-use'
   | 'context-not-offline'
+  | 'sink-unavailable'
 
 export class EngineError extends Error {
   readonly code: EngineErrorCode
