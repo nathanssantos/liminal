@@ -33,6 +33,8 @@ const NOT_A_PAGE = {
   region: { enabled: false },
 }
 
+const ONLY_A_REAL_BROWSER_CAN_JUDGE = ['target-size', 'aria-hidden-focus']
+
 for (const [path, module] of Object.entries(modules)) {
   const component = path.replace(/^.*\/([^/]+)\.stories\.tsx$/, '$1')
   const composed = composeStories(module)
@@ -40,7 +42,13 @@ for (const [path, module] of Object.entries(modules)) {
 
   describe(component, () => {
     const first = stories[0]?.[1]
-    if (!first) throw new Error(`${component} has no story`)
+
+    it('ships at least one story and the source its props are declared in', () => {
+      expect(stories.length).toBeGreaterThan(0)
+      expect(sources[`./${component}/${component}.tsx`]).toBeTruthy()
+    })
+
+    if (!first) return
 
     it('declares an argType for every prop its type declares', () => {
       const source = sources[`./${component}/${component}.tsx`]
@@ -91,6 +99,11 @@ for (const [path, module] of Object.entries(modules)) {
         await Story.play?.({ canvasElement: container })
         const results = await axe.run(document.body, { rules: NOT_A_PAGE })
         expect(results.violations.map((violation) => violation.id)).toEqual([])
+        expect(
+          results.incomplete
+            .map((check) => check.id)
+            .filter((id) => !ONLY_A_REAL_BROWSER_CAN_JUDGE.includes(id)),
+        ).toEqual([])
       })
     }
   })

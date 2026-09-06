@@ -6,3 +6,4 @@ Controls/Slider (12): Default, Volume, Volume Muted, With Ticks, Vertical, Show 
 Controls/Toggle (12): Off, On, On Warn, On Neutral, Off Disabled, On Disabled, Disabled With Reason, Size Small, Size Medium, Size Large, Custom State Label, Keyboard Toggle
 Controls/Transport (11): Stopped, Starting, Playing, Paused, Size Medium, Cannot Play, Custom Labels, Playing With Beat, Reduced Motion, Stop Is Deliberate, Keyboard Transport
 docs pages: Controls/Button, Controls/ErrorStrip, Controls/Readout, Controls/Select, Controls/Slider, Controls/Toggle, Controls/Transport
+total stories: 86

@@ -54,9 +54,9 @@
       {
         "selector": ".lm-readout",
         "rect": {
-          "left": 506.5625,
+          "left": 502.265625,
           "top": 15.5,
-          "width": 493.4375,
+          "width": 497.734375,
           "height": 56
         },
         "styles": {
@@ -152,9 +152,9 @@
       {
         "selector": ".lm-readout",
         "rect": {
-          "left": 914.5625,
+          "left": 910.265625,
           "top": 15.5,
-          "width": 493.4375,
+          "width": 497.734375,
           "height": 56
         },
         "styles": {
@@ -250,9 +250,9 @@
       {
         "selector": ".lm-readout",
         "rect": {
-          "left": 1394.5625,
+          "left": 1390.265625,
           "top": 15.5,
-          "width": 493.4375,
+          "width": 497.734375,
           "height": 56
         },
         "styles": {

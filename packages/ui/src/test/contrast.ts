@@ -26,11 +26,17 @@ export function resolveAlias(
   properties: Record<string, string>,
   fallback: Record<string, string>,
 ): string {
-  const alias = /^var\((--[\w-]+)\)$/.exec(value)
-  if (!alias?.[1]) return value
-  const target = properties[alias[1]] ?? fallback[alias[1]]
-  if (!target) throw new Error(`${value} points at a property nothing declares`)
-  return resolveAlias(target, properties, fallback)
+  const seen = new Set<string>()
+  let current = value
+  while (true) {
+    const alias = /^var\((--[\w-]+)\)$/.exec(current)
+    if (!alias?.[1]) return current
+    if (seen.has(alias[1])) throw new Error(`${alias[1]} points back at itself`)
+    seen.add(alias[1])
+    const target = properties[alias[1]] ?? fallback[alias[1]]
+    if (!target) throw new Error(`${current} points at a property nothing declares`)
+    current = target
+  }
 }
 
 export function customProperties(css: string, selector: string): Record<string, string> {

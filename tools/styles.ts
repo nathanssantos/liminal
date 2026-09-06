@@ -2,8 +2,23 @@ import { globSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+const NAMED_COLOURS =
+  /\b(?:aqua|beige|black|blue|brown|coral|crimson|cyan|fuchsia|gold|gray|grey|green|indigo|ivory|khaki|lime|magenta|maroon|navy|olive|orange|orchid|pink|plum|purple|red|salmon|silver|snow|tan|teal|tomato|violet|wheat|white|yellow)\b/
+
 const LOOSE = [
   { name: 'a colour', pattern: /#[0-9a-fA-F]{3,8}\b/, exemptInMediaQuery: false },
+  {
+    name: 'a colour function',
+    pattern: /\b(rgba?|hsla?|hwb|lab|lch|oklab|oklch|color-mix)\(/,
+    exemptInMediaQuery: false,
+  },
+  {
+    name: 'a colour by name',
+    pattern: new RegExp(
+      `(?:color|background|border|fill|stroke|outline)[\\w-]*\\s*:[^;]*${NAMED_COLOURS.source}`,
+    ),
+    exemptInMediaQuery: false,
+  },
   { name: 'a length', pattern: /\b\d+(\.\d+)?(px|rem|em)\b/, exemptInMediaQuery: true },
   { name: 'a duration', pattern: /\b\d+(\.\d+)?m?s\b/, exemptInMediaQuery: false },
   { name: 'a font', pattern: /font-family\s*:(?!\s*var\()/, exemptInMediaQuery: false },
@@ -32,15 +47,16 @@ export function looseValuesInLine(line: string): string[] {
   ).map(({ name }) => name)
 }
 
+export function looseValuesInText(text: string, path: string): string[] {
+  return text
+    .split('\n')
+    .flatMap((line, index) =>
+      looseValuesInLine(line).map((name) => `${path}:${index + 1}: ${name} outside tokens.css`),
+    )
+}
+
 export function looseValues(): string[] {
-  const found: string[] = []
-  for (const path of scannedFiles()) {
-    const lines = readFileSync(join(REPOSITORY_ROOT, path), 'utf8').split('\n')
-    lines.forEach((line, index) => {
-      for (const name of looseValuesInLine(line)) {
-        found.push(`${path}:${index + 1}: ${name} outside tokens.css`)
-      }
-    })
-  }
-  return found
+  return scannedFiles().flatMap((path) =>
+    looseValuesInText(readFileSync(join(REPOSITORY_ROOT, path), 'utf8'), path),
+  )
 }

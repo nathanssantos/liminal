@@ -53,7 +53,6 @@ export function Select({
   const labelId = useId()
   const reasonId = useId()
   const empty = items.length === 0
-  const unusable = disabled || loading || empty
   const describedBy = disabled && disabledReason ? reasonId : undefined
 
   return (
@@ -61,14 +60,19 @@ export function Select({
       <span className={hideLabel ? 'lm-hidden-text' : 'lm-select-label'} id={labelId}>
         {label}
       </span>
-      <RadixSelect.Root value={value ?? NO_VALUE} onValueChange={onValueChange} disabled={unusable}>
+      <RadixSelect.Root
+        value={value ?? NO_VALUE}
+        onValueChange={onValueChange}
+        disabled={disabled}
+        {...(loading ? { open: false } : {})}
+      >
         <RadixSelect.Trigger
           ref={ref}
           id={id}
           className="lm-select-trigger lm-focusable"
           aria-labelledby={labelId}
-          {...(loading ? { 'aria-busy': true, 'data-loading': '' } : {})}
-          {...(empty ? { 'data-empty': '' } : {})}
+          {...(loading ? { 'aria-busy': true, 'data-loading': '', 'aria-disabled': true } : {})}
+          {...(empty ? { 'data-empty': '', 'aria-disabled': true } : {})}
           {...(invalid ? { 'aria-invalid': true, 'data-invalid': '' } : {})}
           {...(describedBy ? { 'aria-describedby': describedBy } : {})}
         >
@@ -93,6 +97,17 @@ export function Select({
             sideOffset={SIDE_OFFSET}
           >
             <RadixSelect.Viewport className="lm-select-viewport">
+              {empty ? (
+                <div
+                  className="lm-select-empty"
+                  role="option"
+                  aria-disabled="true"
+                  aria-selected="false"
+                  tabIndex={-1}
+                >
+                  {emptyLabel}
+                </div>
+              ) : null}
               {items.map((item) => (
                 <RadixSelect.Item
                   key={item.value}

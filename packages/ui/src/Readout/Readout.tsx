@@ -76,7 +76,7 @@ function Field({
           {missing ? MISSING : value}
         </span>
         {missing ? <span className="lm-hidden-text">{NOT_AVAILABLE}</span> : null}
-        {unit && !missing ? <span className="lm-readout-unit">{unit}</span> : null}
+        {unit ? <span className="lm-readout-unit">{missing ? null : unit}</span> : null}
       </dd>
     </div>
   )

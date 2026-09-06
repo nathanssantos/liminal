@@ -59,17 +59,42 @@ measured.transport = await page.evaluate(() => {
   })
 })
 
-await open(page, idOf('Controls/Button', 'Primary'))
-measured.focusRing = await page.evaluate(() => {
-  const button = document.querySelector('.lm-button') as HTMLElement
-  button.focus()
-  const computed = getComputedStyle(button)
+const FOCUSABLE_PER_COMPONENT: [string, string, string][] = [
+  ['Controls/Button', 'Primary', '.lm-button'],
+  ['Controls/Toggle', 'On', '.lm-toggle'],
+  ['Controls/Slider', 'Volume', '.lm-slider-thumb'],
+  ['Controls/Select', 'With Value', '.lm-select-trigger'],
+  ['Controls/Transport', 'Playing', '.lm-button'],
+  ['Controls/ErrorStrip', 'With Action And Dismiss', '.lm-button'],
+]
+
+const focusRings: Record<string, unknown> = {}
+for (const [title, name, selector] of FOCUSABLE_PER_COMPONENT) {
+  await open(page, idOf(title, name))
+  focusRings[title.split('/').at(-1) ?? title] = await page.evaluate((wanted) => {
+    const control = document.querySelector(wanted) as HTMLElement
+    control.focus()
+    const computed = getComputedStyle(control)
+    const box = control.getBoundingClientRect()
+    return {
+      outlineWidth: computed.outlineWidth,
+      outlineStyle: computed.outlineStyle,
+      outlineColor: computed.outlineColor,
+      outlineOffset: computed.outlineOffset,
+      boxWidth: box.width,
+      boxHeight: box.height,
+    }
+  }, selector)
+}
+measured.focusRings = focusRings
+
+await open(page, idOf('Controls/Readout', 'Playing'))
+measured.readoutTakesNoFocus = await page.evaluate(() => {
+  const group = document.querySelector('.lm-readout') as HTMLElement
   return {
-    outlineWidth: computed.outlineWidth,
-    outlineStyle: computed.outlineStyle,
-    outlineColor: computed.outlineColor,
-    outlineOffset: computed.outlineOffset,
-    transitionDuration: computed.transitionDuration,
+    role: group.tagName.toLowerCase(),
+    label: group.getAttribute('aria-label'),
+    focusable: group.querySelectorAll('[tabindex], button, a, input').length,
   }
 })
 
@@ -88,7 +113,7 @@ measured.selectPanel = await page.evaluate(async () => {
 })
 
 const readoutSteps: unknown[] = []
-for (const name of ['Playing Short Values', 'Playing', 'Playing Long Values']) {
+for (const name of ['Empty', 'Playing Short Values', 'Playing', 'Playing Long Values']) {
   await open(page, idOf('Controls/Readout', name))
   readoutSteps.push(
     await page.evaluate(() => {

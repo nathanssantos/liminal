@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState } from 'react'
-import { expect, fn, userEvent, within } from 'storybook/test'
+import { expect, fn, screen, userEvent, within } from 'storybook/test'
 import { Select, type SelectProps } from './Select.tsx'
 
 const DEVICES = [
@@ -66,6 +66,7 @@ export const Open: Story = {
   render: (args) => <ControlledSelect {...args} />,
   play: async ({ canvasElement }) => {
     await userEvent.click(within(canvasElement).getByRole('combobox'))
+    await screen.findByRole('listbox')
   },
 }
 export const WithDescriptions: Story = {
@@ -77,7 +78,14 @@ export const WithDescriptions: Story = {
   },
 }
 export const Loading: Story = { args: { loading: true } }
-export const Empty: Story = { args: { items: [] } }
+export const Empty: Story = {
+  args: { items: [] },
+  play: async ({ canvasElement }) => {
+    const trigger = within(canvasElement).getByRole('combobox')
+    await userEvent.click(trigger)
+    await expect(await screen.findByRole('listbox')).toHaveTextContent('Nothing to choose from')
+  },
+}
 export const Invalid: Story = { args: { invalid: true, value: 'interface' } }
 export const Disabled: Story = { args: { disabled: true } }
 export const DisabledWithReason: Story = {

@@ -122,6 +122,10 @@
   cursor: not-allowed;
 }
 
+.lm-button[data-disabled]:not(:where(:disabled)) {
+  pointer-events: none;
+}
+
 .lm-button[data-loading] {
   cursor: progress;
 }

@@ -111,6 +111,7 @@
   overflow-y: auto;
 }
 
+.lm-select-empty,
 .lm-select-item {
   display: flex;
   align-items: center;
@@ -121,6 +122,10 @@
   font-size: var(--text-1);
   border-radius: var(--radius-1);
   color: var(--color-ink);
+}
+
+.lm-select-empty {
+  color: var(--color-muted);
 }
 
 .lm-select-item {

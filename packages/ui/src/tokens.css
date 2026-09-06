@@ -114,7 +114,7 @@
   --readout-key-ch: 6;
   --readout-bar-ch: 7;
   --readout-elapsed-ch: 7;
-  --readout-unit-ch: 4;
+  --readout-unit-ch: 3;
 
   --error-rule-width: 3px;
   --error-min-height: 48px;

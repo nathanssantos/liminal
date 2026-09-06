@@ -20,12 +20,60 @@
       "height": 44
     }
   ],
-  "focusRing": {
-    "outlineWidth": "2px",
-    "outlineStyle": "solid",
-    "outlineColor": "rgb(242, 166, 90)",
-    "outlineOffset": "2px",
-    "transitionDuration": "0.12s, 0.12s, 0.12s"
+  "focusRings": {
+    "Button": {
+      "outlineWidth": "2px",
+      "outlineStyle": "solid",
+      "outlineColor": "rgb(242, 166, 90)",
+      "outlineOffset": "2px",
+      "boxWidth": 112.859375,
+      "boxHeight": 36
+    },
+    "Toggle": {
+      "outlineWidth": "2px",
+      "outlineStyle": "solid",
+      "outlineColor": "rgb(242, 166, 90)",
+      "outlineOffset": "2px",
+      "boxWidth": 79.640625,
+      "boxHeight": 36
+    },
+    "Slider": {
+      "outlineWidth": "2px",
+      "outlineStyle": "solid",
+      "outlineColor": "rgb(242, 166, 90)",
+      "outlineOffset": "2px",
+      "boxWidth": 20,
+      "boxHeight": 20
+    },
+    "Select": {
+      "outlineWidth": "2px",
+      "outlineStyle": "solid",
+      "outlineColor": "rgb(242, 166, 90)",
+      "outlineOffset": "2px",
+      "boxWidth": 130.578125,
+      "boxHeight": 36
+    },
+    "Transport": {
+      "outlineWidth": "2px",
+      "outlineStyle": "solid",
+      "outlineColor": "rgb(242, 166, 90)",
+      "outlineOffset": "2px",
+      "boxWidth": 111.953125,
+      "boxHeight": 44
+    },
+    "ErrorStrip": {
+      "outlineWidth": "2px",
+      "outlineStyle": "solid",
+      "outlineColor": "rgb(242, 166, 90)",
+      "outlineOffset": "2px",
+      "boxWidth": 74.828125,
+      "boxHeight": 27.999998092651367
+    }
+  },
+  "readoutTakesNoFocus": {
+    "role": "dl",
+    "label": "Now playing",
+    "focusable": 0
   },
   "selectPanel": {
     "height": 320,
@@ -34,30 +82,60 @@
   },
   "readoutDigitGrowth": [
     {
-      "reads": "Tempo99BPMKeyF# minBar9:4Elapsed9:59",
+      "reads": "Tempo—not availableKey—not availableBar—not availableElapsed—not available",
       "groupHeight": 56,
       "fields": [
         {
           "field": "tempo",
-          "left": 473.28125,
-          "width": 94.125,
+          "left": 471.140625,
+          "width": 98.421875,
           "height": 53.5
         },
         {
           "field": "key",
-          "left": 567.40625,
+          "left": 569.5625,
           "width": 141.90625,
           "height": 53.5
         },
         {
           "field": "bar",
-          "left": 709.3125,
+          "left": 711.46875,
           "width": 157.5625,
           "height": 53.5
         },
         {
           "field": "elapsed",
-          "left": 866.875,
+          "left": 869.03125,
+          "width": 99.84375,
+          "height": 53.5
+        }
+      ]
+    },
+    {
+      "reads": "Tempo99BPMKeyF# minBar9:4Elapsed9:59",
+      "groupHeight": 56,
+      "fields": [
+        {
+          "field": "tempo",
+          "left": 471.140625,
+          "width": 98.421875,
+          "height": 53.5
+        },
+        {
+          "field": "key",
+          "left": 569.5625,
+          "width": 141.90625,
+          "height": 53.5
+        },
+        {
+          "field": "bar",
+          "left": 711.46875,
+          "width": 157.5625,
+          "height": 53.5
+        },
+        {
+          "field": "elapsed",
+          "left": 869.03125,
           "width": 99.84375,
           "height": 53.5
         }
@@ -69,25 +147,25 @@
       "fields": [
         {
           "field": "tempo",
-          "left": 473.28125,
-          "width": 94.125,
+          "left": 471.140625,
+          "width": 98.421875,
           "height": 53.5
         },
         {
           "field": "key",
-          "left": 567.40625,
+          "left": 569.5625,
           "width": 141.90625,
           "height": 53.5
         },
         {
           "field": "bar",
-          "left": 709.3125,
+          "left": 711.46875,
           "width": 157.5625,
           "height": 53.5
         },
         {
           "field": "elapsed",
-          "left": 866.875,
+          "left": 869.03125,
           "width": 99.84375,
           "height": 53.5
         }
@@ -99,25 +177,25 @@
       "fields": [
         {
           "field": "tempo",
-          "left": 473.28125,
-          "width": 94.125,
+          "left": 471.140625,
+          "width": 98.421875,
           "height": 53.5
         },
         {
           "field": "key",
-          "left": 567.40625,
+          "left": 569.5625,
           "width": 141.90625,
           "height": 53.5
         },
         {
           "field": "bar",
-          "left": 709.3125,
+          "left": 711.46875,
           "width": 157.5625,
           "height": 53.5
         },
         {
           "field": "elapsed",
-          "left": 866.875,
+          "left": 869.03125,
           "width": 99.84375,
           "height": 53.5
         }

@@ -40,6 +40,37 @@ describe('Button', () => {
     expect(screen.getByRole('button', { name: 'Stop' })).toBeInTheDocument()
   })
 
+  it('refuses to act, and leaves the tab order, when a disabled asChild wraps a link', async () => {
+    const onClick = vi.fn()
+    render(
+      <>
+        <Button label="Before" />
+        <Button asChild disabled label="Read the notes" onClick={onClick}>
+          <a href="https://example.invalid">Read the notes</a>
+        </Button>
+      </>,
+    )
+    const link = screen.getByRole('link', { name: 'Read the notes' })
+    expect(link).toHaveAttribute('aria-disabled', 'true')
+    expect(link).toHaveAttribute('tabindex', '-1')
+    await userEvent.tab()
+    expect(screen.getByRole('button', { name: 'Before' })).toHaveFocus()
+    await userEvent.tab()
+    expect(link).not.toHaveFocus()
+    link.click()
+    expect(onClick).not.toHaveBeenCalled()
+  })
+
+  it('gives the consumer element the ref it was handed', () => {
+    const seen = { current: null as HTMLElement | null }
+    render(
+      <Button asChild label="Read the notes" ref={seen}>
+        <a href="https://example.invalid">Read the notes</a>
+      </Button>,
+    )
+    expect(seen.current).toBe(screen.getByRole('link', { name: 'Read the notes' }))
+  })
+
   it('renders the consumer element when asChild, keeping the button look', () => {
     render(
       <Button asChild label="Read the notes">

@@ -96,7 +96,10 @@ describe('Select', () => {
     )
     const trigger = screen.getByRole('combobox')
     expect(trigger).toHaveAttribute('aria-busy', 'true')
-    await userEvent.click(trigger)
+    expect(trigger).toHaveAttribute('aria-disabled', 'true')
+    await userEvent.tab()
+    expect(trigger).toHaveFocus()
+    await userEvent.keyboard('{Enter}')
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
   })
 
@@ -156,12 +159,19 @@ describe('Select', () => {
     expect(trigger).toHaveFocus()
   })
 
-  it('says so in words when there is nothing to choose from', async () => {
+  it('says so in words when there is nothing to choose from, and stays reachable', async () => {
     render(<Devices items={[]} />)
     const trigger = screen.getByRole('combobox')
     expect(trigger).toHaveTextContent('Nothing to choose from')
+    expect(trigger).toHaveAttribute('aria-disabled', 'true')
     await userEvent.tab()
-    expect(trigger).not.toHaveFocus()
+    expect(trigger).toHaveFocus()
+    await userEvent.keyboard('{Enter}')
+    const list = await screen.findByRole('listbox')
+    expect(list).toHaveTextContent('Nothing to choose from')
+    const only = screen.getAllByRole('option')
+    expect(only).toHaveLength(1)
+    expect(only[0]).toHaveAttribute('aria-disabled', 'true')
   })
 
   it('explains why it cannot be used when disabled', () => {
