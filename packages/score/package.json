@@ -7,6 +7,10 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
+    },
+    "./fixtures": {
+      "types": "./src/fixtures/index.ts",
+      "default": "./src/fixtures/index.ts"
     }
   },
   "scripts": {
@@ -15,7 +19,11 @@
     "test": "vitest run"
   },
   "devDependencies": {
+    "@types/node": "26.4.1",
     "typescript": "6.0.3",
     "vitest": "4.1.11"
+  },
+  "dependencies": {
+    "zod": "4.5.4"
   }
 }

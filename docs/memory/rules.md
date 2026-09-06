@@ -40,7 +40,47 @@
 
 ## score
 
-- (empty — the first rule is born in M1-01)
+- 🔴 **xorshift32 has a fixed point at 0, and `seed: 0` is a legal document.** An unnormalized
+  state gives an endless stream of zeros: every `newId` identical (E3 fails) and every generated
+  note at tick 0. `createRng` normalizes `state = (seed >>> 0) || 0x9e3779b9`. (measured
+  2026-09-06, test `does not collapse on seed 0, which is xorshift32 fixed point`)
+- ⚠️ **`newId` ids are unique within one PRNG stream, never globally.** Two documents built from
+  the same seed get the **same** ids. Fine for E3, which is scoped per document; a hazard for
+  `lineage.parentId`, which points across documents. Whatever links two documents needs its own
+  identity, not `newId`. (measured 2026-09-06)
+- ⚠️ **The ids are ULID-shaped, not ULIDs.** All 26 characters come from the PRNG, so they carry
+  no timestamp and do not sort by creation. Sorting by id is meaningless. (decided 2026-09-06)
+- ⚠️ **The Zod schema carries shape only; legality lives in `validate`.** Ranges and integrality
+  in the schema would report Zod's own codes, and the invariant table needs `E9` plus the element
+  id. `parse` is the only door that runs both — `scoreSchema.parse` alone accepts a document the
+  engine refuses. (decided 2026-09-06, ADR-0009)
+- 🔴 **A range check written as `value < min || value > max` accepts `NaN`.** Both comparisons are
+  false, so the value is judged inside the range. A transform computing `20 * Math.log10(0 / 0)`
+  produced a document `validate` called valid, and `NaN` on a Web Audio param poisons the graph.
+  Every range check starts with `Number.isFinite`. (measured 2026-09-06, mutation test
+  `NaN guard`)
+- 🔴 **Integrality has to cover what a tick is multiplied by, not only the tick.** `beatsPerBar`
+  was range-checked but never checked for wholeness: `4.0005` passed `validate` and made
+  `scoreLengthTicks` return `61447.68`, so the invariant meant to guard tick integrality was
+  itself computed in floating point. (measured 2026-09-06)
+- 🔴 **`validate` must never throw — it reports.** Adding a guard to `ticksPerBar` made E5 blow up
+  on a fractional meter instead of reporting E1, so a document that is merely invalid crashed the
+  caller. The checks that need a bar length now run only when the meter has whole bars.
+  (measured 2026-09-06)
+- ⭐ **A test per invariant code is not a test per branch.** Nine `E` tests passed while twelve of
+  the invariants' branches survived being replaced by `if (false)`. The gate that found it was
+  mutation testing, not coverage: a table-driven case per sub-check, then a mutant per site.
+  (measured 2026-09-06, 20 of 20 mutants killed after the fix)
+- ⚠️ **`-0` round-trips through JSON as `0`.** A generated document with `gainDb: -0` broke the
+  round-trip equality test. Nothing musical depends on the sign of zero, so the behaviour is
+  stated in a test rather than fought. (measured 2026-09-06)
+- ⚠️ **A `Score` byte-compared against a committed file needs `eol=lf` in `.gitattributes`.**
+  Without it the comparison passes on macOS and fails on a CRLF checkout. Biome also reformats a
+  committed `.json`, so `stringify` emits exactly Biome's shape: two spaces, sorted keys, trailing
+  newline. (decided 2026-09-06)
+- ⚠️ **`@liminal/score` must stay usable in the renderer**, so no `node:` import outside its
+  tests and `zod` as the only runtime dependency. A test asserts both, because the package's
+  tsconfig now carries node types for the byte-comparison test. (measured 2026-09-06)
 
 ## composition
 
@@ -114,6 +154,14 @@
   workflow that pushes to `main` fails — the board sync opens an auto-merging pull request instead.
   The alternative, leaving admins outside the protection, would let any owner token push straight to
   `main` and would make the gate a decoration. (measured 2026-09-05, M0-09)
+- ⚠️ **The zero-comment gate read a markdown heading as a comment.** `#` opens a comment in Python
+  and a heading in prose, so the first delivery that touched an ADR failed a gate it should have
+  passed. The gate now skips `.md` and `.json` and still catches `#` in code. (measured 2026-09-06,
+  the first real run of `board.deliver --merge`)
+- 🔴 **`git add -A` sweeps in whatever a review agent has on disk at that instant.** A reviewer's
+  fuzz harness landed inside a commit whose `pnpm check` had run minutes earlier, when the file did
+  not exist yet, so the gate was green and the branch was not. Stage by path while an agent is
+  running, and re-read `git show --stat` after committing. (measured 2026-09-06)
 - 🔴 **A script that switches branches must put the branch back in a `finally`.** The sync opened a
   `docs/sync-<nº>` branch, failed on `gh pr merge`, and left the session on that branch — the next
   commits landed there without anyone noticing. It also must refuse to run at all while the tree is

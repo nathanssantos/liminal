@@ -1,0 +1,200 @@
+import { describe, expect, it } from 'vitest'
+import { sixteenBars } from './fixtures/index.ts'
+import type { Score } from './schema.ts'
+import { scoreSchema } from './schema.ts'
+import { parse, stringify } from './serialize.ts'
+
+const withFixture = (mutate: (score: Score) => void): Score => {
+  const copy = structuredClone(sixteenBars)
+  mutate(copy)
+  return copy
+}
+
+const roundTrip = (score: Score) => parse(stringify(score))
+
+describe('the schema carries the shape score.md declares', () => {
+  it('round-trips a document that carries lineage', () => {
+    const score = withFixture((draft) => {
+      draft.lineage = { parentId: 'PARENT', styleCardId: 'CARD', label: 'a darker take' }
+    })
+    expect(roundTrip(score).lineage).toEqual(score.lineage)
+  })
+
+  it('round-trips every automation curve, not only linear', () => {
+    const score = withFixture((draft) => {
+      const automation = draft.automation[0]
+      if (automation !== undefined) {
+        automation.points = [
+          { at: 0, value: 800, curve: 'step' },
+          { at: 1920, value: 2000, curve: 'exp' },
+          { at: 30720, value: 8000, curve: 'linear' },
+        ]
+      }
+    })
+    expect(roundTrip(score).automation[0]?.points.map((point) => point.curve)).toEqual([
+      'step',
+      'exp',
+      'linear',
+    ])
+  })
+
+  it('round-trips automation aimed at the master', () => {
+    const score = withFixture((draft) => {
+      const automation = draft.automation[0]
+      if (automation !== undefined) {
+        automation.target = { master: 'gainDb' }
+      }
+    })
+    expect(roundTrip(score).automation[0]?.target).toEqual({ master: 'gainDb' })
+  })
+
+  it('round-trips a muted track', () => {
+    const score = withFixture((draft) => {
+      const track = draft.tracks[0]
+      if (track !== undefined) {
+        track.muted = true
+      }
+    })
+    expect(roundTrip(score).tracks[0]?.muted).toBe(true)
+  })
+
+  it('keeps the sampler branch of the instrument discriminant readable', () => {
+    const score = withFixture((draft) => {
+      const track = draft.tracks[0]
+      if (track !== undefined) {
+        track.instrument = { kind: 'sampler', bank: 'acoustic-kit' }
+      }
+    })
+    expect(roundTrip(score).tracks[0]?.instrument).toEqual({
+      kind: 'sampler',
+      bank: 'acoustic-kit',
+    })
+  })
+
+  it('round-trips instrument and effect parameter bags', () => {
+    const score = withFixture((draft) => {
+      const track = draft.tracks[0]
+      if (track !== undefined) {
+        track.instrument = { kind: 'synth', preset: 'kick', params: { decay: 0.4, tune: -2 } }
+      }
+    })
+    expect(roundTrip(score).tracks[0]?.instrument).toEqual({
+      kind: 'synth',
+      preset: 'kick',
+      params: { decay: 0.4, tune: -2 },
+    })
+  })
+})
+
+type Raw = Record<string, unknown>
+
+const rawFixture = () => JSON.parse(stringify(sixteenBars)) as Raw
+
+const reach = (raw: Raw, path: readonly (string | number)[]): Raw => {
+  let current: unknown = raw
+  for (const step of path) {
+    current = (current as Record<string | number, unknown>)[step]
+  }
+  if (current === null || typeof current !== 'object') {
+    throw new Error(`the fixture has no object at ${path.join('.')}`)
+  }
+  return current as Raw
+}
+
+describe('the schema refuses what it cannot represent', () => {
+  const nested: (readonly (string | number)[])[] = [
+    [],
+    ['tempo'],
+    ['meter'],
+    ['key'],
+    ['mix'],
+    ['mix', 'master'],
+    ['sections', 0],
+    ['tracks', 0],
+    ['tracks', 0, 'instrument'],
+    ['tracks', 3, 'fx', 0],
+    ['clips', 0],
+    ['clips', 0, 'notes', 0],
+    ['automation', 0],
+    ['automation', 0, 'target'],
+    ['automation', 0, 'points', 0],
+  ]
+
+  for (const path of nested) {
+    it(`refuses an unknown key at ${path.length === 0 ? 'the root' : path.join('.')}`, () => {
+      const raw = rawFixture()
+      reach(raw, path).liminalUnknownKey = true
+      expect(scoreSchema.safeParse(raw).success).toBe(false)
+    })
+  }
+
+  it('refuses an unknown key on a sampler instrument, not only a synth one', () => {
+    const raw = rawFixture()
+    reach(raw, ['tracks', 0]).instrument = {
+      kind: 'sampler',
+      bank: 'acoustic-kit',
+      liminalUnknownKey: true,
+    }
+    expect(scoreSchema.safeParse(raw).success).toBe(false)
+  })
+
+  it('refuses an empty name where one identifies something', () => {
+    const emptied: [string, (raw: Raw) => void][] = [
+      ['the score id', (raw) => Object.assign(raw, { id: '' })],
+      ['a section id', (raw) => Object.assign(reach(raw, ['sections', 0]), { id: '' })],
+      ['a track id', (raw) => Object.assign(reach(raw, ['tracks', 0]), { id: '' })],
+      ['a clip id', (raw) => Object.assign(reach(raw, ['clips', 0]), { id: '' })],
+      ['the track a clip names', (raw) => Object.assign(reach(raw, ['clips', 0]), { trackId: '' })],
+      ['an automation id', (raw) => Object.assign(reach(raw, ['automation', 0]), { id: '' })],
+      [
+        'a sampler bank',
+        (raw) =>
+          Object.assign(reach(raw, ['tracks', 0]), {
+            instrument: { kind: 'sampler', bank: '' },
+          }),
+      ],
+    ]
+    for (const [what, empty] of emptied) {
+      const raw = rawFixture()
+      empty(raw)
+      expect(`${what}: ${scoreSchema.safeParse(raw).success}`).toBe(`${what}: false`)
+    }
+  })
+
+  it('refuses an unknown key inside lineage', () => {
+    const raw = rawFixture()
+    raw.lineage = { label: 'a take', liminalUnknownKey: true }
+    expect(scoreSchema.safeParse(raw).success).toBe(false)
+  })
+
+  it('refuses an automation target that names both a track and the master', () => {
+    const raw = JSON.parse(stringify(sixteenBars)) as {
+      automation: { target: Record<string, unknown> }[]
+    }
+    const automation = raw.automation[0]
+    if (automation !== undefined) {
+      automation.target.master = 'gainDb'
+    }
+    expect(scoreSchema.safeParse(raw).success).toBe(false)
+  })
+
+  it('refuses NaN and Infinity, which JSON cannot carry either', () => {
+    const raw = JSON.parse(stringify(sixteenBars)) as { tempo: { bpm: number } }
+    raw.tempo.bpm = Number.NaN
+    expect(scoreSchema.safeParse(raw).success).toBe(false)
+    raw.tempo.bpm = Number.POSITIVE_INFINITY
+    expect(scoreSchema.safeParse(raw).success).toBe(false)
+  })
+
+  it('refuses a version it does not know', () => {
+    const raw = JSON.parse(stringify(sixteenBars)) as { version: number }
+    raw.version = 2
+    expect(scoreSchema.safeParse(raw).success).toBe(false)
+  })
+
+  it('refuses a beat unit other than the quarter note in v1', () => {
+    const raw = JSON.parse(stringify(sixteenBars)) as { meter: { beatUnit: number } }
+    raw.meter.beatUnit = 8
+    expect(scoreSchema.safeParse(raw).success).toBe(false)
+  })
+})
