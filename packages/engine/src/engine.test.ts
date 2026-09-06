@@ -568,6 +568,29 @@ describe('the engine restarted after the tail', () => {
     engine.dispose()
   })
 
+  it('does not rewind for a tail the play() in the same batch cancelled', async () => {
+    const score = twoBars()
+    const tail = scoreReleaseTailSeconds(score)
+    const { engine, context, render } = await offlineEngine(
+      score,
+      scoreSeconds(score) * 2 + tail * 2 + 0.5,
+    )
+    let ended = 0
+    engine.on('ended', () => {
+      ended += 1
+      if (ended === 1) {
+        context.setTimeout(() => {
+          engine.play()
+        }, tail - 0.002)
+      }
+    })
+    engine.play()
+    await render()
+    expect(ended).toBe(2)
+    expect(engine.triggeredNoteCount()).toBe(noteCount(score) * 2)
+    engine.dispose()
+  })
+
   it('does not let a restart armed before a stop reach the session after it', async () => {
     const score = twoBars()
     const { engine, render } = await offlineEngine(

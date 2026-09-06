@@ -259,6 +259,9 @@ async function buildEngine(options: EngineOptions, built: Built): Promise<Engine
       }
       state = 'ringing'
       defer(releaseTailSeconds, () => {
+        if (state !== 'ringing') {
+          return
+        }
         state = 'idle'
         rewind()
       })
@@ -275,6 +278,9 @@ async function buildEngine(options: EngineOptions, built: Built): Promise<Engine
       if (state === 'ringing') {
         state = 'playing'
         defer(0, () => {
+          if (state !== 'playing') {
+            return
+          }
           rewind()
           if (endId === undefined) {
             armEnd()
