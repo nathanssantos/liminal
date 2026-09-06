@@ -151,6 +151,12 @@
   caller's `AudioContext` must not dispose the wrapper — it would close the caller's device. The
   wrapper's ticker is the price of accepting a raw context; the caller closes what the caller
   opened. (measured 2026-09-06, `cancelAnimationFrame is not defined` from Tone's Draw on close)
+- 🔴 **A test that opens the audio device must be silent by default.** A timing test that plays
+  through the speakers runs on every `pnpm check`, on the owner's machine, in the middle of
+  something else — and worse, a review agent's mutation run replays it dozens of times from a
+  worktree pinned to an older commit, where the fix does not reach. The master goes to -60 dB in
+  the test; making sound is the job of `play:fixture`, which a human starts on purpose.
+  (measured 2026-09-06)
 - ⚠️ **`AudioWorklet` in `node-web-audio-api` runs synchronously**, with no thread of its own. Do
   not measure worklet latency in Node and call it product latency. (measured: docs)
 - ⚠️ **Determinism is per implementation.** Chromium × Node do not yield the same bytes. Compare
