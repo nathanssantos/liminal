@@ -360,3 +360,20 @@ def test_a_finding_the_gate_would_read_by_key_is_refused_without_it(tmp_path: Pa
         del finding[missing]
         with pytest.raises(ValueError, match=missing):
             record(root, "M1-02", [finding])
+
+
+def test_a_malformed_findings_file_comes_back_as_an_error_rather_than_a_traceback(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    root = repo_with_commit(tmp_path, "a.txt", "one")
+    given = root / "findings.json"
+    given.write_text(json.dumps([{"severity": "Blocking"}]), encoding="utf-8")
+    here = Path.cwd()
+    try:
+        os.chdir(root)
+        code = main(["--card", "M1-02", "--findings", str(given)])
+    finally:
+        os.chdir(here)
+
+    assert code == 1
+    assert "severity" in json.loads(capsys.readouterr().out)["error"]

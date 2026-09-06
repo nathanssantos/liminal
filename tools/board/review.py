@@ -206,7 +206,7 @@ def refuse_malformed(findings: list[dict[str, Any]]) -> None:
                 raise ValueError(f"a finding's {field} is one of {allowed}, not {given!r}")
         for field in REQUIRED:
             if finding.get(field) in (None, ""):
-                raise ValueError(f"a finding carries an {field}; the gate reads it")
+                raise ValueError(f"a finding carries its {field}; the gate reads it")
 
 
 def record_findings(root: Path, card: str, findings: list[dict[str, Any]]) -> dict[str, Any]:
