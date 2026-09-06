@@ -342,6 +342,12 @@
   It is upstream behaviour, not ours; the story gate names it as such rather than pretending it is
   absent. Every future Radix component with a portal will report the same. (measured 2026-09-06,
   axe-core 4.13 in Chromium)
+- 🔴 **A measurement that matches the code proves nothing about the design.** M1-07's brief said the
+  deck bar's contents align to the content column's edges at 1920; the shell only ever set
+  `padding-inline`, so the transport sat at x=32 while the column started at x=360. The evidence
+  recorded that pair of numbers, two reviewers read it, and nobody compared it to the sentence that
+  asked for it — because the number agreed with the CSS that had been written. **Read the criterion,
+  then the number, in that order.** (found 2026-09-06, while replanning M1-04 on the same shell)
 - ⚠️ **A gate that walks the tree must assert it walked something.** The loose-value scan globbed
   from `process.cwd()`, so from any other directory it returned an empty list and the gate passed
   green over zero files. It resolves from its own module now and asserts a file count first.

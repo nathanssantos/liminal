@@ -19,4 +19,5 @@ CLAUDE.local.md
 playwright-report/
 test-results/
 storybook-static/
+.playwright-mcp/
 evidence/_gates/

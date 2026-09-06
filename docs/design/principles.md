@@ -9,6 +9,12 @@
 is alive (the beat, the current section, the thing you can act on). Light theme available and
 equally cared for. Nothing decorative: every element either informs or can be acted on.
 
+**Dark always, until the person chooses otherwise.** The app opens dark whatever the machine
+prefers, and switches only when someone asks for light. The system preference does not decide:
+this is a booth, and a listener who has never opened the settings should not get a white screen
+because their laptop is in day mode. The choice is carried by `data-theme` on the root and
+remembered per machine; with no choice recorded, dark. (decided 2026-09-06, applied from M1-04)
+
 **Calm in motion.** The set never stops; the UI breathes with it — a bar tick, a handover progress,
 an energy curve advancing — but never jitters. Motion follows the music's clock, not the mouse.
 
@@ -29,7 +35,8 @@ The first screen (F1) shows 1 and 2 with an example set ready to play. Nothing e
 ## Tokens — roles, not values
 
 Colour by role: `surface`, `surface-2`, `ink`, `muted`, `line`, `accent` (the beat, the actionable),
-`accent-ink`, `signal-ok`, `signal-warn`, `signal-error`. Both themes define every role. Contrast
+`accent-ink`, `signal-ok`, `signal-warn`, `signal-error`. Both themes define every role, and the
+dark one is what an app with no recorded choice shows. Contrast
 ≥ 4.5:1 for text, ≥ 3:1 for large text and UI edges — measured.
 
 Six more roles came with the first components (M1-07), each because no role above does its job:

@@ -63,6 +63,37 @@ describe('Transport', () => {
     expect(handlers.onPlay).not.toHaveBeenCalled()
   })
 
+  it('keeps offering play, disabled with a reason, when the set cannot be paused', async () => {
+    const handlers = setup('playing', {
+      canPause: false,
+      disabledReason: 'This set can only be stopped, not paused.',
+    })
+    expect(screen.queryByRole('button', { name: 'Pause' })).not.toBeInTheDocument()
+    const play = screen.getByRole('button', { name: 'Play' })
+    expect(play).toBeDisabled()
+    expect(play).toHaveAccessibleDescription('This set can only be stopped, not paused.')
+    await userEvent.click(play)
+    expect(handlers.onPause).not.toHaveBeenCalled()
+    expect(handlers.onPlay).not.toHaveBeenCalled()
+    expect(screen.getByRole('button', { name: 'Stop' })).toBeEnabled()
+  })
+
+  it('hands the play button back to a consumer that must focus it', () => {
+    const play = { current: null as HTMLButtonElement | null }
+    render(
+      <Transport
+        state="stopped"
+        playRef={play}
+        onPlay={() => {}}
+        onPause={() => {}}
+        onStop={() => {}}
+      />,
+    )
+    expect(play.current).toBe(screen.getByRole('button', { name: 'Play' }))
+    play.current?.focus()
+    expect(screen.getByRole('button', { name: 'Play' })).toHaveFocus()
+  })
+
   it('swallows activation while starting', async () => {
     const handlers = setup('starting')
     const play = screen.getByRole('button', { name: 'Starting…' })

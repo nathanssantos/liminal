@@ -19,12 +19,14 @@ export type TransportProps = {
   onStop: () => void
   beatPulseKey?: number
   canPlay?: boolean
+  canPause?: boolean
   disabledReason?: string
   labels?: TransportLabels
   size?: TransportSize
   className?: string
   id?: string
   ref?: Ref<HTMLDivElement>
+  playRef?: Ref<HTMLButtonElement>
 }
 
 const DEFAULT_LABELS: TransportLabels = { play: 'Play', pause: 'Pause', stop: 'Stop' }
@@ -45,14 +47,18 @@ export function Transport({
   onStop,
   beatPulseKey,
   canPlay = true,
+  canPause = true,
   disabledReason,
   labels = DEFAULT_LABELS,
   size = 'lg',
   className,
   id,
   ref,
+  playRef,
 }: TransportProps) {
   const playing = state === 'playing'
+  const offersPause = playing && canPause
+  const mainDisabled = playing ? !canPause : !canPlay
   const stopDisabled = state === 'stopped'
 
   return (
@@ -64,15 +70,16 @@ export function Transport({
       data-state={state}
     >
       <Button
+        {...(playRef === undefined ? {} : { ref: playRef })}
         variant="primary"
         size={size}
-        label={playing ? labels.pause : labels.play}
-        iconStart={playing ? <PauseIcon /> : <PlayIcon />}
+        label={offersPause ? labels.pause : labels.play}
+        iconStart={offersPause ? <PauseIcon /> : <PlayIcon />}
         loading={state === 'starting'}
         busyLabel={STATE_WORD.starting}
-        disabled={!canPlay && !playing}
+        disabled={mainDisabled}
         {...(disabledReason === undefined ? {} : { disabledReason })}
-        onClick={playing ? onPause : onPlay}
+        onClick={offersPause ? onPause : onPlay}
       />
       <Button
         variant="quiet"
