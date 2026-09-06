@@ -279,6 +279,44 @@ describe('the engine schedules ahead of the clock', () => {
   })
 })
 
+describe('the engine refuses to share a transport, and stays quiet once disposed', () => {
+  const twoBars = (): Score => {
+    const score = withoutNotes(sixteenBars)
+    const section = score.sections[0]
+    if (section !== undefined) {
+      section.bars = 2
+    }
+    score.clips = score.clips.map((clip) => ({ ...clip, length: barToTick(2, score.meter) }))
+    score.automation = []
+    return score
+  }
+
+  it('refuses a second engine on one context, and lets one in again after dispose', async () => {
+    const tone = await loadTone()
+    const raw = new OfflineAudioContext(2, 48000, 48000)
+    const context = new tone.OfflineContext(raw as unknown as OfflineAudioContext)
+    const first = await createEngine({ context, score: twoBars() })
+    await expect(createEngine({ context, score: twoBars() })).rejects.toThrow(/one transport/)
+    first.dispose()
+    const second = await createEngine({ context, score: twoBars() })
+    expect(second.pendingNodeCount()).toBeGreaterThan(0)
+    second.dispose()
+  })
+
+  it('does nothing when play() is called after dispose()', async () => {
+    const score = twoBars()
+    const { engine, render } = await offlineEngine(score, barSeconds(score) * 3)
+    const seen: number[] = []
+    engine.on('bar', (event) => {
+      seen.push(event.bar)
+    })
+    engine.dispose()
+    engine.play()
+    await render()
+    expect(seen).toEqual([])
+  })
+})
+
 describe('a muted track costs nothing', () => {
   it('renders quieter with a track muted than with it playing', async () => {
     const muted = clone((draft) => {
