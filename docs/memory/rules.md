@@ -166,6 +166,11 @@
   each to under 1 s and the suite from 47 s to 9 s — with every assertion unchanged. The cost is
   the audio graph, not the test: 4 s of the fixture renders in 192 ms, and 48 ms with no notes.
   (measured 2026-09-06)
+- 🔴 **The end of the document is not the end of the sound.** Stopping the transport at the last
+  tick cuts every release still ringing, and the race between those releases and the stop drops
+  voices — measured live: 1, 18 and 91 notes lost across three runs of the same 30-second fixture,
+  and zero when the end never arrived. Offline never sees it. The transport stops a release tail
+  after the last tick; `ended` still fires at it. (measured 2026-09-06)
 - 🔴 **Opening the audio device at module scope can hang the whole suite, past any timeout.**
   `new AudioContext()` in `node-web-audio-api` is a synchronous native call; when the device is
   wedged it blocks uninterruptibly, so the file hangs on import and `timeout 90` does not kill it.

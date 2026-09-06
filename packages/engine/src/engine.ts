@@ -14,6 +14,8 @@ import { loadTone, rawContextOf, rendersOffline, wrapContext } from './tone.ts'
 
 export const DEFAULT_LOOK_AHEAD_SECONDS = 0.2
 
+export const RELEASE_TAIL_SECONDS = 1.5
+
 const ENGINES_BY_CONTEXT = new WeakSet<BaseAudioContext>()
 
 export type EngineEvent = 'bar' | 'stopped' | 'ended'
@@ -222,7 +224,7 @@ async function buildEngine(options: EngineOptions, built: Built): Promise<Engine
       }
       playing = false
       emit('ended', { bar: Math.round(totalSeconds / perBar), time })
-      transport.stop(time)
+      transport.stop(time + RELEASE_TAIL_SECONDS)
     }, totalSeconds)
   }
   armEnd()

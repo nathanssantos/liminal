@@ -1,7 +1,8 @@
 import type { Score } from '@liminal/score'
+import { barToTick } from '@liminal/score'
 import { sixteenBars } from '@liminal/score/fixtures'
 import { afterAll, describe, expect, it } from 'vitest'
-import { createEngine, DEFAULT_LOOK_AHEAD_SECONDS } from './engine.ts'
+import { createEngine, DEFAULT_LOOK_AHEAD_SECONDS, RELEASE_TAIL_SECONDS } from './engine.ts'
 import { barSeconds, ticksToSeconds } from './time.ts'
 
 const BARS_TO_HEAR = 2
@@ -119,6 +120,44 @@ describe.skipIf(context === undefined)('the wall clock drives the transport', ()
     engine.dispose()
     expect(atTheRampStartIfItWereAbsolute).toBeCloseTo(800, 0)
     expect(halfwayIfItWereAbsolute).toBeCloseTo(800, 0)
+  })
+
+  it('lets the last notes ring out instead of dropping voices at the final tick', async () => {
+    if (context === undefined) {
+      return
+    }
+    const score = silent()
+    score.tempo.bpm = 220
+    const section = score.sections[0]
+    if (section !== undefined) {
+      section.bars = 2
+    }
+    score.clips = score.clips.map((clip) => ({
+      ...clip,
+      length: barToTick(2, score.meter),
+      notes: clip.notes.filter((note) => note.at < barToTick(2, score.meter)),
+    }))
+    score.automation = []
+    let dropped = 0
+    const warn = console.warn
+    console.warn = (...given: unknown[]) => {
+      if (String(given[0]).includes('polyphony')) {
+        dropped += 1
+      }
+    }
+    const engine = await createEngine({ context, score })
+    let ended = 0
+    engine.on('ended', () => {
+      ended += 1
+    })
+    engine.play()
+    await new Promise((resolve) => {
+      setTimeout(resolve, barSeconds(score) * 2 * 1000 + RELEASE_TAIL_SECONDS * 1000 + 500)
+    })
+    engine.dispose()
+    console.warn = warn
+    expect(ended).toBe(1)
+    expect(dropped).toBe(0)
   })
 
   it('applies the lookahead a live context asks for', async () => {
