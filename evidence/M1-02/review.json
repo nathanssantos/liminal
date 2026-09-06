@@ -1,0 +1,110 @@
+{
+  "card": "M1-02",
+  "round": 6,
+  "head": "7f1a762ad183011037cebfc81a1ccfc7a5393402",
+  "reviewedHead": "7f1a762ad183011037cebfc81a1ccfc7a5393402",
+  "deepPassHead": "9e1f12135f716b137fc7132b805d75e7c28cc060",
+  "measured": [
+    "docs/architecture.md",
+    "docs/memory/measurements.md",
+    "docs/memory/rules.md",
+    "docs/specs/M1-sound/M1-02.md",
+    "packages/engine/package.json",
+    "packages/engine/src/automation.ts",
+    "packages/engine/src/effects.ts",
+    "packages/engine/src/engine.test.ts",
+    "packages/engine/src/engine.ts",
+    "packages/engine/src/graph.ts",
+    "packages/engine/src/instruments.ts",
+    "packages/engine/src/isomorphism.test.ts",
+    "packages/engine/src/time.ts",
+    "packages/engine/src/tone.ts",
+    "packages/engine/src/wall-clock.test.ts",
+    "packages/engine/tests/harness.ts",
+    "packages/engine/vitest.config.ts",
+    "packages/engine/vitest.setup.ts"
+  ],
+  "findings": [
+    {
+      "agent": "engine-reviewer",
+      "severity": "blocking",
+      "file": "packages/engine/src/engine.ts",
+      "line": 227,
+      "summary": "the transport stops inside the tick that ends the score, so every part replays its first event",
+      "status": "fixed",
+      "round": 1
+    },
+    {
+      "agent": "engine-reviewer",
+      "severity": "blocking",
+      "file": "packages/engine/src/engine.ts",
+      "line": 227,
+      "summary": "play() during the release tail leaves the engine mute forever",
+      "status": "fixed",
+      "round": 1
+    },
+    {
+      "agent": "engine-reviewer",
+      "severity": "blocking",
+      "file": "packages/engine/src/engine.test.ts",
+      "line": 81,
+      "summary": "the offline assertion pins the part guard, not the deferred stop",
+      "status": "fixed",
+      "round": 2
+    },
+    {
+      "agent": "engine-reviewer",
+      "severity": "blocking",
+      "file": "docs/memory/measurements.md",
+      "line": 21,
+      "summary": "the seventeenth bar event recorded here does not reproduce",
+      "status": "fixed",
+      "round": 2
+    },
+    {
+      "agent": "engine-reviewer",
+      "severity": "blocking",
+      "file": "packages/engine/src/engine.ts",
+      "line": 248,
+      "summary": "play() from an ended listener rewinds inside the tick",
+      "status": "fixed",
+      "round": 3
+    },
+    {
+      "agent": "engine-reviewer",
+      "severity": "blocking",
+      "file": "packages/engine/src/engine.ts",
+      "line": 261,
+      "summary": "cancelling a Tone timeout does not stop it once the batch is dispatching",
+      "status": "fixed",
+      "round": 4
+    },
+    {
+      "agent": "engine-reviewer",
+      "severity": "blocking",
+      "file": "packages/engine/src/tone.ts",
+      "line": 31,
+      "summary": "a raw context gets a fresh wrapper per engine, and the ledger cannot see it",
+      "status": "fixed",
+      "round": 5
+    },
+    {
+      "agent": "engine-reviewer",
+      "severity": "major",
+      "file": "packages/engine/src/engine.test.ts",
+      "line": 766,
+      "summary": "the pan and filter q test proves a param took the value, never which node",
+      "status": "fixed",
+      "round": 6
+    },
+    {
+      "agent": "engine-reviewer",
+      "severity": "minor",
+      "file": "packages/engine/src/engine.ts",
+      "line": 180,
+      "summary": "the Part callback is the only transport callback without a disposed guard",
+      "status": "discarded",
+      "round": 5
+    }
+  ]
+}
