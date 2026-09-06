@@ -119,8 +119,12 @@ In order, and each one may **become** the iteration:
 3. with every `depends_on` in `Done`;
 4. highest priority; tie → lowest id.
 
-One card only. If there is no `Ready` but there is `Specified` with dependencies done in the open
-milestone → promote and take it. If there is only `Backlog` in the open milestone → **spec
+One card only **in implementation**. A second card may be *opened* — read, designed, branched in
+its own worktree — while the first waits on its deep review pass or on CI: that is the pipeline's
+depth of two, and it exists because a deep pass takes tens of minutes during which the working copy
+is idle. The second card must not depend on the first; merging stays gated per card. If there is
+no `Ready` but there is `Specified` with dependencies done in the open milestone → promote and
+take it. If there is only `Backlog` in the open milestone → **spec
 iteration** (§9). If the open milestone has no card left to do → **close the milestone and open
 the next** (§7). If there is no next → **planning iteration** (§10).
 
@@ -178,11 +182,30 @@ screen with data that is not the card's; measure with `getComputedStyle`, never 
 images; the screenshot goes into the evidence table **and** is what the `ui-quality-reviewer`
 inspects. A screenshot without measurements next to it proves appearance, not alignment.
 
-### 4½ · Review
+### 4½ · Review — two passes, on a prepared worktree
 
-`/review`, with the agents of the touched areas (§5). Blocking finding → fix → re-run **only the
-agents that found it**. Limit: **3 rounds**. On the fourth: card to **`Blocked`**, a comment with
-what does not converge, PR left as draft, one line in the chat, and the loop **takes another card**.
+`/review`. Measured on M1-02: a deep reviewer cost 25.8 min and 51 tool calls **per round**, the
+test engineer 52 min, and the card went through five rounds — the review cost more than the
+implementation. The value was real (two defects only measurement finds); the waste was repeating
+the measurement from scratch every round, each agent installing its own tree.
+
+- **Prepared once per round.** `board.review --prepare` makes one detached worktree at the
+  reviewed commit with `pnpm install` done, and keeps `evidence/<id>/review.json` (round, reviewed
+  head, findings and their status). Agents work there, never in the loop's working copy — so
+  rebasing or pushing the branch never moves the ground under them.
+- **Fast pass, every round, `mode: read`, ≤ 10 min per agent, in parallel.** Diff, spec, memory,
+  tests as text. No install, build, render or long run. **Incremental after round 1:** each agent
+  gets its previous findings and `git diff <reviewedHead>...HEAD`, verifies its fixes without
+  trusting them, and reads only what changed.
+- **Deep pass, once, `mode: measure`, ≤ 30 min per agent.** When the fast pass is clean: renders,
+  instruments, reverts a fix to see the test fail, opens the screen — following the recipes in
+  `docs/memory/rules.md › review`. A deep finding is fixed and **only what the fix touches** is
+  re-measured.
+- Blocking → fix → re-run only the finders. Limit: **3 fast rounds**. On the fourth: card to
+  **`Blocked`**, a comment with what does not converge, PR left as draft, one line in the chat,
+  and the loop **takes another card**.
+- The merge gate (§6) requires the deep pass on the final head, or on a head whose diff to the
+  final one touched nothing the deep pass measured.
 
 🔴 **A screen change the spec does not describe → do not do it.** It becomes a `question` (§3.2)
 and another card.
@@ -298,7 +321,8 @@ changes shared behaviour becomes a `question`, not a decision.
 
 1. every "done when" has evidence in the PR;
 2. `pnpm check` passes at the root, with full output;
-3. no review agent with an open blocking finding;
+3. no review agent with an open blocking finding, and the deep pass done on the final head
+   (`evidence/<id>/review.json`);
 4. zero comments in the diff (`git diff origin/main...HEAD | grep -E '^\+.*(//|/\*|#)'` clean,
    except the house exceptions);
 4½. touched the renderer → screenshot per state and per width in `evidence/<id>/`, with

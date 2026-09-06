@@ -89,10 +89,17 @@ the measurements next to the screenshot (process §3.4 › Screens are proven on
 
 ## 4½ · Review (§3.4½)
 
-`/review` with the agents of the touched areas (process §5) — in parallel, one round; `docs-reviewer`
-on every code change, `usability-reviewer` when the renderer changed. Blocking →
-fix → re-run **only those who found it**. Three rounds without convergence → `blocked` + a comment
-with what does not close, PR left as draft, and **another card**.
+`/review` in two passes on a prepared worktree (`board.review --prepare`): the **fast pass** every
+round (`mode: read`, ≤ 10 min per agent, in parallel, incremental after round 1) with the agents of
+the touched areas (process §5), `docs-reviewer` on every code change, `usability-reviewer` when the
+renderer changed; then the **deep pass** once (`mode: measure`, ≤ 30 min per agent) when the fast
+pass is clean. Blocking → fix → re-run **only those who found it**. Three fast rounds without
+convergence → `Blocked` + a comment with what does not close, PR left as draft, and **another card**.
+
+**While the deep pass or CI runs, the working copy is idle: open the next independent card** in its
+own worktree (`git worktree add ../liminal-<nº> -b feat/<nº>-<slug> origin/main`) — read, design,
+branch, even implement — but never two cards in review at once, and merge each on its own gate.
+On waking with a deep pass in flight, do not ask "any news?"; advance the second card.
 
 ## 5 · Deliver (§3.5)
 
@@ -102,7 +109,8 @@ with what does not close, PR left as draft, and **another card**.
 ## 6 · Merge (§3.6)
 
 `board.deliver --merge <pr>` — merges only if all hold; card → `Done`: green CI · zero blocking ·
-every piece of evidence present · no `listening` pending · no open human thread. Missing
+deep pass done on the final head (`review.json`) · every piece of evidence present · no `listening`
+pending · no open human thread. Missing
 `listening` → the PR stays ready and the loop moves on. Missing anything else → `blocked` + comment.
 
 ## 7 · Close (§3.7)

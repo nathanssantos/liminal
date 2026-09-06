@@ -133,6 +133,28 @@
   The pinned pair is electron-vite 5.0.0 + Vite 7.3.6 + Electron 44.2.0 + `@vitejs/plugin-react`
   5.2.0. `@vitejs/plugin-react` 6 needs Vite 8 and is therefore out. (measured 2026-09-05, `npm view`)
 
+## review
+
+- 🔴 **A review that re-measures everything every round costs more than the implementation.**
+  Measured on M1-02: 25.8 min and 51 tool calls for one deep reviewer round, 52 min for the test
+  engineer, five rounds on one card. The fix: fast pass every round in read mode, deep pass once in
+  measure mode, on one prepared worktree, incrementally. (measured 2026-09-06)
+- ⚠️ **A reviewer never works in the loop's working copy.** It works on the prepared worktree at a
+  pinned commit; rebasing or pushing the branch then changes nothing under it. (rule from the same
+  card: a rebase mid-review moved the ground under an agent)
+- ⚠️ **No `pnpm install` per agent.** `board.review --prepare` installs once per head; `--scratch`
+  links `node_modules` for a throwaway copy. (measured: the install dominated each round)
+- **Recipes — what a deep pass runs per area** (grow these with every card):
+  - `engine`: `pnpm --filter engine test` (the touched files' tests, fast tempo where the spec
+    allows); one `renderOffline` of `sixteenBars` at 48 kHz; node count before/after `dispose()`;
+    revert one fix at a time and run its test.
+  - `score`: `pnpm --filter score test`; the round-trip and determinism tests; 100 generated
+    documents through `validate`.
+  - `desktop`: `pnpm --filter desktop shot <state>` at the three widths; a `getComputedStyle` read
+    over CDP; keyboard path with Playwright.
+  - `analyzer`: `uv run --directory tools pytest tests/<area>`; one `measure` on a rendered fixture;
+    a `ping` round-trip time.
+
 ## process
 
 - 🔴 **`git rebase` silently drops commits** since git 2.34. Always `--reapply-cherry-picks`, and

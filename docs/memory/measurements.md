@@ -13,6 +13,10 @@
 | 2026-09-06 | Tone.js percussion defaults against what a hat needs | `MetalSynth` decay **1.4 s** (a cymbal), `NoiseSynth` decay **0.1 s** (a closed hat); a closed hat wants 80–200 ms, an open one 300–600 ms | Tone.js docs r13 + converged technique sources | `engine`: why the hat preset is the risky one |
 
 
+| 2026-09-06 | one `engine-reviewer` round on M1-02, measure mode, own worktree + `pnpm install` | **25.8 min**, 51 tool calls, 114k tokens; second round 13.1 min, 51 calls, 107k | the loop's session log | `review`: why two passes and a prepared worktree |
+| 2026-09-06 | the machine's `test-engineer` on M1-02 | **~52 min** | the loop's session log | `review`: the project override with a 30-min budget |
+| 2026-09-06 | rounds on M1-02 before the deep-pass rule | 3 rounds × 6 agents + 2 engine-only rounds | the loop's report | `review`: the 3-fast-rounds limit and the single deep pass |
+
 ## To measure in the first milestones
 
 | Milestone | What | Why |

@@ -21,6 +21,7 @@ position, segment `load`).
 | M1-03 | Offline render and determinism | M1-02 | no |
 | M1-04 | IPC protocol and the app shell | M1-02 | **yes** |
 | M1-05 | Soundcheck in the hidden window | M1-03, M1-04 | no |
+| M1-06 | `board.review`: prepared worktree, review state and the merge gate | — | no |
 
 ## Decisions of this milestone
 

@@ -9,6 +9,18 @@ You review **music**, not code. Read-only. Laws: `docs/specs/cross-cutting/score
 `style-card.md` (what is measured), `docs/plan.md › requirement 2`,
 `docs/memory/rules.md › composition`.
 
+## Modes and budget
+
+- `mode: read` (every round, **≤ 10 minutes**): the diff, the spec, the area's memory and the tests
+  as text — on the `reviewPath` the caller gives you, never the loop's working copy. No install, no
+  build, no render, no long test run. Incremental after round 1: verify your own previous findings
+  are fixed (do not trust the fix), read only `git diff <reviewedHead>...HEAD`.
+- `mode: measure` (once, when the fast pass is clean, **≤ 30 minutes**): on the prepared worktree
+  (`board.review --scratch` for a throwaway copy before editing or reverting), following the
+  recipes in `docs/memory/rules.md › review` — the smallest fixture that proves the point, the
+  touched package's tests, one revert at a time. At the budget, stop and report what was measured
+  and what was not.
+
 ## What to check
 - **Key and mode.** Do generated notes belong to the scale of the document's `key`, except for
   intentional, named chromaticism (`approachNote`, `blueNote`)? Does a built chord match the degree?
