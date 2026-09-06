@@ -9,7 +9,9 @@
 | 2026-09-05 | versions on the npm registry | tone 15.1.22 · @strudel/core 1.2.6 · superdough 1.3.0 · tonal 6.4.3 · node-web-audio-api 2.2.0 · @tonejs/midi 2.0.28 | `npm view` | `stack.md` |
 | 2026-09-05 | tools on the machine | node 25.9.0 · ffmpeg (with `ebur128`, `astats`) · python3 with numpy and scipy · **no** librosa, yt-dlp, fluidsynth, sox | `command -v`, `find_spec` | setup: what to install |
 | 2026-09-05 | versions pinned at setup | node 24.18.0 · pnpm 11.20.0 · turbo 2.10.12 · typescript 6.0.3 · biome 2.5.12 · vitest 4.1.11 · electron 44.2.0 · electron-vite 5.0.0 · vite 7.3.6 · react 19.2.8 · tailwindcss 4.3.3 · @playwright/test 1.63.0 · ruff 0.16.6 · mypy 2.3.1 · pytest 9.1.1 | `npm view`, PyPI JSON API | `stack.md`, M0-01 to M0-04 |
-| 2026-09-06 | zod pinned for the document schema | zod 4.5.4 (`latest`; the 4.1.13-beta and 4.5.0-canary tags were not taken) | `npm view zod dist-tags` | `stack.md`, `@liminal/score` |
+| 2026-09-06 | zod pinned for the document schema | zod 4.5.4 (`latest`; the 4.1.13-beta and 4.5.0-canary tags were not taken) | `npm view zod dist-tags` | `stack.md`, `@liminal/score` || 2026-09-06 | kick pitch envelope, from a documented walkthrough | oscillator at C0, pitch decay **7.6 ms**, amp decay **720 ms**; fast pitch decay reads clicky, slow reads thumpy | Sound on Sound, Dec 2016 | `engine`: the kick preset |
+| 2026-09-06 | Tone.js percussion defaults against what a hat needs | `MetalSynth` decay **1.4 s** (a cymbal), `NoiseSynth` decay **0.1 s** (a closed hat); a closed hat wants 80–200 ms, an open one 300–600 ms | Tone.js docs r13 + converged technique sources | `engine`: why the hat preset is the risky one |
+
 
 ## To measure in the first milestones
 

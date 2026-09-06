@@ -14,7 +14,7 @@
 | R05 | Harmonic mixing in DJ practice | Camelot wheel usage, energy-boost mixes, when key clashes are accepted | M4 | open |
 | R06 | Transitions in DJ sets | filter sweeps, EQ swaps, loop rolls, drum bridges — lengths in bars, when each is used | M4 | open |
 | R07 | Loudness and mastering targets for club and streaming | LUFS, crest factor, sub management | M3 | open |
-| R08 | Synthesis recipes for staple sounds | kick, sub, hat, pluck, pad, acid — parameters reproducible in Tone.js | M1–M3 | open |
+| R08 | Synthesis recipes for staple sounds | kick, sub, hat, pluck, pad, acid — parameters reproducible in Tone.js | M1–M3 | covered — [2026-09-06-synthesis-recipes.md](2026-09-06-synthesis-recipes.md), refresh by 2027-03 |
 | R09 | How AI is used in electronic music production today | tools, workflows, what producers adopt and reject, legal constraints (training data, licensing) | M4–M5 | open |
 | R10 | Generative and endless-music products | who ships "infinite music", how users react, what they pay for, what fails | M5 | open |
 | R11 | Beat tracking and key detection: state of the art and known failure modes | which algorithms, accuracy on electronic music, half/double handling | M2 | open |

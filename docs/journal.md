@@ -20,3 +20,4 @@
 | 2026-09-05 | (M0 close) | milestone gate proven, v0.0.0 released, M1 opened | — |
 | 2026-09-06 | (repair) | commit identity: CI commits as github-actions[bot] (#29, #31); main rewritten to remove the invented identity from 14 commits, tag v0.0.0 moved, feat/11 rebased; rule recorded | main rewrite needs the loop paused and the protection relaxed for seconds |
 | 2026-09-06 | M1-01 | @liminal/score: schema, E1–E9 and W1–W4, tick math, PRNG, stringify/parse, the sixteenBars fixture and its committed bytes | the card asked for 7/8 while the document pins beatUnit 4; review found NaN and fractional beatsPerBar passing validate |
+| 2026-09-06 | (research R08) | synthesis recipes: the kick pitch envelope has a citable number, the hat default is a cymbal decay, and the bass ducks itself through note length rather than a compressor | levels have no citable source; that belongs to R07 |
