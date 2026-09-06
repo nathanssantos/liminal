@@ -4,11 +4,12 @@
 [![license](https://img.shields.io/badge/license-MIT-black)](LICENSE)
 [![board](https://img.shields.io/badge/board-open-black)](https://github.com/users/nathanssantos/projects/9)
 
-**A platform for generating and steering music. Its first product is an endless set.**
+**A platform for automated music production and live steering — music you can hand a song to.**
 
-You paste a YouTube link as a reference, write what you want, press play — and the set plays until
-you tell it to stop, answering what you ask mid-set. Paste another link while it plays and the set
-travels there, without a cut.
+Give it music — a YouTube link now; a file or a melody later — and it plays it back as electronic
+music: as a **track** you can rework down to every layer, or as an **endless set** that travels
+from one reference to the next with transitions that make sense. Say what you want in words. See
+every layer that plays and change any of it. Hear where the set is going before it gets there.
 
 Desktop app (Electron). The LLM plans; a deterministic engine plays. **The LLM is never in the
 audio path.**
@@ -21,8 +22,11 @@ audio path.**
 | the model is deaf | the reference becomes numbers, and every section is rendered and measured before it is heard |
 | latency is fought instead of designed around | the engine holds the beat alone; the model plans a phrase ahead, and a missed answer changes nothing |
 
-The score, the transforms, the generators, the style cards, the brains and the engine are
-platform primitives. The endless set is what they were built for first.
+The score, the transforms, the generators, the style and content cards, the brains and the engine
+are platform primitives. The products on them: the **endless set** (first), the **production** of a
+track from a brief and a reference, and the **rework** of any music into electronic (under
+exploration). The proposal itself evolves — the bets and the candidate uses are in
+[docs/product/bets.md](docs/product/bets.md).
 
 ## Status
 
@@ -51,7 +55,7 @@ pnpm --filter desktop dev      # opens the window
 | [docs/architecture.md](docs/architecture.md) | processes, packages and boundaries, what proves what |
 | [docs/stack.md](docs/stack.md) | every choice, with the discarded alternative |
 | [docs/process.md](docs/process.md) | how the work moves: board, iteration, agents, memory |
-| [docs/product/](docs/product/) | who it is for, how it is positioned, what good use looks like |
+| [docs/product/](docs/product/) | who it is for, the bets, what must exist (controls, completeness), how people use it (scenarios) |
 | [docs/design/](docs/design/) | the visual and interaction language |
 | [docs/specs/](docs/specs/) | the specs, per milestone and cross-cutting |
 | [docs/memory/](docs/memory/) | learned rules, recorded decisions, measurements |
