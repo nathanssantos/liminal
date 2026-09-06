@@ -277,6 +277,12 @@
   Measured on M1-02: 25.8 min and 51 tool calls for one deep reviewer round, 52 min for the test
   engineer, five rounds on one card. The fix: fast pass every round in read mode, deep pass once in
   measure mode, on one prepared worktree, incrementally. (measured 2026-09-06)
+- 🔴 **A file cannot record the hash of the commit that carries it.** Writing the head into
+  `review.json` and then amending the commit leaves the file naming a hash that exists on no branch,
+  and the merge gate then claims a review nobody can check out. `--round-done` records the head as
+  it stands when the round ends, which is a real commit; the record of that round travels in the
+  *next* commit, and the gate's "diff since the deep pass touches nothing measured" rule is what
+  covers the gap. (measured 2026-09-06)
 - ⚠️ **A reviewer never works in the loop's working copy.** It works on the prepared worktree at a
   pinned commit; rebasing or pushing the branch then changes nothing under it. (rule from the same
   card: a rebase mid-review moved the ground under an agent)
