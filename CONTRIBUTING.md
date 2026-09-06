@@ -1,6 +1,8 @@
 # Contributing
 
-liminal is a platform for generating and steering music; the endless set is its first product.
+liminal is a platform for automated music production and live steering — any music played back as
+electronic, as a track you can rework down to every layer or as an endless set that flows between
+references; the endless set ships first.
 It is built by an autonomous loop with a human steering it, and the whole way of working is
 written down. This page is that process in one read.
 

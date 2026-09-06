@@ -27,3 +27,4 @@
 | 2026-09-06 | (planning) | bet B05 recorded: any music reworked as electronic, alone or as a set — content card sketch in style-card.md, idiom arrangement, spikes and rights constraint in bets.md; plan direction and strategy audience; research R22–R25 | — |
 | 2026-09-06 | (planning) | the layer map: see every playing layer and change any aspect (controls.md section, flow F8, completeness row, design control, M4-08/M5-04b, two-clocks planned inputs, scenarios); rights wording on B05 relaxed — the app reworks, the use is the person's | — |
 | 2026-09-06 | (planning) | the timeline as a DJ deck: overview + waveform detail with beat/bar grid, band colours, phrase markers (controls.md, design principles, M5-01, flow F4); research R26 on DJ app timelines required before the brief | — |
+| 2026-09-06 | (planning) | the proposal as it stands now, everywhere it is described: README, AGENTS.md, CONTRIBUTING, package.json, the GitHub description, the process page | — |

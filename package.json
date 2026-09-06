@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "An endless, AI-generated set that makes sense",
+  "description": "A platform for automated music production and live steering \u2014 any music, played back as electronic, as a track or an endless set",
   "license": "MIT",
   "packageManager": "pnpm@11.20.0",
   "engines": {
