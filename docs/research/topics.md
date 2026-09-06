@@ -24,6 +24,8 @@
 | R15 | UI patterns of DJ and music apps | timelines, energy displays, transport, what first-time users understand | M5 | open |
 | R16 | Other genres: what synthesis alone cannot do | jazz, orchestral, hip-hop — where samples are mandatory | after M5 | open |
 | R26 | DJ app timelines and waveforms — Rekordbox, Serato, Traktor, djay, Mixxx (open source) | what the deck shows (overview vs zoomed waveform, beat grid, phrase markers, band-coloured waveforms, cue and loop marks, key and tempo readouts), what people read at a glance, what they never use, and how it adapts when the future is a rendered plan rather than a file; Mixxx as an implementation reference | M5-01, before the timeline brief | open |
+| R27 | How breaks and builds are constructed in techno, house, trance and drum and bass | the elements (kick out, filter, riser, roll, the gap), their lengths in bars, what separates a great break from a boring one, measured from real tracks where possible | M3 templates; `craft/arrangement.md` | open |
+| R28 | Bridging distant keys and tempos in a real mix | pedal tones, common tones, drum bridges, half-time tricks, modulation through breaks — what DJs and producers actually do, with examples | M4 handovers; `craft/harmony.md`, `craft/mixing.md` | open |
 | R22 | Melody transcription from real recordings | which models and tools work today on a full mix, on stems, on an isolated line; note accuracy; runtime on a laptop; licences | B05 spike | open |
 | R23 | Chord recognition and structure from audio | accuracy per bar on electronic and non-electronic music; which tools; what confidence they expose | B05 spike | open |
 | R24 | How music tools word the notice on reworks and exports, if at all | what DAWs and remix tools say (or do not) where a person exports a rework; only to decide whether a one-line notice is customary — the responsibility is the person's, as with any DAW | B05, low priority | open |
@@ -33,6 +35,9 @@
 | R19 | What DJs and listeners actually touch during a set | which controls get used and how often (volume, filter, EQ kills, loops, cue), what first-timers reach for, what is never used | M4–M5 | open |
 | R18 | AI song and track generators (prompt → audio) | what producers use them for, what they export, what they miss (editability, stems, MIDI), licensing and training-data constraints | M3–M5 | open |
 | R17 | How DJs travel between subgenres and tempos in one set | tempo ramps vs. half-time tricks, key paths, how many tracks a 124→140 journey takes, what listeners accept | M4 | open |
+
+A brief on a craft topic (R02, R05, R06, R07, R14, R25, R27, R28) is not done until its findings
+are entries in `docs/craft/` — new ones, or a status change (`assumed` → `advised`) with the source.
 
 Adding a topic: a row here, by PR, with the question phrased so a brief can answer it. Owner
 requests come as `research` issues and get a row when picked.

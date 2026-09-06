@@ -625,6 +625,7 @@ Every PR leaves the repo's documentation **true**. The rule is not "update the d
 | `docs/specs/**` | a criterion changed in implementation |
 | `docs/process.md`, `.claude/skills/**`, `.claude/agents/**` | the way of working changed |
 | `docs/product/**` | audience, positioning, flows, measures changed |
+| `docs/craft/**` | a craft entry became code (status → `enforced`, cite the test), a brief backed or contradicted one, a new technique was learned |
 | `docs/design/**` | a screen, a component, a token, an interaction changed |
 | `docs/memory/**` | something was learned, decided or measured |
 | `AGENTS.md › Commands`, `CLAUDE.md` | a script or a target changed |

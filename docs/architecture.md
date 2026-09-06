@@ -145,6 +145,15 @@ The brain receives **context** (target card, standing prompts, live prompts, acc
 feedback, set state, motif bank, recent measurements) and returns a **structured plan** validated
 by Zod. Invalid plan = fallback, never an exception in the loop.
 
+**The craft.** What the brain knows as a DJ and a producer is written in
+[`docs/craft/`](craft/README.md) — mixing, arrangement, harmony, sound, mistakes. A build step
+compiles the book into the `claude` brain's **system prompt** (stable, so it stays cached in the
+persistent session); the plan schema **forces the craft into the answer**: every transition names
+its kind, bars and reason; every key change names its path; every break names its construction;
+every plan passes the `mistakes.md` list before it is returned. The `enforced` entries of the book
+are the `rules` brain and the conductor's controllers, with tests; the set log carries the craft
+metrics (`craft/mixing.md › Metrics`) that the M4 gate reads.
+
 Every call has a **deadline**: the time until the horizon. Past it, the result is discarded and
 the rules carry on.
 

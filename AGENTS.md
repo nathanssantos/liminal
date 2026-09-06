@@ -29,6 +29,8 @@ versioned file.
    who it is for, what good looks like, what must exist, what a person expects, how they use it;
    `docs/design/principles.md` — the visual and interaction language; `docs/research/` — what the
    loop has learned about the domain.
+3¾. `docs/craft/` — what the brain knows as a DJ and a producer; read it whole before any card in
+   `composition`, `brain` or `conductor`, and keep it true (§16).
 4. `docs/memory/rules.md` — the section of the area you will touch. Then the ADRs in
    `docs/memory/decisions/` that cite that area, and `docs/memory/measurements.md`.
 5. The card's spec: `docs/specs/<milestone>/<id>.md`. No spec, no card.

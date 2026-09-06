@@ -44,6 +44,13 @@ liminal** (concrete: a parameter, a preset, a generator rule, a UI pattern, a ri
 Rules: never name a person as source of a decision; no copied text beyond short quotes with
 attribution; English; measured × assumed marked.
 
+## 2½ · Craft topics end in the craft book
+
+A brief on mixing, arrangement, harmony, sound or the craft of the edit (R02, R05, R06, R07,
+R14, R25, R27, R28) is not done until its findings are in `docs/craft/`: new entries with the
+brief as source, or status changes (`assumed` → `advised`) — and, when a finding is worth a test,
+an `idea` for the card that makes it `enforced`. The `music-reviewer` checks the brief's PR.
+
 ## 3 · Turn implications into work
 
 - Each idea worth pursuing → an issue labelled `idea` + `research`, linking the brief, one line of

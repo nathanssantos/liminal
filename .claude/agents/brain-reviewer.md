@@ -36,7 +36,11 @@ You review **the head**. Read-only. Laws: ADR-0004, `docs/specs/cross-cutting/tw
   state, motifs, recent measurements. Anything missing or redundant? Size controlled (summary, not
   the whole history)?
 - **Prompt.** No person's name; asks for a **plan**, not notes; asks for a short justification that
-  goes into the log; states what is forbidden (changing what is `committed`).
+  goes into the log; states what is forbidden (changing what is `committed`). **The craft book is
+  compiled into it** (`docs/craft/`, by a build step, not pasted by hand) and the plan schema
+  forces the craft: transition kind + bars + reason, key path, break construction, and the
+  `mistakes.md` self-check before returning. A prompt without the book, or a schema that lets a
+  transition go unnamed → blocking.
 - **Secrets.** No key in code; the credential is Claude Code's; no token in logs.
 - **Cost.** Tokens per decision recorded? A call in a tight loop?
 - **Preference.** "More of this/less of this" accumulated as a vector, with decay? Enters the
