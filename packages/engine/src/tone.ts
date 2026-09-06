@@ -22,14 +22,18 @@ export function loadTone(): Promise<Tone> {
   return pending
 }
 
-export function wrapContext(tone: Tone, context: EngineContext): ToneContext {
+export type Wrapped = { context: ToneContext; owned: boolean }
+
+export function wrapContext(tone: Tone, context: EngineContext): Wrapped {
   if (isToneContext(context)) {
-    return context
+    return { context, owned: false }
   }
-  const rendersOffline = typeof (context as OfflineAudioContext).startRendering === 'function'
-  return rendersOffline
-    ? new tone.OfflineContext(context as OfflineAudioContext)
-    : new tone.Context({ context: context as AudioContext, clockSource: 'timeout' })
+  return {
+    context: rendersOffline(context)
+      ? new tone.OfflineContext(context as OfflineAudioContext)
+      : new tone.Context({ context: context as AudioContext, clockSource: 'timeout' }),
+    owned: true,
+  }
 }
 
 export function rendersOffline(context: EngineContext): boolean {

@@ -1,9 +1,11 @@
 import { sixteenBars } from '@liminal/score/fixtures'
 import { afterAll, describe, expect, it } from 'vitest'
-import { createEngine } from './engine.ts'
+import { createEngine, DEFAULT_LOOK_AHEAD_SECONDS } from './engine.ts'
 import { barSeconds } from './time.ts'
 
 const BARS_TO_HEAR = 2
+
+const AGE_SECONDS = 3
 
 const openContext = (): AudioContext | undefined => {
   try {
@@ -14,6 +16,12 @@ const openContext = (): AudioContext | undefined => {
 }
 
 const context = openContext()
+
+if (context === undefined) {
+  process.stdout.write(
+    'no audio output device: the wall-clock tests are skipped, and the real clock is unproven here\n',
+  )
+}
 
 describe.skipIf(context === undefined)('the wall clock drives the transport', () => {
   afterAll(async () => {
@@ -37,8 +45,63 @@ describe.skipIf(context === undefined)('the wall clock drives the transport', ()
     })
     engine.stop()
     engine.dispose()
-    expect(seen.length).toBeGreaterThanOrEqual(BARS_TO_HEAR)
-    expect(seen).toEqual([...seen].toSorted((left, right) => left - right))
+    expect(seen.slice(0, BARS_TO_HEAR)).toEqual(
+      Array.from({ length: BARS_TO_HEAR }, (_, index) => index),
+    )
+    expect(seen.length).toBeLessThanOrEqual(BARS_TO_HEAR + 1)
+  })
+
+  it('numbers the bars from the transport, not from a context that is already old', async () => {
+    if (context === undefined) {
+      return
+    }
+    await new Promise((resolve) => {
+      setTimeout(resolve, AGE_SECONDS * 1000)
+    })
+    const engine = await createEngine({ context, score: sixteenBars })
+    const seen: number[] = []
+    let positionAtFirstBar: number | undefined
+    engine.on('bar', (event) => {
+      if (event !== undefined) {
+        seen.push(event.bar)
+        positionAtFirstBar ??= engine.position().bar
+      }
+    })
+    engine.play()
+    await new Promise((resolve) => {
+      setTimeout(resolve, barSeconds(sixteenBars) * 1000 + 200)
+    })
+    engine.stop()
+    engine.dispose()
     expect(seen[0]).toBe(0)
+    expect(positionAtFirstBar).toBe(0)
+  })
+
+  it('leaves the automation where the document puts it, however old the context is', async () => {
+    if (context === undefined) {
+      return
+    }
+    const automationId = sixteenBars.automation[0]?.id ?? ''
+    const engine = await createEngine({ context, score: sixteenBars })
+    engine.play()
+    await new Promise((resolve) => {
+      setTimeout(resolve, 300)
+    })
+    const early = engine.automationValueAt(automationId, context.currentTime)
+    engine.stop()
+    engine.dispose()
+    expect(early).toBeCloseTo(800, 0)
+  })
+
+  it('applies the lookahead a live context asks for', async () => {
+    if (context === undefined) {
+      return
+    }
+    const engine = await createEngine({ context, score: sixteenBars, lookAheadSeconds: 0.05 })
+    expect(engine.lookAhead()).toBeCloseTo(0.05, 5)
+    engine.dispose()
+    const byDefault = await createEngine({ context, score: sixteenBars })
+    expect(byDefault.lookAhead()).toBeCloseTo(DEFAULT_LOOK_AHEAD_SECONDS, 5)
+    byDefault.dispose()
   })
 })

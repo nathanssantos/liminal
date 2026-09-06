@@ -1,5 +1,5 @@
 import type { Score } from '@liminal/score'
-import { barToTick } from '@liminal/score'
+import { barToTick, scoreLengthTicks } from '@liminal/score'
 import { sixteenBars } from '@liminal/score/fixtures'
 import { beforeAll, describe, expect, it } from 'vitest'
 import { offlineEngine, peakOf } from '../tests/harness.ts'
@@ -19,6 +19,7 @@ describe('the engine plays the fixture', () => {
   let peak = 0
   let pendingBefore = 0
   let pendingAfter = 0
+  let disposedCount = 0
 
   beforeAll(async () => {
     const { engine, render } = await offlineEngine(sixteenBars)
@@ -35,6 +36,7 @@ describe('the engine plays the fixture', () => {
     pendingBefore = engine.pendingNodeCount()
     engine.dispose()
     pendingAfter = engine.pendingNodeCount()
+    disposedCount = engine.disposedNodeCount()
   })
 
   it('emits 16 bar events with bar 0 to 15 in order, and ended at the end', () => {
@@ -50,6 +52,7 @@ describe('the engine plays the fixture', () => {
   it('dispose() leaves the context with no engine node', () => {
     expect(pendingBefore).toBeGreaterThan(0)
     expect(pendingAfter).toBe(0)
+    expect(disposedCount).toBe(pendingBefore)
   })
 })
 
@@ -97,20 +100,45 @@ describe('the engine follows the automation the document carries', () => {
   const startSeconds = ticksToSeconds(barToTick(8, sixteenBars.meter), sixteenBars.tempo.bpm)
   const endSeconds = ticksToSeconds(barToTick(16, sixteenBars.meter), sixteenBars.tempo.bpm)
 
-  it('holds the first point value at the tick of bar 8', async () => {
-    const { engine } = await offlineEngine(sixteenBars, 1)
-    expect(engine.automationValueAt(automationId, startSeconds)).toBeCloseTo(800, 0)
+  const played = async (score: Score) => {
+    const { engine, render } = await offlineEngine(score)
+    engine.play()
+    await render()
+    return engine
+  }
+
+  it('holds the first point value at the tick of bar 8, not the static one', async () => {
+    const score = clone((draft) => {
+      const point = draft.automation[0]?.points[0]
+      if (point !== undefined) {
+        point.value = 2000
+      }
+    })
+    const engine = await played(score)
+    expect(engine.automationValueAt(automationId, startSeconds)).toBeCloseTo(2000, 0)
+    engine.dispose()
+  })
+
+  it('holds the static value until the first point, rather than ramping from bar 0', async () => {
+    const score = clone((draft) => {
+      const point = draft.automation[0]?.points[0]
+      if (point !== undefined) {
+        point.value = 2000
+      }
+    })
+    const engine = await played(score)
+    expect(engine.automationValueAt(automationId, startSeconds / 2)).toBeCloseTo(800, 0)
     engine.dispose()
   })
 
   it('reaches the last point value at the end of the ramp', async () => {
-    const { engine } = await offlineEngine(sixteenBars, 1)
+    const engine = await played(sixteenBars)
     expect(engine.automationValueAt(automationId, endSeconds)).toBeCloseTo(8000, 0)
     engine.dispose()
   })
 
   it('is on the way up in the middle of the ramp, not still at the start', async () => {
-    const { engine } = await offlineEngine(sixteenBars, 1)
+    const engine = await played(sixteenBars)
     const middle = engine.automationValueAt(automationId, (startSeconds + endSeconds) / 2)
     expect(middle).toBeGreaterThan(800)
     expect(middle).toBeLessThan(8000)
@@ -128,8 +156,10 @@ describe('the engine follows the automation the document carries', () => {
   })
 
   it('accepts a point that lands exactly on the end of the score', async () => {
-    const { engine } = await offlineEngine(sixteenBars, 1)
-    expect(engine.downgradedCurves()).toEqual([])
+    const last = sixteenBars.automation[0]?.points.at(-1)
+    expect(last?.at).toBe(scoreLengthTicks(sixteenBars))
+    const engine = await played(sixteenBars)
+    expect(engine.automationValueAt(automationId, endSeconds)).toBeCloseTo(8000, 0)
     engine.dispose()
   })
 
@@ -224,6 +254,14 @@ describe('the engine refuses what it cannot play', () => {
   })
 })
 
+describe('the engine schedules ahead of the clock', () => {
+  it('uses the lookahead it was given, and the default when it was given none', async () => {
+    const { engine } = await offlineEngine(sixteenBars, 1)
+    expect(engine.lookAhead()).toBe(0)
+    engine.dispose()
+  })
+})
+
 describe('a muted track costs nothing', () => {
   it('renders quieter with a track muted than with it playing', async () => {
     const muted = clone((draft) => {
@@ -241,5 +279,65 @@ describe('a muted track costs nothing', () => {
     const quiet = peakOf(await after.render())
     after.engine.dispose()
     expect(quiet).toBeLessThan(loud)
+  })
+})
+
+describe('the engine refuses a parameter it cannot honour', () => {
+  const withInstrument = (preset: 'pad-fm' | 'lead-am' | 'kick', params: Record<string, number>) =>
+    clone((draft) => {
+      const track = draft.tracks[0]
+      if (track !== undefined) {
+        track.instrument = { kind: 'synth', preset, params }
+      }
+    })
+
+  it('applies a signal-valued parameter without replacing the node it lives on', async () => {
+    const { engine } = await offlineEngine(withInstrument('pad-fm', { modulationIndex: 6 }), 1)
+    const before = engine.pendingNodeCount()
+    engine.dispose()
+    expect(engine.pendingNodeCount()).toBe(0)
+    expect(engine.disposedNodeCount()).toBe(before)
+  })
+
+  it('applies a read-only signal rather than dropping it in silence', async () => {
+    const { engine } = await offlineEngine(withInstrument('lead-am', { harmonicity: 2 }), 1)
+    expect(engine.pendingNodeCount()).toBeGreaterThan(0)
+    engine.dispose()
+  })
+
+  it('refuses a parameter outside the range the preset accepts', async () => {
+    await expect(offlineEngine(withInstrument('kick', { octaves: 1e9 }), 1)).rejects.toThrow(
+      /between 0 and 12/,
+    )
+  })
+
+  it('refuses an effect parameter outside its range', async () => {
+    const score = clone((draft) => {
+      const track = draft.tracks[3]
+      if (track !== undefined) {
+        track.fx = [{ kind: 'filter', params: { cutoff: 800, q: -50 } }]
+      }
+    })
+    await expect(offlineEngine(score, 1)).rejects.toThrow(/between 0.0001 and 100/)
+  })
+
+  it('refuses a preset name that only the object prototype answers to', async () => {
+    const score = clone((draft) => {
+      const track = draft.tracks[0]
+      if (track !== undefined) {
+        Object.assign(track.instrument, { preset: 'toString' })
+      }
+    })
+    await expect(offlineEngine(score, 1)).rejects.toThrow(/no voice is registered/)
+  })
+
+  it('disposes what it already built when the build fails halfway', async () => {
+    const score = clone((draft) => {
+      const track = draft.tracks[3]
+      if (track !== undefined) {
+        track.fx = [{ kind: 'filter', params: { wobble: 1 } }]
+      }
+    })
+    await expect(offlineEngine(score, 1)).rejects.toThrow(/wobble/)
   })
 })

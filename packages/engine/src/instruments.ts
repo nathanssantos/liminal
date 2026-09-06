@@ -150,16 +150,44 @@ const BUILDERS = {
     ),
 } satisfies Record<SynthPreset, Build>
 
-const PARAMS: Record<SynthPreset, readonly string[]> = {
-  kick: ['pitchDecay', 'octaves'],
-  hat: ['harmonicity', 'resonance', 'octaves'],
-  clap: [],
-  'bass-mono': ['portamento'],
-  'sub-sine': ['portamento'],
-  'poly-saw': ['maxPolyphony'],
-  'pad-fm': ['harmonicity', 'modulationIndex'],
-  'lead-am': ['harmonicity'],
-  noise: [],
+type Range = { min: number; max: number }
+
+const PARAMS: Record<SynthPreset, Record<string, Range>> = {
+  kick: { pitchDecay: { min: 0, max: 1 }, octaves: { min: 0, max: 12 } },
+  hat: {
+    harmonicity: { min: 0, max: 64 },
+    resonance: { min: 20, max: 20000 },
+    octaves: { min: 0, max: 12 },
+  },
+  clap: {},
+  'bass-mono': { portamento: { min: 0, max: 1 } },
+  'sub-sine': { portamento: { min: 0, max: 1 } },
+  'poly-saw': { maxPolyphony: { min: 1, max: 64 } },
+  'pad-fm': { harmonicity: { min: 0, max: 64 }, modulationIndex: { min: 0, max: 100 } },
+  'lead-am': { harmonicity: { min: 0, max: 64 } },
+  noise: {},
+}
+
+const hasNumericValue = (target: unknown): target is { value: number } =>
+  typeof target === 'object' &&
+  target !== null &&
+  'value' in target &&
+  typeof (target as { value: unknown }).value === 'number'
+
+function applyNumber(node: ToneNode, name: string, value: number, preset: SynthPreset): void {
+  const current = Reflect.get(node, name)
+  if (hasNumericValue(current)) {
+    current.value = value
+    return
+  }
+  if (typeof current === 'number' && Reflect.set(node, name, value)) {
+    return
+  }
+  throw new EngineError(
+    'unknown-instrument-param',
+    `preset ${preset} cannot take a number for ${name}`,
+    { preset, param: name },
+  )
 }
 
 export function createVoice(
@@ -173,23 +201,30 @@ export function createVoice(
       bank: instrument.bank,
     })
   }
-  const build = BUILDERS[instrument.preset]
-  if (build === undefined) {
+  if (!Object.hasOwn(BUILDERS, instrument.preset)) {
     throw new EngineError('unknown-preset', `no voice is registered for ${instrument.preset}`, {
       preset: instrument.preset,
     })
   }
-  const voice = build(tone, context, ledger)
+  const voice = BUILDERS[instrument.preset](tone, context, ledger)
   const allowed = PARAMS[instrument.preset]
   for (const [name, value] of Object.entries(instrument.params ?? {})) {
-    if (!allowed.includes(name)) {
+    const range = Object.hasOwn(allowed, name) ? allowed[name] : undefined
+    if (range === undefined) {
       throw new EngineError(
         'unknown-instrument-param',
         `preset ${instrument.preset} exposes no parameter ${name}`,
         { preset: instrument.preset, param: name },
       )
     }
-    Reflect.set(voice.node, name, value)
+    if (value < range.min || value > range.max) {
+      throw new EngineError(
+        'unknown-instrument-param',
+        `preset ${instrument.preset} takes ${name} between ${range.min} and ${range.max}, not ${value}`,
+        { preset: instrument.preset, param: name, value },
+      )
+    }
+    applyNumber(voice.node, name, value, instrument.preset)
   }
   return voice
 }

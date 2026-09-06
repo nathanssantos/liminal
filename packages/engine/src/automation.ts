@@ -16,31 +16,56 @@ export const MIN_EXPONENTIAL_VALUE = 1e-4
 
 export type DowngradedCurve = { automationId: string; pointIndex: number }
 
-export function scheduleAutomation(
+export type Move = {
+  atTransportSeconds: number
+  apply: (param: Ramped, contextTime: number) => void
+}
+
+export function planAutomation(
   automation: Automation,
-  param: Ramped,
+  staticValue: number,
   kind: AutomationTargetKind,
   points: readonly { point: AutomationPoint; seconds: number }[],
   downgraded: DowngradedCurve[],
-): void {
-  let previousValue = param.value
+): Move[] {
+  const moves: Move[] = []
+  let previousValue = staticValue
   let previousSeconds = 0
   points.forEach(({ point, seconds }, index) => {
     const curve = effectiveCurve(point.curve, kind, automation.id, index, downgraded)
-    if (curve === 'step') {
-      param.setValueAtTime(point.value, seconds)
+    const value = point.value
+    const from = previousValue
+    const span = seconds - previousSeconds
+    if (index === 0 || curve === 'step') {
+      moves.push({
+        atTransportSeconds: seconds,
+        apply: (param, contextTime) => {
+          param.setValueAtTime(value, contextTime)
+        },
+      })
     } else if (curve === 'linear') {
-      param.setValueAtTime(previousValue, previousSeconds)
-      param.linearRampToValueAtTime(point.value, seconds)
+      moves.push({
+        atTransportSeconds: previousSeconds,
+        apply: (param, contextTime) => {
+          param.setValueAtTime(from, contextTime)
+          param.linearRampToValueAtTime(value, contextTime + span)
+        },
+      })
     } else {
-      const from = Math.max(previousValue, MIN_EXPONENTIAL_VALUE)
-      const to = Math.max(point.value, MIN_EXPONENTIAL_VALUE)
-      param.setValueAtTime(from, previousSeconds)
-      param.exponentialRampToValueAtTime(to, seconds)
+      const lowestFrom = Math.max(from, MIN_EXPONENTIAL_VALUE)
+      const lowestTo = Math.max(value, MIN_EXPONENTIAL_VALUE)
+      moves.push({
+        atTransportSeconds: previousSeconds,
+        apply: (param, contextTime) => {
+          param.setValueAtTime(lowestFrom, contextTime)
+          param.exponentialRampToValueAtTime(lowestTo, contextTime + span)
+        },
+      })
     }
-    previousValue = point.value
+    previousValue = value
     previousSeconds = seconds
   })
+  return moves
 }
 
 function effectiveCurve(

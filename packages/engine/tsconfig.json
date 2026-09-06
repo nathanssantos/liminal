@@ -8,5 +8,5 @@
     "lib": ["ES2023", "DOM"],
     "types": ["node"]
   },
-  "include": ["src", "tests", "vitest.setup.ts", "vitest.config.ts"]
+  "include": ["src", "tests", "scripts", "vitest.setup.ts", "vitest.config.ts"]
 }

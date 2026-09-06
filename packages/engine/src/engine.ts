@@ -1,9 +1,10 @@
 import type { Automation, Position, Score, Track } from '@liminal/score'
 import { scoreLengthTicks, tickToPosition, validate } from '@liminal/score'
-import type { AutomationTargetKind, DowngradedCurve, Ramped } from './automation.ts'
-import { refuseOutOfRange, scheduleAutomation } from './automation.ts'
+import type { AutomationTargetKind, DowngradedCurve, Move, Ramped } from './automation.ts'
+import { planAutomation, refuseOutOfRange } from './automation.ts'
 import { createEffect } from './effects.ts'
 import { EngineError } from './errors.ts'
+import type { NodeLedger } from './graph.ts'
 import { createLedger } from './graph.ts'
 import { createVoice } from './instruments.ts'
 import { barSeconds, scoreSeconds, secondsToTicks, ticksToSeconds } from './time.ts'
@@ -11,6 +12,8 @@ import type { EngineContext, Tone, ToneContext, ToneNode } from './tone.ts'
 import { loadTone, rendersOffline, wrapContext } from './tone.ts'
 
 export const DEFAULT_LOOK_AHEAD_SECONDS = 0.2
+
+const ENGINES_BY_CONTEXT = new WeakSet<ToneContext>()
 
 export type EngineEvent = 'bar' | 'stopped' | 'ended'
 
@@ -23,6 +26,8 @@ export type Engine = {
   position: () => Position
   on: (event: EngineEvent, listener: (payload: BarEvent | undefined) => void) => () => void
   pendingNodeCount: () => number
+  disposedNodeCount: () => number
+  lookAhead: () => number
   downgradedCurves: () => readonly DowngradedCurve[]
   automationValueAt: (automationId: string, seconds: number) => number
 }
@@ -41,6 +46,23 @@ type Chain = {
 }
 
 export async function createEngine(options: EngineOptions): Promise<Engine> {
+  const ledger = createLedger()
+  try {
+    return await buildEngine(options, ledger)
+  } catch (failure) {
+    try {
+      ledger.disposeAll()
+    } catch (whileCleaningUp) {
+      throw new AggregateError(
+        [failure, whileCleaningUp],
+        'the engine failed to build, and cleaning up after it failed too',
+      )
+    }
+    throw failure
+  }
+}
+
+async function buildEngine(options: EngineOptions, ledger: NodeLedger): Promise<Engine> {
   const { context: raw, score } = options
   const problems = validate(score)
   if (problems.errors.length > 0) {
@@ -50,9 +72,19 @@ export async function createEngine(options: EngineOptions): Promise<Engine> {
     })
   }
   const tone = await loadTone()
-  const context = wrapContext(tone, raw)
+  const { context } = wrapContext(tone, raw)
+  if (ENGINES_BY_CONTEXT.has(context)) {
+    throw new EngineError(
+      'context-in-use',
+      'this context already drives an engine, and one transport cannot serve two',
+    )
+  }
+  ENGINES_BY_CONTEXT.add(context)
   const offline = rendersOffline(raw)
-  const ledger = createLedger()
+  const lookAheadSeconds = options.lookAheadSeconds ?? DEFAULT_LOOK_AHEAD_SECONDS
+  if (!offline) {
+    context.lookAhead = lookAheadSeconds
+  }
   const transport = context.transport
   transport.bpm.value = score.tempo.bpm
 
@@ -74,6 +106,8 @@ export async function createEngine(options: EngineOptions): Promise<Engine> {
 
   const downgraded: DowngradedCurve[] = []
   const automated = new Map<string, Ramped>()
+  const staticValues = new Map<string, number>()
+  const moves: { param: Ramped; move: Move }[] = []
   const lengthTicks = scoreLengthTicks(score)
   for (const automation of score.automation) {
     for (const point of automation.points) {
@@ -81,19 +115,22 @@ export async function createEngine(options: EngineOptions): Promise<Engine> {
     }
     const { param, kind } = resolveTarget(automation, chains, master)
     automated.set(automation.id, param)
-    scheduleAutomation(
+    const staticValue = param.value
+    staticValues.set(automation.id, staticValue)
+    for (const move of planAutomation(
       automation,
-      param,
+      staticValue,
       kind,
       automation.points.map((point) => ({
         point,
         seconds: ticksToSeconds(point.at, score.tempo.bpm),
       })),
       downgraded,
-    )
+    )) {
+      moves.push({ param, move })
+    }
   }
 
-  let runId = 0
   let playing = false
   const listeners = new Map<EngineEvent, Set<(payload: BarEvent | undefined) => void>>()
   const emit = (event: EngineEvent, payload?: BarEvent) => {
@@ -125,25 +162,55 @@ export async function createEngine(options: EngineOptions): Promise<Engine> {
 
   const perBar = barSeconds(score)
   const totalSeconds = scoreSeconds(score)
-  const barId = transport.scheduleRepeat(
-    (time) => {
-      const mine = runId
-      const bar = Math.round(time / perBar)
-      if (mine === runId && playing && bar * perBar < totalSeconds) {
-        emit('bar', { bar, time })
-      }
-    },
-    perBar,
-    0,
+  const scheduled: number[] = []
+
+  scheduled.push(
+    transport.scheduleRepeat(
+      (time) => {
+        if (!playing) {
+          return
+        }
+        const bar = Math.round(transport.getSecondsAtTime(time) / perBar)
+        if (bar * perBar < totalSeconds) {
+          emit('bar', { bar, time })
+        }
+      },
+      perBar,
+      0,
+    ),
   )
-  const endId = transport.scheduleOnce((time) => {
-    if (!playing) {
-      return
+
+  for (const { param, move } of moves) {
+    scheduled.push(
+      transport.schedule((time) => {
+        if (playing) {
+          move.apply(param, time)
+        }
+      }, move.atTransportSeconds),
+    )
+  }
+
+  let endId: number | undefined
+  const armEnd = () => {
+    endId = transport.scheduleOnce((time) => {
+      endId = undefined
+      if (!playing) {
+        return
+      }
+      playing = false
+      emit('ended', { bar: Math.round(totalSeconds / perBar), time })
+      transport.stop(time)
+    }, totalSeconds)
+  }
+  armEnd()
+
+  const restoreStaticValues = () => {
+    const now = Math.max(context.now(), 0)
+    for (const [id, param] of automated) {
+      param.cancelScheduledValues(now)
+      param.setValueAtTime(staticValues.get(id) ?? param.value, now)
     }
-    playing = false
-    emit('ended', { bar: Math.round(time / perBar), time })
-    transport.stop(time)
-  }, totalSeconds)
+  }
 
   return {
     play: () => {
@@ -151,7 +218,9 @@ export async function createEngine(options: EngineOptions): Promise<Engine> {
         return
       }
       playing = true
-      runId += 1
+      if (endId === undefined) {
+        armEnd()
+      }
       if (offline) {
         transport.start(0)
       } else {
@@ -163,22 +232,26 @@ export async function createEngine(options: EngineOptions): Promise<Engine> {
         return
       }
       playing = false
-      runId += 1
       transport.stop(0)
       transport.seconds = 0
+      restoreStaticValues()
       emit('stopped')
     },
     dispose: () => {
       playing = false
-      runId += 1
-      transport.clear(barId)
-      transport.clear(endId)
-      transport.cancel(0)
+      transport.stop(0)
+      for (const id of scheduled) {
+        transport.clear(id)
+      }
+      if (endId !== undefined) {
+        transport.clear(endId)
+      }
       for (const part of parts) {
         part.stop(0)
       }
       ledger.disposeAll()
       listeners.clear()
+      ENGINES_BY_CONTEXT.delete(context)
     },
     position: () => {
       const seconds = Math.min(transport.seconds, totalSeconds)
@@ -196,6 +269,8 @@ export async function createEngine(options: EngineOptions): Promise<Engine> {
       }
     },
     pendingNodeCount: () => ledger.pending(),
+    disposedNodeCount: () => ledger.disposed(),
+    lookAhead: () => (offline ? 0 : context.lookAhead),
     downgradedCurves: () => downgraded,
     automationValueAt: (automationId, seconds) => {
       const param = automated.get(automationId)
@@ -214,7 +289,7 @@ export async function createEngine(options: EngineOptions): Promise<Engine> {
 function buildChain(
   tone: Tone,
   context: ToneContext,
-  ledger: ReturnType<typeof createLedger>,
+  ledger: NodeLedger,
   track: Track,
   master: ToneNode,
 ): Chain {

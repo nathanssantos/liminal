@@ -10,17 +10,40 @@ export type Effect = {
   quality?: Ramped
 }
 
-const FILTER_PARAMS = ['cutoff', 'q'] as const
+type Range = { min: number; max: number }
 
-const EQ3_PARAMS = ['low', 'mid', 'high', 'lowFrequency', 'highFrequency'] as const
+const FILTER_PARAMS: Record<string, Range> = {
+  cutoff: { min: 20, max: 20000 },
+  q: { min: 0.0001, max: 100 },
+}
 
-function refuseUnknown(kind: string, params: Record<string, number>, allowed: readonly string[]) {
-  for (const name of Object.keys(params)) {
-    if (!allowed.includes(name)) {
+const EQ3_PARAMS: Record<string, Range> = {
+  low: { min: -60, max: 12 },
+  mid: { min: -60, max: 12 },
+  high: { min: -60, max: 12 },
+  lowFrequency: { min: 20, max: 20000 },
+  highFrequency: { min: 20, max: 20000 },
+}
+
+function refuseUnknown(
+  kind: string,
+  params: Record<string, number>,
+  allowed: Record<string, Range>,
+) {
+  for (const [name, value] of Object.entries(params)) {
+    const range = Object.hasOwn(allowed, name) ? allowed[name] : undefined
+    if (range === undefined) {
       throw new EngineError('unknown-fx-param', `the ${kind} effect exposes no parameter ${name}`, {
         kind,
         param: name,
       })
+    }
+    if (value < range.min || value > range.max) {
+      throw new EngineError(
+        'unknown-fx-param',
+        `the ${kind} effect takes ${name} between ${range.min} and ${range.max}, not ${value}`,
+        { kind, param: name, value },
+      )
     }
   }
 }

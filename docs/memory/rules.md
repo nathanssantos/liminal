@@ -128,6 +128,29 @@
   every `new tone.X` in the engine's sources sits inside `ledger.add(...)`, so a node added inline
   fails the build instead of leaking. A wrapper that adds the node somewhere else defeats it — the
   `ledger.add(` has to enclose the construction where a reader can see it. (measured 2026-09-06)
+- 🔴 **A transport callback is handed a CONTEXT time, not a transport position.** Deriving the bar
+  from it works only while the context clock reads about zero at `play()` — true in every offline
+  render, and never in the app, where the context is born at startup and play comes later. Measured:
+  a context 31 s old emitted **no** bar events at all, silently, because every bar looked past the
+  end. The bar comes from `transport.getSecondsAtTime(time)`; the callback's `time` is for
+  scheduling nodes. (measured 2026-09-06)
+- 🔴 **`AudioParam` times are context times, so automation cannot be scheduled at construction.**
+  Points converted to score-relative seconds and handed straight to `setValueAtTime` fire against
+  the context clock: on a context older than the score, the whole sweep is already over before the
+  first note. Automation is planned at load and **applied inside transport callbacks**, which also
+  makes it replay on a second `play()`. (measured 2026-09-06)
+- ⭐ **The test that catches both is one that ages the context before playing.** Every offline test
+  creates a fresh context where context time equals transport time, so the two bugs above are
+  invisible to all of them. One live test that waits a few seconds before `play()` kills both.
+  (measured 2026-09-06)
+- ⚠️ **One transport per engine: two engines on one context fight.** The second engine's `stop()`
+  stops the first engine's music, and `transport.cancel(0)` would wipe events the host scheduled.
+  `createEngine` refuses a context that already drives an engine, and clears only the ids it
+  registered. (measured 2026-09-06)
+- ⚠️ **Disposing a Tone context closes the raw context underneath it.** So an engine that wraps a
+  caller's `AudioContext` must not dispose the wrapper — it would close the caller's device. The
+  wrapper's ticker is the price of accepting a raw context; the caller closes what the caller
+  opened. (measured 2026-09-06, `cancelAnimationFrame is not defined` from Tone's Draw on close)
 - ⚠️ **`AudioWorklet` in `node-web-audio-api` runs synchronously**, with no thread of its own. Do
   not measure worklet latency in Node and call it product latency. (measured: docs)
 - ⚠️ **Determinism is per implementation.** Chromium × Node do not yield the same bytes. Compare
