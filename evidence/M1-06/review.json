@@ -1,0 +1,180 @@
+{
+  "card": "M1-06",
+  "round": 1,
+  "head": "60c50c21dfed262c5fd58a212ac991c457be9b21",
+  "reviewedHead": "60c50c21dfed262c5fd58a212ac991c457be9b21",
+  "deepPassHead": "60c50c21dfed262c5fd58a212ac991c457be9b21",
+  "measured": [
+    "tools/board/check.py",
+    "tools/board/deliver.py",
+    "tools/board/review.py",
+    "tools/tests/test_deliver.py",
+    "tools/tests/test_review.py"
+  ],
+  "findings": [
+    {
+      "agent": "spec-reviewer",
+      "round": 1,
+      "severity": "blocking",
+      "file": "tools/board/deliver.py",
+      "line": 84,
+      "summary": "the merge gate refused every branch that names no issue, including the docs and planning pull requests the loop merges",
+      "status": "fixed"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 1,
+      "severity": "blocking",
+      "file": "tools/board/review.py",
+      "line": 187,
+      "summary": "nothing wrote review.json's findings, so the gate's blocking branch was unreachable from the command line",
+      "status": "fixed"
+    },
+    {
+      "agent": "docs-reviewer",
+      "round": 1,
+      "severity": "blocking",
+      "file": "AGENTS.md",
+      "line": 85,
+      "summary": "the command table and the memory still promised a linked node_modules the code had stopped doing",
+      "status": "fixed"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 2,
+      "severity": "blocking",
+      "file": "docs/specs/M1-sound/M1-06.md",
+      "line": 1,
+      "summary": "the pull request description still described the linked node_modules and three tests where the spec said five",
+      "status": "fixed"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 2,
+      "severity": "major",
+      "file": "tools/board/review.py",
+      "line": 210,
+      "summary": "a measured directory matched by exact string, so a recorded directory exempted nothing",
+      "status": "fixed"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 3,
+      "severity": "blocking",
+      "file": "tools/board/review.py",
+      "line": 196,
+      "summary": "the fields the gate reads off a finding were not required, so a summary-less finding crashed the merge and two agent-less findings in one round collided",
+      "status": "fixed"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 3,
+      "severity": "blocking",
+      "file": "tools/board/deliver.py",
+      "line": 84,
+      "summary": "the branch naming an issue no spec claims had no test and no line in the contract",
+      "status": "fixed"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 4,
+      "severity": "blocking",
+      "file": "tools/board/review.py",
+      "line": 186,
+      "summary": "a deep pass recorded with no measured paths exempted every later head, so one command and no review passed the gate",
+      "status": "fixed"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 4,
+      "severity": "blocking",
+      "file": "tools/board/deliver.py",
+      "line": 147,
+      "summary": "the gate read the local checkout's branch and head rather than the pull request's, so merging from anywhere passed a review the pushed head never had",
+      "status": "fixed"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 4,
+      "severity": "blocking",
+      "file": "tools/board/review.py",
+      "line": 77,
+      "summary": "drop deleted a worktree it did not own: two clones of one branch shared a room and preparing from one destroyed the other's tree mid-review",
+      "status": "fixed"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 4,
+      "severity": "minor",
+      "file": "tools/board/review.py",
+      "line": 288,
+      "summary": "--findings on a scalar, an object or broken JSON raised rather than returning an error",
+      "status": "fixed"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 4,
+      "severity": "minor",
+      "file": "tools/board/review.py",
+      "line": 116,
+      "summary": "the return codes of git worktree add and the online pnpm install fallback are discarded, and that fallback has no test",
+      "status": "open"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 4,
+      "severity": "minor",
+      "file": "tools/board/review.py",
+      "line": 118,
+      "summary": "--prepare reports a round it does not persist, so --state disagrees until --round-done",
+      "status": "open"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 4,
+      "severity": "minor",
+      "file": "tools/board/deliver.py",
+      "line": 92,
+      "summary": "--gates-only does not include the review gate, and the contract does not say so",
+      "status": "open"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 5,
+      "severity": "blocking",
+      "file": "tools/board/deliver.py",
+      "line": 94,
+      "summary": "the function that makes the gate read the pull request had no test, and its failure mode was a green gate",
+      "status": "fixed"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 6,
+      "severity": "major",
+      "file": "tools/board/deliver.py",
+      "line": 115,
+      "summary": "the guard refused any branch whose name is hexadecimal, and an empty branch name passed",
+      "status": "fixed"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 6,
+      "severity": "minor",
+      "file": "tools/board/deliver.py",
+      "line": 106,
+      "summary": "a null headRefName becomes the string None, which is truthy and names no issue, so it would merge unreviewed",
+      "status": "open",
+      "note": "issue #66; headRefName is non-nullable in the GraphQL schema"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 6,
+      "severity": "minor",
+      "file": "tools/board/deliver.py",
+      "line": 115,
+      "summary": "an oid in both fields passes as a branch that names no issue, which is the designed escape hatch",
+      "status": "accepted",
+      "note": "the spec states a branch naming no issue goes through"
+    }
+  ]
+}
