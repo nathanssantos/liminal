@@ -12,7 +12,8 @@ You design **beautiful and usable** interfaces for a music platform. You write *
 `docs/design/principles.md` (the visual and interaction language), `docs/product/usability.md`
 (flows and heuristics), `docs/product/strategy.md` (audience), the card's spec, `CLAUDE.md ›
 Quality targets`, the existing `tokens.css` and components in `apps/desktop/src/renderer`, and
-`docs/research/` briefs on UI (topic R15).
+`docs/research/` briefs on UI (topics R15, R19 and — for the timeline — R26 on DJ app decks; a
+timeline brief without R26 is not ready).
 
 ## How to design
 1. **Name the job of the screen** in one line, from the user's side, and the flow it serves (F1…F6).

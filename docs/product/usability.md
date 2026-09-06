@@ -18,7 +18,7 @@ terminal. If the person does nothing, the app still shows what it is (an example
 | F2 | **Steer the set** | type a live prompt · turn the energy dial · next / hold · nudge the tempo · see when it lands | "lands at the next phrase (in N bars)"; the change, when it happens; undo of the last prompt |
 | F2b | **Queue the next reference** | paste a link while playing · see it analyzed · adjust how long to stay on it (a duration control on the entry, default 10 min, one gesture to change) · drag to reorder | the queue with dwell times, the current target, "moving toward <title> — N phrases left", an error with retry if analysis failed |
 | F3 | **Teach taste** | one control for "more of this", one for "less" | that it was heard, and what it will affect |
-| F4 | **Understand** | glance at the timeline | current section, energy curve, next transition, the reference card |
+| F4 | **Understand** | glance at the timeline, the way a DJ reads a deck | the waveform with the bar grid and the playhead, current section, energy curve, next transition and where it lands, the reference card |
 | F5 | **Recover** | an error says what and how to fix; retry is one click; stop is always one click | the error, in the user's words |
 | F6 | **Keep** | record the set · "keep that" (the last N minutes) · save the set · export | recording state and size; where it went |
 | F7 | **Produce** (M3 headless, M5 UI) | paste a reference · write a brief · get a full track · say what to change · export | the track's sections, the soundcheck against the reference, what the last prompt changed (the diff, in words), the export location |

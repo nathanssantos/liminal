@@ -15,7 +15,7 @@ gets a design brief from the `ui-designer` first.
 
 | Id | Title |
 |---|---|
-| M5-01 | Timeline: sections, energy curve, handovers, now cursor, committed vs planned |
+| M5-01 | Timeline, DJ-deck style: overview (sections, energy, handovers, playhead) and detail (waveform of what plays and what is rendered ahead, beat/bar grid, band colours, phrase markers, cue and loop marks, unrendered future as outline) — designed after research R26 |
 | M5-02 | Reference card and the queue UI: drag, remove, dwell time, countdown, recent references |
 | M5-03 | Prompt box with history and undo; standing prompt; feedback pair; energy dial; next / hold; "why?" |
 | M5-04 | Layer strip with trims; loop this phrase; key lock |

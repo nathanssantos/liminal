@@ -23,6 +23,7 @@
 | R14 | Music theory for tension and release | tritone, diminished, pedal tones, modal interchange — as rules a generator can apply | M3 | open |
 | R15 | UI patterns of DJ and music apps | timelines, energy displays, transport, what first-time users understand | M5 | open |
 | R16 | Other genres: what synthesis alone cannot do | jazz, orchestral, hip-hop — where samples are mandatory | after M5 | open |
+| R26 | DJ app timelines and waveforms — Rekordbox, Serato, Traktor, djay, Mixxx (open source) | what the deck shows (overview vs zoomed waveform, beat grid, phrase markers, band-coloured waveforms, cue and loop marks, key and tempo readouts), what people read at a glance, what they never use, and how it adapts when the future is a rendered plan rather than a file; Mixxx as an implementation reference | M5-01, before the timeline brief | open |
 | R22 | Melody transcription from real recordings | which models and tools work today on a full mix, on stems, on an isolated line; note accuracy; runtime on a laptop; licences | B05 spike | open |
 | R23 | Chord recognition and structure from audio | accuracy per bar on electronic and non-electronic music; which tools; what confidence they expose | B05 spike | open |
 | R24 | How music tools word the notice on reworks and exports, if at all | what DAWs and remix tools say (or do not) where a person exports a rework; only to decide whether a one-line notice is customary — the responsibility is the person's, as with any DAW | B05, low priority | open |

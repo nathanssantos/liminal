@@ -91,7 +91,7 @@ they edit the track.
 
 | Display | Shows | Flow | Lands |
 |---|---|---|---|
-| **Timeline** | sections as blocks, energy as a curve, handovers as gradients, the "now" cursor, committed vs planned | F4 | M5 |
+| **Timeline** | like a DJ deck, in two views. **Overview**: the whole set so far and the committed future — sections as blocks, energy as a curve, handovers as gradients between the references' colours, the playhead. **Detail**: the **waveform with the beat and bar grid** — the rendered audio of what is playing and of what is already committed (the soundcheck renders it before it plays, so the waveform of the future exists), coloured by frequency band (low · mid · high), phrase markers every `PHRASE_BARS`, section boundaries, the next transition, cue points and loops when they exist; the planned-but-not-rendered area drawn as an outline. No scrubbing into the past (it is done) — but the future can be inspected. Designed against research R26 (DJ app timelines) | F4 | M5 |
 | **Soundcheck card** | target vs measured per band; ok/warn per field | F4 | M5 |
 | **Status** | playing · planning · analyzing · rendering · error; brain: idle / thinking / late / fallback; worker: up / restarting | F4, F5 | M4 (events), M5 (UI) |
 | **Error strip** | what went wrong and the one action that fixes it | F5 | M1-04 |
