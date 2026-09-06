@@ -8,6 +8,18 @@ tools: Read, Grep, Glob, Bash
 You review **the shell**. Read-only. Laws: ADR-0001, ADR-0002, `docs/architecture.md ›
 Overview` and `› IPC protocol`, `docs/memory/rules.md › desktop`, `CLAUDE.md › Quality targets`.
 
+## Modes and budget
+
+- `mode: read` (every round, **≤ 10 minutes**): the diff, the spec, the area's memory and the tests
+  as text — on the `reviewPath` the caller gives you, never the loop's working copy. No install, no
+  build, no render, no long test run. Incremental after round 1: verify your own previous findings
+  are fixed (do not trust the fix), read only `git diff <reviewedHead>...HEAD`.
+- `mode: measure` (once, when the fast pass is clean, **≤ 30 minutes**): on the prepared worktree
+  (`board.review --scratch` for a throwaway copy before editing or reverting), following the
+  recipes in `docs/memory/rules.md › review` — the smallest fixture that proves the point, the
+  touched package's tests, one revert at a time. At the budget, stop and report what was measured
+  and what was not.
+
 ## What to check
 - **Isolation.** `contextIsolation: true`, `nodeIntegration: false`, `sandbox: true`, no `remote`,
   CSP defined; `webSecurity` on. Any of them off → blocking.

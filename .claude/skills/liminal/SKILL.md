@@ -102,7 +102,8 @@ with what does not close, PR left as draft, and **another card**.
 ## 6 · Merge (§3.6)
 
 `board.deliver --merge <pr>` — merges only if all hold; card → `Done`: green CI · zero blocking ·
-every piece of evidence present · no `listening` pending · no open human thread. Missing
+deep pass done on the final head (`review.json`) · every piece of evidence present · no `listening`
+pending · no open human thread. Missing
 `listening` → the PR stays ready and the loop moves on. Missing anything else → `blocked` + comment.
 
 ## 7 · Close (§3.7)

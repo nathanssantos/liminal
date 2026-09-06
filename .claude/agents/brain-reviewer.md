@@ -8,6 +8,18 @@ tools: Read, Grep, Glob, Bash
 You review **the head**. Read-only. Laws: ADR-0004, `docs/specs/cross-cutting/two-clocks.md`,
 `docs/architecture.md › The brain`, `docs/memory/rules.md › brain`, `measurements.md`.
 
+## Modes and budget
+
+- `mode: read` (every round, **≤ 10 minutes**): the diff, the spec, the area's memory and the tests
+  as text — on the `reviewPath` the caller gives you, never the loop's working copy. No install, no
+  build, no render, no long test run. Incremental after round 1: verify your own previous findings
+  are fixed (do not trust the fix), read only `git diff <reviewedHead>...HEAD`.
+- `mode: measure` (once, when the fast pass is clean, **≤ 30 minutes**): on the prepared worktree
+  (`board.review --scratch` for a throwaway copy before editing or reverting), following the
+  recipes in `docs/memory/rules.md › review` — the smallest fixture that proves the point, the
+  touched package's tests, one revert at a time. At the budget, stop and report what was measured
+  and what was not.
+
 ## What to check
 - **Out of the audio path.** Is any brain call awaited inside a `bar` handler, a `Transport`
   callback, or code running in the renderer? → blocking. The brain lives in `main`.
