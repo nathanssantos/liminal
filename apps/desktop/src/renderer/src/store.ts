@@ -1,5 +1,5 @@
 import { OUTPUT_GAIN_DB, SAFE_OUTPUT_GAIN_DB } from '@liminal/protocol'
-import { type Position, PPQ, type Score } from '@liminal/score'
+import { type Position, PPQ, type Score, ticksPerBar, ticksPerBeat } from '@liminal/score'
 import { create } from 'zustand'
 
 export type Transport = 'stopped' | 'starting' | 'playing' | 'ended'
@@ -199,8 +199,12 @@ export function readoutOf(shell: Pick<ShellState, 'score' | 'position'>): Number
     musicalKey: shortKey(shell.score.key),
     bar: shell.position.bar + 1,
     beat: shell.position.beat + 1,
-    elapsedMs: elapsedMsAt(shell.position.tick, bpm),
+    elapsedMs: elapsedMsAt(absoluteTick(shell.position, shell.score.meter), bpm),
   }
+}
+
+export function absoluteTick(position: Position, meter: Score['meter']): number {
+  return position.bar * ticksPerBar(meter) + position.beat * ticksPerBeat(meter) + position.tick
 }
 
 export function elapsedMsAt(tick: number, bpm: number): number {

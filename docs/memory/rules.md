@@ -303,6 +303,12 @@
   **and** self-contained, because `require` of a TypeScript workspace package fails at runtime.
   Both failures are silent to lint, types and every test — the window simply comes up blank.
   (measured 2026-09-06, electron-vite 5.0.0)
+- 🔴 **`Position.tick` is the tick INSIDE the beat, not the tick since the start.** A brief said
+  elapsed was `ticksToSeconds(position.tick, bpm)` and it was implemented literally, so the readout
+  sat at `0:00` through the whole set while bar and beat advanced beside it — the number is always
+  under one beat. Elapsed needs the absolute tick:
+  `bar * ticksPerBar + beat * ticksPerBeat + tick`. Only playing the set and watching the digits
+  showed it. (measured 2026-09-06, M1-04)
 - 🔴 **A renderer that throws before `createRoot` shows a white window, not an error.** The shell
   called `connect(window.liminal, …)` at module scope; with no preload the whole screen was blank
   with one line in a console nobody had open. Render first, and let a missing bridge become a

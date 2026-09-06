@@ -1,5 +1,6 @@
+import { PPQ } from '@liminal/score'
 import { describe, expect, it } from 'vitest'
-import { decibels, gainForDigit, readout } from './store.ts'
+import { absoluteTick, decibels, elapsedMsAt, gainForDigit, readout } from './store.ts'
 
 describe('the readout', () => {
   it('is one-based and never reads zero', () => {
@@ -43,5 +44,24 @@ describe('the number keys', () => {
   it('cannot reach full output, whichever key is pressed', () => {
     const reachable = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(gainForDigit)
     expect(Math.max(...reachable)).toBeLessThan(0)
+  })
+})
+
+describe('how much of the set has been heard', () => {
+  const meter = { beatsPerBar: 4, beatUnit: 4 } as const
+
+  it('counts every bar and beat already played, not just the current beat', () => {
+    const oneBarIn = absoluteTick({ bar: 1, beat: 0, tick: 0 }, meter)
+    expect(oneBarIn).toBe(PPQ * meter.beatsPerBar)
+    expect(elapsedMsAt(oneBarIn, 128)).toBeCloseTo(1875, 0)
+  })
+
+  it('does not report zero once a beat has passed', () => {
+    const threeBeatsIn = absoluteTick({ bar: 0, beat: 3, tick: 0 }, meter)
+    expect(elapsedMsAt(threeBeatsIn, 128)).toBeGreaterThan(1000)
+  })
+
+  it('is zero only at the very start', () => {
+    expect(elapsedMsAt(absoluteTick({ bar: 0, beat: 0, tick: 0 }, meter), 128)).toBe(0)
   })
 })
