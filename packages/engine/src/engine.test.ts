@@ -4,6 +4,7 @@ import { sixteenBars } from '@liminal/score/fixtures'
 import { OfflineAudioContext } from 'node-web-audio-api'
 import { beforeAll, describe, expect, it } from 'vitest'
 import { offlineEngine, peakBetween, peakOf } from '../tests/harness.ts'
+import { MIN_EXPONENTIAL_VALUE } from './automation.ts'
 import { createEngine } from './engine.ts'
 import { EngineError } from './errors.ts'
 import { SUPPORTED_PRESETS, scoreReleaseTailSeconds } from './instruments.ts'
@@ -678,5 +679,101 @@ describe('the engine handed a raw context', () => {
     }
     expect(perCycle[1]).toBe(perCycle[2])
     expect(perCycle[0]).toBeGreaterThan(perCycle[1] ?? 0)
+  })
+})
+
+describe('the branches the fixture never reaches', () => {
+  const automationId = sixteenBars.automation[0]?.id ?? ''
+  const startSeconds = ticksToSeconds(barToTick(8, sixteenBars.meter), sixteenBars.tempo.bpm)
+  const endSeconds = ticksToSeconds(barToTick(16, sixteenBars.meter), sixteenBars.tempo.bpm)
+
+  const playedToBarEight = async (score: Score) => {
+    const { engine, render } = await offlineEngine(withoutNotes(score), startSeconds + 0.5)
+    engine.play()
+    await render()
+    return engine
+  }
+
+  it('ramps a cutoff exponentially when the curve asks for it', async () => {
+    const score = clone((draft) => {
+      for (const point of draft.automation[0]?.points ?? []) {
+        point.curve = 'exp'
+      }
+    })
+    const engine = await playedToBarEight(score)
+    const middle = engine.automationValueAt(automationId, (startSeconds + endSeconds) / 2)
+    expect(engine.downgradedCurves()).toEqual([])
+    expect(middle).toBeGreaterThan(800)
+    expect(middle).toBeLessThan((800 + 8000) / 2)
+    engine.dispose()
+  })
+
+  it('lifts a zero off the floor rather than letting an exponential ramp fail', async () => {
+    const score = clone((draft) => {
+      for (const point of draft.automation[0]?.points ?? []) {
+        point.curve = 'exp'
+      }
+      const last = draft.automation[0]?.points.at(-1)
+      if (last !== undefined) {
+        last.value = 0
+      }
+    })
+    const engine = await playedToBarEight(score)
+    expect(engine.automationValueAt(automationId, endSeconds)).toBeCloseTo(MIN_EXPONENTIAL_VALUE, 6)
+    engine.dispose()
+  })
+
+  it('builds an eq3 the document asks for', async () => {
+    const score = clone((draft) => {
+      const track = draft.tracks[0]
+      if (track !== undefined) {
+        track.fx = [{ kind: 'eq3', params: { low: -6, mid: 0, high: 3 } }]
+      }
+    })
+    const { engine, render } = await offlineEngine(score, barSeconds(score) + 0.5)
+    engine.play()
+    const rendered = await render()
+    expect(peakOf(rendered)).toBeGreaterThan(0)
+    expect(engine.pendingNodeCount()).toBeGreaterThan(0)
+    engine.dispose()
+    expect(engine.pendingNodeCount()).toBe(0)
+  })
+
+  it('reaches the destination without a limiter when the mix asks for none', async () => {
+    const score = clone((draft) => {
+      draft.mix.master.limiter = false
+    })
+    const { engine, render } = await offlineEngine(score, barSeconds(score) + 0.5)
+    engine.play()
+    expect(peakOf(await render())).toBeGreaterThan(0.05)
+    engine.dispose()
+  })
+
+  it('drives pan and filter q, not only the cutoff', async () => {
+    const score = clone((draft) => {
+      const first = draft.automation[0]
+      if (first === undefined || !('trackId' in first.target)) {
+        return
+      }
+      const trackId = first.target.trackId
+      draft.automation = [
+        {
+          ...first,
+          id: `${first.id}-pan`,
+          target: { trackId, param: 'pan' },
+          points: first.points.map((point) => ({ ...point, value: point.value / 10000 })),
+        },
+        {
+          ...first,
+          id: `${first.id}-q`,
+          target: { trackId, param: 'filter.q' },
+          points: first.points.map((point) => ({ ...point, value: point.value / 1000 })),
+        },
+      ]
+    })
+    const engine = await playedToBarEight(score)
+    expect(engine.automationValueAt(`${automationId}-pan`, startSeconds)).toBeCloseTo(0.08, 4)
+    expect(engine.automationValueAt(`${automationId}-q`, startSeconds)).toBeCloseTo(0.8, 3)
+    engine.dispose()
   })
 })
