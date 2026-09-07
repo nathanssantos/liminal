@@ -1,0 +1,360 @@
+{
+  "card": "M1-04",
+  "round": 1,
+  "head": "e5c3d651cde8db60102332121f11e70271f6350c",
+  "reviewedHead": "a99267fff2bfb52ea266d7db017ebdd897e80455",
+  "deepPassHead": null,
+  "measured": [],
+  "findings": [
+    {
+      "agent": "security-auditor",
+      "round": 1,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "the CSP was declared but never reached the document, because a file:// response carries no headers"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 1,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "the mute proof was a test that passes with setMuted implemented as a no-op"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 1,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "four criteria named Playwright and no Playwright test existed"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 1,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "the spec said Stop freezes the position; the engine rewinds, by design"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 1,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "output:device changed direction and output:restore was added without the spec following"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 1,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "the brief still described elapsed from the tick inside the beat"
+    },
+    {
+      "agent": "desktop-reviewer",
+      "round": 1,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "the chosen device was never persisted: main validated against a list it can never have"
+    },
+    {
+      "agent": "desktop-reviewer",
+      "round": 1,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "two play presses before the engine resolved would build two engines"
+    },
+    {
+      "agent": "test-engineer",
+      "round": 1,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "main was told the set was playing even when the engine threw"
+    },
+    {
+      "agent": "test-engineer",
+      "round": 1,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "a second gainForDigit in the store, dead in production, was the one the safety test guarded"
+    },
+    {
+      "agent": "usability-reviewer",
+      "round": 1,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "the only orange control turned grey the moment music started, with its reason visible to nobody"
+    },
+    {
+      "agent": "accessibility-auditor",
+      "round": 1,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "dismissing a strip while playing dropped focus to the body, because the play button was disabled"
+    },
+    {
+      "agent": "accessibility-auditor",
+      "round": 1,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "the output bar had no accessible name and neither bar was a landmark"
+    },
+    {
+      "agent": "docs-reviewer",
+      "round": 1,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "the README still said there was nothing to hear"
+    },
+    {
+      "agent": "docs-reviewer",
+      "round": 1,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "the brief promised a chip ticking with the music that the screen never asked for"
+    },
+    {
+      "agent": "docs-reviewer",
+      "round": 1,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "the architecture channel list, the stack test row and the shot command row were stale"
+    },
+    {
+      "agent": "accessibility-auditor",
+      "round": 1,
+      "severity": "major",
+      "status": "accepted",
+      "summary": "single-key shortcuts have no way to be turned off or remapped, which SC 2.1.4 requires"
+    },
+    {
+      "agent": "test-engineer",
+      "round": 2,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "the restored output device never reached the engine, because it is applied before the engine exists"
+    },
+    {
+      "agent": "test-engineer",
+      "round": 2,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "the e2e suite did not build first, so it proved whatever bundle was on disk"
+    },
+    {
+      "agent": "test-engineer",
+      "round": 2,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "the navigation refusal test passed with the guard removed, because about:blank and an unresolvable host both leave the URL unchanged"
+    },
+    {
+      "agent": "test-engineer",
+      "round": 2,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "the seven e2e tests shared one profile directory and two of them deleted it"
+    },
+    {
+      "agent": "test-engineer",
+      "round": 2,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "the reentrancy guard, the modifier guard, the load timeout, the device revert and the play failure had no test"
+    },
+    {
+      "agent": "test-engineer",
+      "round": 2,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "a stubbed navigator survived into every later test in the file"
+    },
+    {
+      "agent": "test-engineer",
+      "round": 2,
+      "severity": "minor",
+      "status": "fixed",
+      "summary": "two assertions read through another package's class names or repeated the test above them"
+    },
+    {
+      "agent": "test-engineer",
+      "round": 2,
+      "severity": "major",
+      "status": "discarded",
+      "summary": "the device channel was said to answer the value stored before the write; keep reassigns preferences, and a test already asserts the answer"
+    },
+    {
+      "agent": "usability-reviewer",
+      "round": 2,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "the fresh screenshots showed the volume at silent, because the shot tool inherited the machine's stored preferences"
+    },
+    {
+      "agent": "usability-reviewer",
+      "round": 2,
+      "severity": "major",
+      "status": "accepted",
+      "summary": "a load that never arrives offers no in-app retry, only reopening the app"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 3,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "the mute proof read a getter symmetric with its setter, so a node built with the wrong units was invisible; the mute is metered now"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 3,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "the built-markup CSP test returned early when out/ was absent, which is every path that runs it; the policy is asserted on the live document in e2e"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 3,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "the wireframe in the design brief still named header.shell-deck and footer.shell-output"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 3,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "the review state file did not describe the review it is evidence of"
+    },
+    {
+      "agent": "spec-reviewer",
+      "round": 3,
+      "severity": "minor",
+      "status": "fixed",
+      "summary": "the keyboard e2e never pressed ArrowDown"
+    },
+    {
+      "agent": "desktop-reviewer",
+      "round": 3,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "the device revert on failure was dead code, because the picker only moves after the sink change succeeds"
+    },
+    {
+      "agent": "desktop-reviewer",
+      "round": 3,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "the header half of the policy had no coverage at all"
+    },
+    {
+      "agent": "desktop-reviewer",
+      "round": 3,
+      "severity": "minor",
+      "status": "accepted",
+      "summary": "Transport accepts state playing without onPause when stopOnly is unset, and the main button then replays"
+    },
+    {
+      "agent": "usability-reviewer",
+      "round": 3,
+      "severity": "minor",
+      "status": "fixed",
+      "summary": "the shot tool left its temporary profile and a live app behind when a step threw"
+    },
+    {
+      "agent": "engine-reviewer",
+      "round": 4,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "the mute landed 200 ms late, because it was scheduled at the scheduler's lookahead instead of the raw clock"
+    },
+    {
+      "agent": "engine-reviewer",
+      "round": 4,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "the bar handler called IPC synchronously inside the scheduler tick"
+    },
+    {
+      "agent": "engine-reviewer",
+      "round": 4,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "a fallback sink that also refuses swallowed the device-lost notice and left the rejection unhandled"
+    },
+    {
+      "agent": "engine-reviewer",
+      "round": 4,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "the gain range was declared twice, in the engine and in the protocol, with nothing tying them"
+    },
+    {
+      "agent": "engine-reviewer",
+      "round": 4,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "a failing mute assertion left the context registered and took every later live test down with it"
+    },
+    {
+      "agent": "engine-reviewer",
+      "round": 4,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "the three output controls had no disposal guard"
+    },
+    {
+      "agent": "engine-reviewer",
+      "round": 4,
+      "severity": "minor",
+      "status": "accepted",
+      "summary": "setOutputGain(NaN) throws a raw Web Audio error, unreachable through the app because the schema refuses it first"
+    },
+    {
+      "agent": "usability-reviewer",
+      "round": 4,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "the readout froze at the last bar when the set ended, promising a resume that does not exist"
+    },
+    {
+      "agent": "usability-reviewer",
+      "round": 4,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "the main transport button changed width between Play and Stop, against the card's own zero-tolerance gate"
+    },
+    {
+      "agent": "usability-reviewer",
+      "round": 4,
+      "severity": "blocking",
+      "status": "discarded",
+      "summary": "the picker was said to refuse Enter and Space; measured, all four keys open it once the device list has been enumerated"
+    },
+    {
+      "agent": "desktop-reviewer",
+      "round": 4,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "the sink applied when the engine is built had no test of its own"
+    },
+    {
+      "agent": "desktop-reviewer",
+      "round": 4,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "the teardown was never reached, because nothing kept what connect returned"
+    },
+    {
+      "agent": "desktop-reviewer",
+      "round": 4,
+      "severity": "minor",
+      "status": "accepted",
+      "summary": "an arrow key held down writes the volume to disk once per repeat, where the slider batches"
+    },
+    {
+      "agent": "docs-reviewer",
+      "round": 4,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "the architecture channel list dropped render:offline, the changelog had no entry, and the journal count was stale"
+    }
+  ]
+}

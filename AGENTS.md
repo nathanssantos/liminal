@@ -72,7 +72,7 @@ versioned file.
 |---|---|
 | `pnpm check` | Biome, tsc, Vitest, ruff, mypy, pytest — full output, never truncated |
 | `pnpm --filter desktop dev` | opens the app (with `--remote-debugging-port` so Playwright can attach) |
-| `pnpm --filter desktop shot <state> [--id <card>] [--measure <selector>]…` | launches the app, drives it to the state, saves screenshot and measurements to `evidence/`; each `--measure` records that selector's rect and computed styles |
+| `pnpm --filter desktop shot <state> [--id <card>] [--measure <selector>]… [--click <selector>]… [--wait <ms>]…` | launches the app, drives it to the state, saves screenshot and measurements to `evidence/`; `--click` and `--wait` walk it there in order, each `--measure` records that selector's rect and computed styles |
 | `pnpm --filter ui storybook` | opens Storybook: every component, every state, every prop as a control |
 | `pnpm --filter ui test` | the component tests, the stories' `play` functions and `axe`, all headless |
 | `pnpm --filter ui measure` | builds Storybook, screenshots every component in both themes and writes the measurements into `evidence/` |

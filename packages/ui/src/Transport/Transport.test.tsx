@@ -63,6 +63,62 @@ describe('Transport', () => {
     expect(handlers.onPlay).not.toHaveBeenCalled()
   })
 
+  it('keeps offering play, disabled with a reason, when the set cannot be paused', async () => {
+    const handlers = setup('playing', {
+      canPause: false,
+      disabledReason: 'This set can only be stopped, not paused.',
+    })
+    expect(screen.queryByRole('button', { name: 'Pause' })).not.toBeInTheDocument()
+    const play = screen.getByRole('button', { name: 'Play' })
+    expect(play).toBeDisabled()
+    expect(play).toHaveAccessibleDescription('This set can only be stopped, not paused.')
+    await userEvent.click(play)
+    expect(handlers.onPause).not.toHaveBeenCalled()
+    expect(handlers.onPlay).not.toHaveBeenCalled()
+    expect(screen.getByRole('button', { name: 'Stop' })).toBeEnabled()
+  })
+
+  it('hands the play button back to a consumer that must focus it', () => {
+    const play = { current: null as HTMLButtonElement | null }
+    render(
+      <Transport
+        state="stopped"
+        playRef={play}
+        onPlay={() => {}}
+        onPause={() => {}}
+        onStop={() => {}}
+      />,
+    )
+    expect(play.current).toBe(screen.getByRole('button', { name: 'Play' }))
+    play.current?.focus()
+    expect(screen.getByRole('button', { name: 'Play' })).toHaveFocus()
+  })
+
+  it('offers one button that says Stop while playing, when the set can only be stopped', async () => {
+    const handlers = setup('playing', { stopOnly: true })
+    const only = screen.getAllByRole('button')
+    expect(only).toHaveLength(1)
+    expect(only[0]).toHaveAccessibleName('Stop')
+    expect(only[0]).toBeEnabled()
+    await userEvent.click(only[0] as HTMLElement)
+    expect(handlers.onStop).toHaveBeenCalledTimes(1)
+    expect(handlers.onPause).not.toHaveBeenCalled()
+  })
+
+  it('says Play, and only Play, when a stop-only transport is at rest', async () => {
+    const handlers = setup('stopped', { stopOnly: true })
+    const only = screen.getAllByRole('button')
+    expect(only).toHaveLength(1)
+    expect(only[0]).toHaveAccessibleName('Play')
+    await userEvent.click(only[0] as HTMLElement)
+    expect(handlers.onPlay).toHaveBeenCalledTimes(1)
+  })
+
+  it('never shows a disabled button while it is playing', () => {
+    setup('playing', { stopOnly: true })
+    for (const button of screen.getAllByRole('button')) expect(button).toBeEnabled()
+  })
+
   it('swallows activation while starting', async () => {
     const handlers = setup('starting')
     const play = screen.getByRole('button', { name: 'Starting…' })

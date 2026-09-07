@@ -295,6 +295,81 @@
 - 🔴 **Vitest stubs every CSS import, `?raw` included, unless `test.css: true`.** A module that
   parses its own stylesheet reads an empty string and fails silently in tests while working in the
   real build. (measured 2026-09-06 on `@liminal/ui`)
+- 🔴 **`build.externalizeDeps: false` is the option that stops electron-vite externalising a
+  workspace package** — `ssr.noExternal`, `rollupOptions.external` and a `resolve.alias` to the
+  source are all ignored, and each one produced a byte-identical bundle that still carried
+  `require("@liminal/protocol")`. The preload needs it: it runs sandboxed, so it must be **CJS**
+  (`output.format: 'cjs'`; an ESM preload dies with `Cannot use import statement outside a module`)
+  **and** self-contained, because `require` of a TypeScript workspace package fails at runtime.
+  Both failures are silent to lint, types and every test — the window simply comes up blank.
+  (measured 2026-09-06, electron-vite 5.0.0)
+- 🔴 **Disabled is the treatment for a fault, and borrowing it to say a fault-free thing reads as
+  broken.** The transport shipped with the main button disabled while the set played, because this
+  engine has no pause, with the reason only in visually hidden text. At the one moment the product
+  should confirm it works, the single orange control turned the same grey as "still loading". The
+  screen now shows one button that reads **Play** at rest and **Stop** while playing. **The rule:
+  no control is disabled unless its reason is also in visible words on the screen.** (found by the
+  usability review of M1-04, 2026-09-06)
+- 🔴 **A CSP set through `onHeadersReceived` never reaches a `file://` document**, because a file
+  response carries no HTTP headers — and the packaged app loads the renderer with `loadFile`. The
+  policy existed, the test asserted the string, `pnpm check` was green, and nothing was enforced.
+  The policy belongs in a `<meta http-equiv>` in the markup, which covers both the packaged app and
+  the dev server. **A security control is proven where it lands, never where it is declared.**
+  (found by the security review of M1-04, 2026-09-06)
+- 🔴 **A knob written through Tone's `Param.value` inherits the scheduler's lookahead.** The setter
+  schedules at `context.now()`, which is `currentTime + lookAhead`; with a 0.2 s lookahead the mute
+  landed **200 ms** after the press, and raising the lookahead for the scheduler would have made it
+  slower still. Measured with a meter at 20 ms steps: silence at 211 ms before, at 22 ms after
+  scheduling against `rawContext.currentTime` with a 10 ms ramp. **A control the hand moves is
+  scheduled on the raw clock; only notes go through the lookahead.** (measured 2026-09-06)
+- ⚠️ **A control that is briefly busy at startup is not a broken control.** The output picker was
+  reported as refusing `Enter` and `Space`; measured, all four keys open it — the failed presses
+  landed while the list was still being enumerated and the trigger carried `aria-busy`. A keyboard
+  test waits for the busy state to clear before it presses. (measured 2026-09-06)
+- 🔴 **A `Tone.Gain` built with `units: 'decibels'` reads every later write as decibels.** The output
+  stage was created that way and then written linearly: mute wrote `0`, which is **0 dB — full
+  gain**, and −12 dB wrote `0.251`, which is **+0.25 dB**. So mute never silenced anything and the
+  volume never attenuated, from M1-02 until it was measured. The node is linear now, matching what
+  `applyOutput` writes. **When a node carries units, every assignment to it carries them too.**
+  (measured 2026-09-06 against a live device)
+- 🔴 **An offline render has no output stage, so `setMuted` and `setOutputGain` do nothing there.**
+  A test that renders offline with mute on and compares the samples passes with both methods
+  implemented as `() => {}` — it proves the stage is absent, not that mute works. ⚠️ Two attempts to
+  prove it failed first: asserting `engine.muted()`, the flag, which stays green with `applyOutput`
+  gutted; and asserting `output.gain.value`, which reads back through the **same** unit conversion
+  the write goes through, so a node built with the wrong units returns exactly what was written.
+  The mute is proven by metering what leaves the app: a `Tone.Meter` on the context's destination,
+  a score that makes sound, and a level of `0` while muted, in `wall-clock.test.ts`, which needs
+  `LIMINAL_AUDIO_DEVICE=1`. **A control is proven by what it changes, never by the variable that
+  remembers it was asked, and never by a getter symmetric with its setter.** (measured 2026-09-06:
+  it fails with the write removed, and with the node built as decibels either way round)
+- 🔴 **`will-navigate` does not fire for `about:blank`, so a navigation guard tested with it passes
+  either way.** The refusal test also passed against an unresolvable host, because at the moment it
+  read the URL the navigation was merely still pending. **A guard is proven with a target that would
+  actually commit** — here a `file://` path that exists on the machine, which changes `page.url()`
+  the moment the guard is removed. (measured 2026-09-06: removing `refuseNavigation` fails it)
+- 🔴 **An e2e script that does not build first proves whatever bundle is on disk.** `playwright test`
+  alone passed against a stale `out/`, and in a freshly prepared review worktree it failed all seven
+  tests because `out/` did not exist at all — a missing build reads as seven product defects.
+  `test:e2e` builds, then tests.
+- ⚠️ **A screenshot taken through the app's real user data directory carries the last run's
+  preferences.** Evidence meant to show the first-run volume showed `silent`, because a local
+  session had left the slider at the floor; the value in the code was never wrong. The shot tool
+  launches with a temporary `--user-data-dir` and removes it afterwards, like the e2e suite.
+  (found by the usability review of M1-04, 2026-09-06)
+- ⚠️ **Vitest runs with the repository root as the working directory, not the package's.** A test
+  that reads a file next to it resolves from `import.meta.dirname`; a relative path silently means
+  the root. (2026-09-06)
+- 🔴 **`Position.tick` is the tick INSIDE the beat, not the tick since the start.** A brief said
+  elapsed was `ticksToSeconds(position.tick, bpm)` and it was implemented literally, so the readout
+  sat at `0:00` through the whole set while bar and beat advanced beside it — the number is always
+  under one beat. Elapsed needs the absolute tick:
+  `bar * ticksPerBar + beat * ticksPerBeat + tick`. Only playing the set and watching the digits
+  showed it. (measured 2026-09-06, M1-04)
+- 🔴 **A renderer that throws before `createRoot` shows a white window, not an error.** The shell
+  called `connect(window.liminal, …)` at module scope; with no preload the whole screen was blank
+  with one line in a console nobody had open. Render first, and let a missing bridge become a
+  strip the person can read.
 - 🔴 **electron-vite keeps a workspace package external in the main bundle**, whatever
   `ssr.noExternal` or `rollupOptions.external` say. So anything the main process imports from a
   workspace package must be a file **Node can run as it is** — plain `.mjs`, no TypeScript, no
@@ -342,9 +417,22 @@
   It is upstream behaviour, not ours; the story gate names it as such rather than pretending it is
   absent. Every future Radix component with a portal will report the same. (measured 2026-09-06,
   axe-core 4.13 in Chromium)
+- 🔴 **A measurement that matches the code proves nothing about the design.** M1-07's brief said the
+  deck bar's contents align to the content column's edges at 1920; the shell only ever set
+  `padding-inline`, so the transport sat at x=32 while the column started at x=360. The evidence
+  recorded that pair of numbers, two reviewers read it, and nobody compared it to the sentence that
+  asked for it — because the number agreed with the CSS that had been written. **Read the criterion,
+  then the number, in that order.** (found 2026-09-06, while replanning M1-04 on the same shell)
 - ⚠️ **A gate that walks the tree must assert it walked something.** The loose-value scan globbed
   from `process.cwd()`, so from any other directory it returned an empty list and the gate passed
   green over zero files. It resolves from its own module now and asserts a file count first.
+
+- 🔴 **Electron is not a browser: output devices come back named, with no prompt.** The rule that
+  `enumerateDevices()` hides labels until microphone permission is granted is a browser rule.
+  Measured in Electron 44.2.0: nine audio outputs with real ids and real labels, no request, no
+  macOS TCC dialog. A design that adds an opt-in step to earn device names is solving a problem this
+  runtime does not have — check the runtime before importing a browser constraint.
+  (measured 2026-09-06)
 
 ## review
 

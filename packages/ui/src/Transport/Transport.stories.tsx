@@ -20,6 +20,8 @@ const meta = {
     onStop: { action: 'stop' },
     beatPulseKey: { control: 'number' },
     canPlay: { control: 'boolean' },
+    canPause: { control: 'boolean' },
+    stopOnly: { control: 'boolean' },
     disabledReason: { control: 'text' },
     labels: { control: 'object' },
     size: {
@@ -30,6 +32,10 @@ const meta = {
     className: { control: false },
     id: { control: false },
     ref: { control: false },
+    playRef: {
+      control: false,
+      description: 'The play button itself, for a consumer that must focus it',
+    },
   },
 } satisfies Meta<typeof Transport>
 
@@ -41,6 +47,19 @@ export const Starting: Story = { args: { state: 'starting' } }
 export const Playing: Story = { args: { state: 'playing' }, tags: ['evidence'] }
 export const Paused: Story = { args: { state: 'paused' } }
 export const SizeMedium: Story = { args: { state: 'playing', size: 'md' } }
+export const StopOnly: Story = {
+  args: { state: 'playing', stopOnly: true },
+}
+export const StopOnlyAtRest: Story = {
+  args: { state: 'stopped', stopOnly: true },
+}
+export const CannotPause: Story = {
+  args: {
+    state: 'playing',
+    canPause: false,
+    disabledReason: 'This set can only be stopped, not paused.',
+  },
+}
 export const CannotPlay: Story = {
   args: { canPlay: false, disabledReason: 'Choose an output device first.' },
 }

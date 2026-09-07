@@ -1,8 +1,9 @@
 import type { Score } from '@liminal/score'
 import { barToTick } from '@liminal/score'
 import { sixteenBars } from '@liminal/score/fixtures'
+import * as tone from 'tone'
 import { afterAll, describe, expect, it } from 'vitest'
-import { createEngine, DEFAULT_LOOK_AHEAD_SECONDS } from './engine.ts'
+import { createEngine, DEFAULT_LOOK_AHEAD_SECONDS, SAFE_OUTPUT_GAIN_DB } from './engine.ts'
 import { barSeconds, ticksToSeconds } from './time.ts'
 
 const BARS_TO_HEAR = 2
@@ -10,6 +11,8 @@ const BARS_TO_HEAR = 2
 const AGE_SECONDS = 3
 
 const SILENT_GAIN_DB = -60
+
+const OUTPUT_GAIN_DB_WELL_BELOW_SAFE = -40
 
 const silent = (): Score => {
   const score = structuredClone(sixteenBars)
@@ -39,6 +42,94 @@ if (context === undefined) {
       : 'wall-clock tests skipped: set LIMINAL_AUDIO_DEVICE=1 to run them against the real device\n',
   )
 }
+
+const A_HAND_WOULD_NOT_NOTICE_MS = 60
+
+const LOUD_ENOUGH_TO_HEAR = 0.001
+
+type Ears = { toneContext: tone.Context; level: () => number; close: () => void }
+
+const listening = (): Ears | undefined => {
+  if (context === undefined) return undefined
+  const toneContext = new tone.Context({ context, clockSource: 'timeout' })
+  const meter = new tone.Meter({ context: toneContext, normalRange: true, smoothing: 0 })
+  toneContext.destination.connect(meter)
+  return { toneContext, level: () => meter.getValue() as number, close: () => meter.dispose() }
+}
+
+const after = (ms: number): Promise<void> => new Promise((done) => setTimeout(done, ms))
+
+const A_BAR_MS = barSeconds(sixteenBars) * 1000
+
+describe.skipIf(context === undefined)('muting acts on the output, not on the transport', () => {
+  it('drops what leaves the app to silence and brings it back, while the transport keeps counting', async () => {
+    const ears = listening()
+    if (ears === undefined) return
+    const engine = await createEngine({ context: ears.toneContext, score: sixteenBars })
+    try {
+      engine.play()
+      await after(A_BAR_MS)
+      const loud = ears.level()
+      const before = engine.position()
+      expect(loud).toBeGreaterThan(LOUD_ENOUGH_TO_HEAR)
+
+      engine.setMuted(true)
+      await after(A_HAND_WOULD_NOT_NOTICE_MS)
+      expect(ears.level()).toBe(0)
+      await after(A_BAR_MS)
+      const whileMuted = engine.position()
+
+      engine.setMuted(false)
+      await after(A_HAND_WOULD_NOT_NOTICE_MS)
+      expect(ears.level()).toBeGreaterThan(LOUD_ENOUGH_TO_HEAR)
+
+      expect(whileMuted.bar).toBeGreaterThan(before.bar)
+      expect(engine.outputGain()).toBe(SAFE_OUTPUT_GAIN_DB)
+    } finally {
+      engine.stop()
+      engine.dispose()
+      ears.close()
+    }
+  })
+
+  it('lowers what leaves the app when the volume drops, without touching the document', async () => {
+    const ears = listening()
+    if (ears === undefined) return
+    const engine = await createEngine({ context: ears.toneContext, score: sixteenBars })
+    try {
+      engine.play()
+      await after(A_BAR_MS)
+      const atSafe = ears.level()
+      expect(atSafe).toBeGreaterThan(LOUD_ENOUGH_TO_HEAR)
+
+      engine.setOutputGain(OUTPUT_GAIN_DB_WELL_BELOW_SAFE)
+      await after(A_HAND_WOULD_NOT_NOTICE_MS)
+      expect(ears.level()).toBeLessThan(atSafe / 2)
+
+      engine.setOutputGain(SAFE_OUTPUT_GAIN_DB)
+      await after(A_HAND_WOULD_NOT_NOTICE_MS)
+      expect(ears.level()).toBeGreaterThan(LOUD_ENOUGH_TO_HEAR)
+    } finally {
+      engine.stop()
+      engine.dispose()
+      ears.close()
+    }
+  })
+
+  it('leaves the output alone once it has been disposed', async () => {
+    const ears = listening()
+    if (ears === undefined) return
+    const engine = await createEngine({ context: ears.toneContext, score: sixteenBars })
+    engine.dispose()
+
+    engine.setOutputGain(OUTPUT_GAIN_DB_WELL_BELOW_SAFE)
+    engine.setMuted(true)
+
+    expect(engine.outputGain()).toBe(SAFE_OUTPUT_GAIN_DB)
+    expect(engine.muted()).toBe(false)
+    ears.close()
+  })
+})
 
 describe.skipIf(context === undefined)('the wall clock drives the transport', () => {
   afterAll(async () => {
