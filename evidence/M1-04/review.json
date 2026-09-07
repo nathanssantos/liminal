@@ -1,7 +1,7 @@
 {
   "card": "M1-04",
   "round": 1,
-  "head": "a99267fff2bfb52ea266d7db017ebdd897e80455",
+  "head": "e5c3d651cde8db60102332121f11e70271f6350c",
   "reviewedHead": "a99267fff2bfb52ea266d7db017ebdd897e80455",
   "deepPassHead": null,
   "measured": [],
@@ -257,6 +257,104 @@
       "severity": "minor",
       "status": "fixed",
       "summary": "the shot tool left its temporary profile and a live app behind when a step threw"
+    },
+    {
+      "agent": "engine-reviewer",
+      "round": 4,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "the mute landed 200 ms late, because it was scheduled at the scheduler's lookahead instead of the raw clock"
+    },
+    {
+      "agent": "engine-reviewer",
+      "round": 4,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "the bar handler called IPC synchronously inside the scheduler tick"
+    },
+    {
+      "agent": "engine-reviewer",
+      "round": 4,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "a fallback sink that also refuses swallowed the device-lost notice and left the rejection unhandled"
+    },
+    {
+      "agent": "engine-reviewer",
+      "round": 4,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "the gain range was declared twice, in the engine and in the protocol, with nothing tying them"
+    },
+    {
+      "agent": "engine-reviewer",
+      "round": 4,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "a failing mute assertion left the context registered and took every later live test down with it"
+    },
+    {
+      "agent": "engine-reviewer",
+      "round": 4,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "the three output controls had no disposal guard"
+    },
+    {
+      "agent": "engine-reviewer",
+      "round": 4,
+      "severity": "minor",
+      "status": "accepted",
+      "summary": "setOutputGain(NaN) throws a raw Web Audio error, unreachable through the app because the schema refuses it first"
+    },
+    {
+      "agent": "usability-reviewer",
+      "round": 4,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "the readout froze at the last bar when the set ended, promising a resume that does not exist"
+    },
+    {
+      "agent": "usability-reviewer",
+      "round": 4,
+      "severity": "blocking",
+      "status": "fixed",
+      "summary": "the main transport button changed width between Play and Stop, against the card's own zero-tolerance gate"
+    },
+    {
+      "agent": "usability-reviewer",
+      "round": 4,
+      "severity": "blocking",
+      "status": "discarded",
+      "summary": "the picker was said to refuse Enter and Space; measured, all four keys open it once the device list has been enumerated"
+    },
+    {
+      "agent": "desktop-reviewer",
+      "round": 4,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "the sink applied when the engine is built had no test of its own"
+    },
+    {
+      "agent": "desktop-reviewer",
+      "round": 4,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "the teardown was never reached, because nothing kept what connect returned"
+    },
+    {
+      "agent": "desktop-reviewer",
+      "round": 4,
+      "severity": "minor",
+      "status": "accepted",
+      "summary": "an arrow key held down writes the volume to disk once per repeat, where the slider batches"
+    },
+    {
+      "agent": "docs-reviewer",
+      "round": 4,
+      "severity": "major",
+      "status": "fixed",
+      "summary": "the architecture channel list dropped render:offline, the changelog had no entry, and the journal count was stale"
     }
   ]
 }

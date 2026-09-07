@@ -106,6 +106,34 @@ describe('the live connection', () => {
     live.stop()
   })
 
+  it('still tells the listener the device is gone when the fallback sink refuses too', async () => {
+    const engine = fakeEngine()
+    engine.setSinkId.mockRejectedValue(
+      Object.assign(new Error('gone'), { code: 'sink-unavailable' }),
+    )
+    built.mockResolvedValue(engine)
+    useShell.setState({ deviceId: 'hdmi' })
+    let changed: (() => void) | undefined
+    const media = fakeMedia([output('default', 'System default')])
+    Object.assign(media, {
+      addEventListener: vi.fn((_name: string, listener: () => void) => {
+        changed = listener
+      }),
+    })
+    const live = connect(fakeBridge(), media)
+    await vi.waitFor(() => expect(useShell.getState().notice).toEqual(DEVICE_LOST))
+
+    useShell.setState({ notice: undefined, deviceId: 'hdmi', score: aScore as never })
+    useShell.getState().requestPlay()
+    await vi.waitFor(() => expect(useShell.getState().transport).toBe('playing'))
+    useShell.setState({ notice: undefined })
+    changed?.()
+    await vi.waitFor(() => expect(useShell.getState().notice).toEqual(DEVICE_LOST))
+
+    expect(useShell.getState().deviceId).toBe(SYSTEM_DEFAULT.id)
+    live.stop()
+  })
+
   it('never asks the runtime for permission before listing outputs', async () => {
     const getUserMedia = vi.fn()
     vi.stubGlobal('navigator', { mediaDevices: { getUserMedia } })
@@ -212,6 +240,29 @@ describe('pressing play', () => {
   })
 })
 
+describe('a set that reaches its end', () => {
+  it('puts the readout back at the top, so nothing promises a resume', async () => {
+    const engine = fakeEngine()
+    let ended: (() => void) | undefined
+    engine.on.mockImplementation((name: string, listener: () => void) => {
+      if (name === 'ended') ended = listener
+      return () => {}
+    })
+    engine.position.mockReturnValue({ bar: 15, beat: 3, tick: 0 })
+    built.mockResolvedValue(engine)
+    const live = connect(fakeBridge(), fakeMedia([output('default', 'System default')]))
+    useShell.setState({ score: aScore as never })
+    useShell.getState().requestPlay()
+    await vi.waitFor(() => expect(useShell.getState().transport).toBe('playing'))
+
+    ended?.()
+
+    expect(useShell.getState().transport).toBe('ended')
+    expect(useShell.getState().position).toEqual({ bar: 0, beat: 0, tick: 0 })
+    live.stop()
+  })
+})
+
 describe('a set that never arrives', () => {
   it('gives up and says so once the wait is over', () => {
     vi.useFakeTimers()
@@ -220,6 +271,16 @@ describe('a set that never arrives', () => {
     expect(useShell.getState().loadTimedOut).toBe(true)
     expect(useShell.getState().notice).toEqual(LOAD_GAVE_UP)
     live.stop()
+    vi.useRealTimers()
+  })
+
+  it('stops waiting when the window goes away, so a torn-down shell raises nothing', () => {
+    vi.useFakeTimers()
+    const live = connect(fakeBridge(), fakeMedia([output('default', 'System default')]))
+    live.stop()
+    vi.advanceTimersByTime(STILL_LOADING_MS)
+    expect(useShell.getState().loadTimedOut).toBe(false)
+    expect(useShell.getState().notice).toBeUndefined()
     vi.useRealTimers()
   })
 
@@ -232,6 +293,34 @@ describe('a set that never arrives', () => {
     expect(useShell.getState().notice).toBeUndefined()
     live.stop()
     vi.useRealTimers()
+  })
+})
+
+describe('the output the app came back to', () => {
+  it('routes the sound to the remembered device the first time play is pressed', async () => {
+    const engine = fakeEngine()
+    built.mockResolvedValue(engine)
+    const live = connect(fakeBridge(), fakeMedia([output('default', 'System default')]))
+    useShell.setState({ score: aScore as never, deviceId: 'hdmi' })
+
+    useShell.getState().requestPlay()
+    await vi.waitFor(() => expect(useShell.getState().transport).toBe('playing'))
+
+    expect(engine.setSinkId).toHaveBeenCalledWith('hdmi')
+    live.stop()
+  })
+
+  it('asks for no device at all when the app is on the system default', async () => {
+    const engine = fakeEngine()
+    built.mockResolvedValue(engine)
+    const live = connect(fakeBridge(), fakeMedia([output('default', 'System default')]))
+    useShell.setState({ score: aScore as never })
+
+    useShell.getState().requestPlay()
+    await vi.waitFor(() => expect(useShell.getState().transport).toBe('playing'))
+
+    expect(engine.setSinkId).not.toHaveBeenCalled()
+    live.stop()
   })
 })
 

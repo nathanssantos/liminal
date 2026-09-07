@@ -13,6 +13,14 @@
   height: var(--control-height-md);
 }
 
+.lm-transport[data-size="lg"] > .lm-button:first-child {
+  width: var(--transport-main-width-lg);
+}
+
+.lm-transport[data-size="md"] > .lm-button:first-child {
+  width: var(--transport-main-width-md);
+}
+
 .lm-transport-chip {
   display: inline-flex;
   align-items: center;

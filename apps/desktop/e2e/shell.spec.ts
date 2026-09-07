@@ -228,3 +228,22 @@ test('the document the app ships carries the policy that was written for it', as
   await app.close()
   rmSync(profile, { recursive: true, force: true })
 })
+
+test('the device picker opens with every key the map names', async () => {
+  const profile = ownProfile()
+  const app = await launch(profile)
+  const page = await app.firstWindow()
+  await page.waitForSelector('.lm-select-trigger')
+  const trigger = page.locator('.lm-select-trigger')
+  await expect(trigger).not.toHaveAttribute('aria-busy', 'true')
+
+  for (const key of ['Enter', 'Space', 'ArrowDown', 'ArrowUp']) {
+    await trigger.focus()
+    await page.keyboard.press(key)
+    await expect(trigger).toHaveAttribute('aria-expanded', 'true')
+    await page.keyboard.press('Escape')
+    await expect(trigger).toHaveAttribute('aria-expanded', 'false')
+  }
+  await app.close()
+  rmSync(profile, { recursive: true, force: true })
+})

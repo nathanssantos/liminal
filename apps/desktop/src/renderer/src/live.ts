@@ -9,7 +9,14 @@ import {
   noticeForCode,
   SINK_UNAVAILABLE,
 } from './notices.ts'
-import { attach, type ShellState, STILL_LOADING_MS, SYSTEM_DEFAULT, useShell } from './store.ts'
+import {
+  AT_REST,
+  attach,
+  type ShellState,
+  STILL_LOADING_MS,
+  SYSTEM_DEFAULT,
+  useShell,
+} from './store.ts'
 
 type Shell = () => ShellState
 
@@ -42,7 +49,7 @@ export function connect(
       const chosen = shell().deviceId
       if (devices.length > 0 && !stillThere(devices, chosen)) {
         shell().setDeviceId(SYSTEM_DEFAULT.id)
-        await engine?.setSinkId(SYSTEM_DEFAULT.id)
+        await engine?.setSinkId(SYSTEM_DEFAULT.id).catch(() => undefined)
         raise(DEVICE_LOST)
       }
     } finally {
@@ -58,11 +65,16 @@ export function connect(
     if (chosen !== SYSTEM_DEFAULT.id) {
       await built.setSinkId(chosen).catch(() => raise(SINK_UNAVAILABLE))
     }
-    undo.push(built.on('bar', () => void bridge.reportPosition(built.position())))
+    undo.push(
+      built.on('bar', () => {
+        const at = built.position()
+        requestAnimationFrame(() => void bridge.reportPosition(at))
+      }),
+    )
     undo.push(
       built.on('ended', () => {
         shell().setTransport('ended')
-        shell().setPosition(built.position())
+        shell().setPosition(AT_REST)
       }),
     )
     undo.push(built.on('stopped', () => shell().setTransport('stopped')))

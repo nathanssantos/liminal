@@ -24,6 +24,8 @@ const DECIBEL_DECADE = 20
 
 const dbToGain = (db: number): number => 10 ** (db / DECIBEL_DECADE)
 
+const OUTPUT_RAMP_SECONDS = 0.01
+
 const ENGINES_BY_CONTEXT = new WeakSet<BaseAudioContext>()
 
 export type EngineEvent = 'bar' | 'stopped' | 'ended'
@@ -142,9 +144,12 @@ async function buildEngine(options: EngineOptions, built: Built): Promise<Engine
   let outputGainDb = SAFE_OUTPUT_GAIN_DB
   let outputMuted = false
   const applyOutput = () => {
-    if (output !== undefined) {
-      output.gain.value = outputMuted ? SILENT_GAIN : dbToGain(outputGainDb)
-    }
+    if (output === undefined) return
+    const wanted = outputMuted ? SILENT_GAIN : dbToGain(outputGainDb)
+    const from = raw.currentTime
+    output.gain.cancelScheduledValues(from)
+    output.gain.setValueAtTime(output.gain.value, from)
+    output.gain.linearRampToValueAtTime(wanted, from + OUTPUT_RAMP_SECONDS)
   }
 
   const chains = new Map<string, Chain>()
@@ -384,14 +389,17 @@ async function buildEngine(options: EngineOptions, built: Built): Promise<Engine
     triggeredNoteCount: () => triggered,
     lookAhead: () => (offline ? 0 : context.lookAhead),
     setOutputGain: (db) => {
+      if (disposed) return
       outputGainDb = Math.min(OUTPUT_GAIN_DB.max, Math.max(OUTPUT_GAIN_DB.min, db))
       applyOutput()
     },
     setMuted: (muted) => {
+      if (disposed) return
       outputMuted = muted
       applyOutput()
     },
     setSinkId: async (id) => {
+      if (disposed) return
       const raw = rawContextOf(options.context) as { setSinkId?: (given: string) => Promise<void> }
       if (typeof raw.setSinkId !== 'function') {
         throw new EngineError('sink-unavailable', 'this context cannot choose an output device', {

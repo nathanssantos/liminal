@@ -316,6 +316,16 @@
   The policy belongs in a `<meta http-equiv>` in the markup, which covers both the packaged app and
   the dev server. **A security control is proven where it lands, never where it is declared.**
   (found by the security review of M1-04, 2026-09-06)
+- 🔴 **A knob written through Tone's `Param.value` inherits the scheduler's lookahead.** The setter
+  schedules at `context.now()`, which is `currentTime + lookAhead`; with a 0.2 s lookahead the mute
+  landed **200 ms** after the press, and raising the lookahead for the scheduler would have made it
+  slower still. Measured with a meter at 20 ms steps: silence at 211 ms before, at 22 ms after
+  scheduling against `rawContext.currentTime` with a 10 ms ramp. **A control the hand moves is
+  scheduled on the raw clock; only notes go through the lookahead.** (measured 2026-09-06)
+- ⚠️ **A control that is briefly busy at startup is not a broken control.** The output picker was
+  reported as refusing `Enter` and `Space`; measured, all four keys open it — the failed presses
+  landed while the list was still being enumerated and the trigger carried `aria-busy`. A keyboard
+  test waits for the busy state to clear before it presses. (measured 2026-09-06)
 - 🔴 **A `Tone.Gain` built with `units: 'decibels'` reads every later write as decibels.** The output
   stage was created that way and then written linearly: mute wrote `0`, which is **0 dB — full
   gain**, and −12 dB wrote `0.251`, which is **+0.25 dB**. So mute never silenced anything and the

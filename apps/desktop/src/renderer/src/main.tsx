@@ -17,7 +17,8 @@ const container = document.getElementById('root')
 if (!container) throw new Error('the renderer root element is missing')
 
 if (window.liminal) {
-  connect(window.liminal, navigator.mediaDevices)
+  const live = connect(window.liminal, navigator.mediaDevices)
+  window.addEventListener('pagehide', () => live.stop())
 } else {
   useShell.getState().raise(BRIDGE_MISSING)
 }

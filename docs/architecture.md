@@ -184,7 +184,7 @@ exposes only typed functions; `contextIsolation` on; no Node in the renderer.
 
 M1 channels: `score:load`, `transport:play`, `transport:stop`, `transport:position` (stream),
 `engine:error`, `output:volume`, `output:mute`, `output:device`, `output:restore` (what the last
-run left, sent as the window paints). The rest arrive per milestone,
+run left, sent as the window paints) and `render:offline` (M1-05). The rest arrive per milestone,
 in each card's spec; every control in `docs/product/controls.md` maps to a channel, immediate ones
 handled in the renderer, planned ones forwarded to the conductor.
 
@@ -199,6 +199,7 @@ handled in the renderer, planned ones forwarded to the conductor.
 | Layer | Runs where | Proves | Does **not** prove |
 |---|---|---|---|
 | unit (Vitest) | Node | invariants, theory, generators, transforms, conductor with a fake engine | sound |
+| renderer (Vitest + jsdom) | Node | what each screen state shows and announces, the keyboard map, the notices, a payload the schema refuses | layout, positioning, CSS, real audio |
 | headless engine | Node + `node-web-audio-api` | scheduling, duration, non-silence, measurements within tolerance | Chromium bytes |
 | Chromium engine | Playwright + Electron | identical bytes across two renders; the UI plays and stops | taste |
 | human | the speakers | whether it is good | — |

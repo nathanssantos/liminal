@@ -13,7 +13,8 @@ equally cared for. Nothing decorative: every element either informs or can be ac
 prefers, and switches only when someone asks for light. The system preference does not decide:
 this is a booth, and a listener who has never opened the settings should not get a white screen
 because their laptop is in day mode. The choice is carried by `data-theme` on the root and
-remembered per machine; with no choice recorded, dark. (decided 2026-09-06, applied from M1-04)
+remembered per machine once a theme setting exists (M5); until then the root is dark and there is
+nothing to choose. (decided 2026-09-06, applied from M1-04)
 
 **Calm in motion.** The set never stops; the UI breathes with it — a bar tick, a handover progress,
 an energy curve advancing — but never jitters. Motion follows the music's clock, not the mouse.

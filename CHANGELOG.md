@@ -6,6 +6,18 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- The app plays. One screen: transport, the numbers of the set, and an output bar with volume,
+  mute and the output device.
+- Volume, mute and the chosen output are kept between runs, and the first run starts at a safe
+  level. A later run never comes back louder than it was left.
+- The keyboard alone drives the screen: space plays and stops, `M` mutes, `↑`/`↓` and `0`–`9`
+  move the volume.
+- Dark until a person chooses otherwise.
+- The window carries a content security policy, refuses to navigate away from itself, and opens
+  no second window.
+
 ## [0.0.0] — 2026-09-05
 
 The foundation. Nothing to hear yet: this release is the ground the music will be built on.

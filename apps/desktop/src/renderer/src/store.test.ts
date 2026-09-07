@@ -1,3 +1,8 @@
+import {
+  OUTPUT_GAIN_DB as ENGINE_OUTPUT_GAIN_DB,
+  SAFE_OUTPUT_GAIN_DB as ENGINE_SAFE_OUTPUT_GAIN_DB,
+} from '@liminal/engine'
+import { OUTPUT_GAIN_DB, SAFE_OUTPUT_GAIN_DB } from '@liminal/protocol'
 import { PPQ } from '@liminal/score'
 import { describe, expect, it } from 'vitest'
 import { absoluteTick, beatOf, decibels, elapsedMsAt } from './store.ts'
@@ -49,5 +54,12 @@ describe('the beat the transport chip ticks on', () => {
 
   it('does not tick before a set is loaded', () => {
     expect(beatOf({ score: undefined, position: { bar: 3, beat: 1, tick: 0 } })).toBe(0)
+  })
+})
+
+describe('the range the engine applies and the range the channel accepts', () => {
+  it('are the same range, so no volume the app allows is refused on the way to disk', () => {
+    expect(ENGINE_OUTPUT_GAIN_DB).toEqual(OUTPUT_GAIN_DB)
+    expect(ENGINE_SAFE_OUTPUT_GAIN_DB).toBe(SAFE_OUTPUT_GAIN_DB)
   })
 })
